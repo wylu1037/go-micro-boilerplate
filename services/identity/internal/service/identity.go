@@ -51,8 +51,8 @@ func NewIdentityService(
 	}
 }
 
-func (s *identityService) Register(ctx context.Context, email, password, name, phone string) (*model.User, error) {
-	exists, err := s.userRepo.ExistsByEmail(ctx, email)
+func (svc *identityService) Register(ctx context.Context, email, password, name, phone string) (*model.User, error) {
+	exists, err := svc.userRepo.ExistsByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -72,17 +72,17 @@ func (s *identityService) Register(ctx context.Context, email, password, name, p
 		Phone:        phone,
 	}
 
-	if err := s.userRepo.Create(ctx, user); err != nil {
+	if err := svc.userRepo.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
-	s.logger.Info().Str("user_id", user.ID).Str("email", email).Msg("User registered")
+	svc.logger.Info().Str("user_id", user.ID).Str("email", email).Msg("User registered")
 
 	return user, nil
 }
 
-func (s *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
-	user, err := s.userRepo.GetByEmail(ctx, email)
+func (svc *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
+	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotFound) {
 			return nil, model.ErrInvalidCredentials
@@ -94,12 +94,12 @@ func (s *identityService) Login(ctx context.Context, email, password string) (*m
 		return nil, model.ErrInvalidCredentials
 	}
 
-	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email)
+	accessToken, err := svc.jwtManager.GenerateAccessToken(user.ID, user.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.generateRefreshToken()
+	refreshToken, err := svc.generateRefreshToken()
 	if err != nil {
 		return nil, err
 	}
@@ -107,48 +107,48 @@ func (s *identityService) Login(ctx context.Context, email, password string) (*m
 	refreshTokenEntity := &model.RefreshToken{
 		UserID:    user.ID,
 		TokenHash: model.HashToken(refreshToken),
-		ExpiresAt: time.Now().Add(s.config.JWT.RefreshTokenTTL),
+		ExpiresAt: time.Now().Add(svc.config.JWT.RefreshTokenTTL),
 	}
 
-	if err := s.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
+	if err := svc.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
 		return nil, err
 	}
 
-	s.logger.Info().Str("user_id", user.ID).Msg("User logged in")
+	svc.logger.Info().Str("user_id", user.ID).Msg("User logged in")
 
 	return &model.LoginResult{
 		User:         user,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresIn:    int64(s.config.JWT.AccessTokenTTL.Seconds()),
+		ExpiresIn:    int64(svc.config.JWT.AccessTokenTTL.Seconds()),
 	}, nil
 }
 
-func (s *identityService) RefreshToken(ctx context.Context, refreshToken string) (*model.TokenResult, error) {
+func (svc *identityService) RefreshToken(ctx context.Context, refreshToken string) (*model.TokenResult, error) {
 	tokenHash := model.HashToken(refreshToken)
 
-	token, err := s.tokenRepo.GetRefreshTokenByHash(ctx, tokenHash)
+	token, err := svc.tokenRepo.GetRefreshTokenByHash(ctx, tokenHash)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := s.userRepo.GetByID(ctx, token.UserID)
+	user, err := svc.userRepo.GetByID(ctx, token.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Delete old refresh token
-	if err := s.tokenRepo.DeleteRefreshToken(ctx, tokenHash); err != nil {
+	if err := svc.tokenRepo.DeleteRefreshToken(ctx, tokenHash); err != nil {
 		return nil, err
 	}
 
 	// Generate new tokens
-	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email)
+	accessToken, err := svc.jwtManager.GenerateAccessToken(user.ID, user.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	newRefreshToken, err := s.generateRefreshToken()
+	newRefreshToken, err := svc.generateRefreshToken()
 	if err != nil {
 		return nil, err
 	}
@@ -156,26 +156,31 @@ func (s *identityService) RefreshToken(ctx context.Context, refreshToken string)
 	refreshTokenEntity := &model.RefreshToken{
 		UserID:    user.ID,
 		TokenHash: model.HashToken(newRefreshToken),
-		ExpiresAt: time.Now().Add(s.config.JWT.RefreshTokenTTL),
+		ExpiresAt: time.Now().Add(svc.config.JWT.RefreshTokenTTL),
 	}
 
-	if err := s.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
+	if err := svc.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
 		return nil, err
 	}
 
 	return &model.TokenResult{
 		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
-		ExpiresIn:    int64(s.config.JWT.AccessTokenTTL.Seconds()),
+		ExpiresIn:    int64(svc.config.JWT.AccessTokenTTL.Seconds()),
 	}, nil
 }
 
-func (s *identityService) GetProfile(ctx context.Context, userID string) (*model.User, error) {
-	return s.userRepo.GetByID(ctx, userID)
+func (svc *identityService) GetProfile(ctx context.Context, userID string) (*model.User, error) {
+	user, err := svc.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		svc.logger.Error().Err(err).Str("user_id", userID).Msg("failed to get user profile")
+		return nil, err
+	}
+	return user, nil
 }
 
-func (s *identityService) UpdateProfile(ctx context.Context, userID, name, phone, avatarURL string) (*model.User, error) {
-	user, err := s.userRepo.GetByID(ctx, userID)
+func (svc *identityService) UpdateProfile(ctx context.Context, userID, name, phone, avatarURL string) (*model.User, error) {
+	user, err := svc.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,15 +195,15 @@ func (s *identityService) UpdateProfile(ctx context.Context, userID, name, phone
 		user.AvatarURL = avatarURL
 	}
 
-	if err := s.userRepo.Update(ctx, user); err != nil {
+	if err := svc.userRepo.Update(ctx, user); err != nil {
 		return nil, err
 	}
 
 	return user, nil
 }
 
-func (s *identityService) RequestPasswordReset(ctx context.Context, email string) error {
-	user, err := s.userRepo.GetByEmail(ctx, email)
+func (svc *identityService) RequestPasswordReset(ctx context.Context, email string) error {
+	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotFound) {
 			// Don't reveal if user exists
@@ -207,7 +212,7 @@ func (s *identityService) RequestPasswordReset(ctx context.Context, email string
 		return err
 	}
 
-	token, err := s.generateRefreshToken()
+	token, err := svc.generateRefreshToken()
 	if err != nil {
 		return err
 	}
@@ -218,20 +223,20 @@ func (s *identityService) RequestPasswordReset(ctx context.Context, email string
 		ExpiresAt: time.Now().Add(1 * time.Hour),
 	}
 
-	if err := s.tokenRepo.CreatePasswordResetToken(ctx, resetToken); err != nil {
+	if err := svc.tokenRepo.CreatePasswordResetToken(ctx, resetToken); err != nil {
 		return err
 	}
 
 	// TODO: Send email with reset link containing token
-	s.logger.Info().Str("user_id", user.ID).Msg("Password reset requested")
+	svc.logger.Info().Str("user_id", user.ID).Msg("Password reset requested")
 
 	return nil
 }
 
-func (s *identityService) ResetPassword(ctx context.Context, token, newPassword string) error {
+func (svc *identityService) ResetPassword(ctx context.Context, token, newPassword string) error {
 	tokenHash := model.HashToken(token)
 
-	resetToken, err := s.tokenRepo.GetPasswordResetTokenByHash(ctx, tokenHash)
+	resetToken, err := svc.tokenRepo.GetPasswordResetTokenByHash(ctx, tokenHash)
 	if err != nil {
 		return err
 	}
@@ -241,7 +246,7 @@ func (s *identityService) ResetPassword(ctx context.Context, token, newPassword 
 		return err
 	}
 
-	user, err := s.userRepo.GetByID(ctx, resetToken.UserID)
+	user, err := svc.userRepo.GetByID(ctx, resetToken.UserID)
 	if err != nil {
 		return err
 	}
@@ -249,25 +254,25 @@ func (s *identityService) ResetPassword(ctx context.Context, token, newPassword 
 	user.PasswordHash = string(passwordHash)
 
 	// Mark token as used
-	if err := s.tokenRepo.MarkPasswordResetTokenUsed(ctx, tokenHash); err != nil {
+	if err := svc.tokenRepo.MarkPasswordResetTokenUsed(ctx, tokenHash); err != nil {
 		return err
 	}
 
 	// Invalidate all refresh tokens
-	if err := s.tokenRepo.DeleteRefreshTokensByUserID(ctx, user.ID); err != nil {
+	if err := svc.tokenRepo.DeleteRefreshTokensByUserID(ctx, user.ID); err != nil {
 		return err
 	}
 
-	s.logger.Info().Str("user_id", user.ID).Msg("Password reset completed")
+	svc.logger.Info().Str("user_id", user.ID).Msg("Password reset completed")
 
 	return nil
 }
 
-func (s *identityService) ValidateToken(ctx context.Context, accessToken string) (*auth.Claims, error) {
-	return s.jwtManager.ValidateAccessToken(accessToken)
+func (svc *identityService) ValidateToken(ctx context.Context, accessToken string) (*auth.Claims, error) {
+	return svc.jwtManager.ValidateAccessToken(accessToken)
 }
 
-func (s *identityService) generateRefreshToken() (string, error) {
+func (svc *identityService) generateRefreshToken() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", err

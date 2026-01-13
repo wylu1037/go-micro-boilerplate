@@ -55,14 +55,16 @@ A microservices boilerplate for concert ticketing system built with go-micro v5 
 │   ├── booking/             # Booking service
 │   └── notification/        # Notification service
 │
-├── api/                     # API Gateway
+├── gateway/                 # API Gateway (gRPC-Gateway)
 │
-└── migrations/              # Database migrations
-    ├── 001_create_schemas.sql
-    ├── identity/
-    ├── catalog/
-    ├── booking/
-    └── notification/
+└── migrations/              # Database migrations (golang-migrate)
+    ├── 000001_create_schemas.up.sql
+    ├── 000001_create_schemas.down.sql
+    ├── 000002_create_identity_tables.up.sql
+    ├── 000002_create_identity_tables.down.sql
+    ├── 000003_create_catalog_shows.up.sql
+    ├── 000004_create_booking_orders.up.sql
+    └── 000005_create_notification_templates.up.sql
 ```
 
 ## Quick Start
@@ -115,6 +117,9 @@ make deps
 ### 6. Run Services
 
 ```bash
+# Run API Gateway
+make run-gateway
+
 # Run each service in separate terminals
 make run-identity
 make run-catalog

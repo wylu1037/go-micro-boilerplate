@@ -61,7 +61,7 @@ func (h *IdentityHandler) Login(ctx context.Context, req *identityv1.LoginReques
 	}, nil
 }
 
-func (h *IdentityHandler) RefreshToken(ctx context.Context, req *identityv1.RefreshTokenRequest) (*identityv1.TokenResponse, error) {
+func (h *IdentityHandler) RefreshToken(ctx context.Context, req *identityv1.RefreshTokenRequest) (*identityv1.RefreshTokenResponse, error) {
 	result, err := h.svc.RefreshToken(ctx, req.RefreshToken)
 	if err != nil {
 		if errors.Is(err, model.ErrTokenNotFound) || errors.Is(err, model.ErrTokenExpired) {
@@ -70,14 +70,14 @@ func (h *IdentityHandler) RefreshToken(ctx context.Context, req *identityv1.Refr
 		return nil, status.Error(codes.Internal, "failed to refresh token")
 	}
 
-	return &identityv1.TokenResponse{
+	return &identityv1.RefreshTokenResponse{
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,
 		ExpiresIn:    result.ExpiresIn,
 	}, nil
 }
 
-func (h *IdentityHandler) GetProfile(ctx context.Context, req *identityv1.GetProfileRequest) (*identityv1.UserProfile, error) {
+func (h *IdentityHandler) GetProfile(ctx context.Context, req *identityv1.GetProfileRequest) (*identityv1.GetProfileResponse, error) {
 	user, err := h.svc.GetProfile(ctx, req.UserId)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotFound) {
@@ -86,16 +86,18 @@ func (h *IdentityHandler) GetProfile(ctx context.Context, req *identityv1.GetPro
 		return nil, status.Error(codes.Internal, "failed to get profile")
 	}
 
-	return &identityv1.UserProfile{
-		UserId:    user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		Phone:     user.Phone,
-		AvatarUrl: user.AvatarURL,
+	return &identityv1.GetProfileResponse{
+		User: &identityv1.UserProfile{
+			UserId:    user.ID,
+			Email:     user.Email,
+			Name:      user.Name,
+			Phone:     user.Phone,
+			AvatarUrl: user.AvatarURL,
+		},
 	}, nil
 }
 
-func (h *IdentityHandler) UpdateProfile(ctx context.Context, req *identityv1.UpdateProfileRequest) (*identityv1.UserProfile, error) {
+func (h *IdentityHandler) UpdateProfile(ctx context.Context, req *identityv1.UpdateProfileRequest) (*identityv1.UpdateProfileResponse, error) {
 	user, err := h.svc.UpdateProfile(ctx, req.UserId, req.Name, req.Phone, req.AvatarUrl)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotFound) {
@@ -104,21 +106,23 @@ func (h *IdentityHandler) UpdateProfile(ctx context.Context, req *identityv1.Upd
 		return nil, status.Error(codes.Internal, "failed to update profile")
 	}
 
-	return &identityv1.UserProfile{
-		UserId:    user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		Phone:     user.Phone,
-		AvatarUrl: user.AvatarURL,
+	return &identityv1.UpdateProfileResponse{
+		User: &identityv1.UserProfile{
+			UserId:    user.ID,
+			Email:     user.Email,
+			Name:      user.Name,
+			Phone:     user.Phone,
+			AvatarUrl: user.AvatarURL,
+		},
 	}, nil
 }
 
-func (h *IdentityHandler) RequestPasswordReset(ctx context.Context, req *identityv1.PasswordResetRequest) (*identityv1.PasswordResetResponse, error) {
+func (h *IdentityHandler) RequestPasswordReset(ctx context.Context, req *identityv1.RequestPasswordResetRequest) (*identityv1.RequestPasswordResetResponse, error) {
 	if err := h.svc.RequestPasswordReset(ctx, req.Email); err != nil {
 		return nil, status.Error(codes.Internal, "failed to request password reset")
 	}
 
-	return &identityv1.PasswordResetResponse{
+	return &identityv1.RequestPasswordResetResponse{
 		Message: "If the email exists, a password reset link has been sent",
 	}, nil
 }

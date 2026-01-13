@@ -33,7 +33,11 @@ build: $(addprefix build-,$(SERVICES))
 
 build-%:
 	@echo "Building $*..."
-	cd services/$* && $(GOBUILD) -o ../../bin/$* ./...
+	@if [ "$*" = "gateway" ]; then \
+		cd gateway && $(GOBUILD) -o ../bin/$* ./cmd/$*; \
+	else \
+		cd services/$* && $(GOBUILD) -o ../../bin/$* ./...; \
+	fi
 
 # ==================== Test ====================
 
@@ -54,7 +58,11 @@ test-integration:
 
 run-%:
 	@echo "Running $*..."
-	cd services/$* && $(GOCMD) run .
+	@if [ "$*" = "gateway" ]; then \
+		cd gateway && $(GOCMD) run ./cmd/$*; \
+	else \
+		cd services/$* && $(GOCMD) run .; \
+	fi
 
 # ==================== Database Migrations ====================
 
@@ -79,7 +87,8 @@ deps:
 	@echo "Downloading dependencies..."
 	cd pkg && $(GOMOD) tidy
 	cd gen && $(GOMOD) tidy
-	@for service in $(SERVICES); do \
+	cd gateway && $(GOMOD) tidy
+	@for service in identity catalog booking notification; do \
 		echo "Tidying $$service..."; \
 		cd services/$$service && $(GOMOD) tidy; \
 		cd ../..; \

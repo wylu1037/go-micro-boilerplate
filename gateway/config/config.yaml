@@ -1,0 +1,18 @@
+service:
+  name: "ticketing.api-gateway"
+  version: "0.0.1"
+  address: ":8080"
+  env: "dev"
+
+# gRPC backend services
+backends:
+  identity:
+    address: "localhost:50051"
+  catalog:
+    address: "localhost:50052"
+  booking:
+    address: "localhost:50053"
+
+log:
+  level: "debug"
+  format: "console"

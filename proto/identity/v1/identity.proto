@@ -6,32 +6,72 @@ option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1
 
 import "common/v1/pagination.proto";
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 
 // Identity service handles user authentication and profile management
 service IdentityService {
   // Register a new user account
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/register"
+      body: "*"
+    };
+  }
 
   // Login with credentials and get access token
-  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/login"
+      body: "*"
+    };
+  }
 
   // Refresh access token using refresh token
-  rpc RefreshToken(RefreshTokenRequest) returns (TokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/refresh"
+      body: "*"
+    };
+  }
 
   // Get current user's profile
-  rpc GetProfile(GetProfileRequest) returns (UserProfile);
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/{user_id}"
+    };
+  }
 
   // Update user profile
-  rpc UpdateProfile(UpdateProfileRequest) returns (UserProfile);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/users/{user_id}"
+      body: "*"
+    };
+  }
 
   // Request password reset
-  rpc RequestPasswordReset(PasswordResetRequest) returns (PasswordResetResponse);
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/password/reset-request"
+      body: "*"
+    };
+  }
 
   // Reset password with token
-  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/password/reset"
+      body: "*"
+    };
+  }
 
   // Validate access token (for internal service use)
-  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/validate"
+      body: "*"
+    };
+  }
 }
 
 // User registration
@@ -43,7 +83,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  string user_id = 1;
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
   string message = 2;
 }
 
@@ -65,7 +105,7 @@ message RefreshTokenRequest {
   string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message TokenResponse {
+message RefreshTokenResponse {
   string access_token = 1;
   string refresh_token = 2;
   int64 expires_in = 3;
@@ -73,18 +113,26 @@ message TokenResponse {
 
 // User profile
 message GetProfileRequest {
-  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message UpdateProfileRequest {
-  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
   string name = 2;
   string phone = 3;
   string avatar_url = 4;
 }
 
+message GetProfileResponse {
+  UserProfile user = 1;
+}
+
+message UpdateProfileResponse {
+  UserProfile user = 1;
+}
+
 message UserProfile {
-  string user_id = 1;
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
   string email = 2;
   string name = 3;
   string phone = 4;
@@ -94,11 +142,11 @@ message UserProfile {
 }
 
 // Password reset
-message PasswordResetRequest {
+message RequestPasswordResetRequest {
   string email = 1 [(buf.validate.field).string.email = true];
 }
 
-message PasswordResetResponse {
+message RequestPasswordResetResponse {
   string message = 1;
 }
 
@@ -118,6 +166,6 @@ message ValidateTokenRequest {
 
 message ValidateTokenResponse {
   bool valid = 1;
-  string user_id = 2;
+  string user_id = 2 [(buf.validate.field).string.uuid = true];
   string email = 3;
 }

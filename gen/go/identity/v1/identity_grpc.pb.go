@@ -40,13 +40,13 @@ type IdentityServiceClient interface {
 	// Login with credentials and get access token
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// Refresh access token using refresh token
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	// Get current user's profile
-	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*UserProfile, error)
+	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 	// Update user profile
-	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserProfile, error)
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
 	// Request password reset
-	RequestPasswordReset(ctx context.Context, in *PasswordResetRequest, opts ...grpc.CallOption) (*PasswordResetResponse, error)
+	RequestPasswordReset(ctx context.Context, in *RequestPasswordResetRequest, opts ...grpc.CallOption) (*RequestPasswordResetResponse, error)
 	// Reset password with token
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
 	// Validate access token (for internal service use)
@@ -81,9 +81,9 @@ func (c *identityServiceClient) Login(ctx context.Context, in *LoginRequest, opt
 	return out, nil
 }
 
-func (c *identityServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+func (c *identityServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokenResponse)
+	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, IdentityService_RefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -91,9 +91,9 @@ func (c *identityServiceClient) RefreshToken(ctx context.Context, in *RefreshTok
 	return out, nil
 }
 
-func (c *identityServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*UserProfile, error) {
+func (c *identityServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserProfile)
+	out := new(GetProfileResponse)
 	err := c.cc.Invoke(ctx, IdentityService_GetProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -101,9 +101,9 @@ func (c *identityServiceClient) GetProfile(ctx context.Context, in *GetProfileRe
 	return out, nil
 }
 
-func (c *identityServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserProfile, error) {
+func (c *identityServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserProfile)
+	out := new(UpdateProfileResponse)
 	err := c.cc.Invoke(ctx, IdentityService_UpdateProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -111,9 +111,9 @@ func (c *identityServiceClient) UpdateProfile(ctx context.Context, in *UpdatePro
 	return out, nil
 }
 
-func (c *identityServiceClient) RequestPasswordReset(ctx context.Context, in *PasswordResetRequest, opts ...grpc.CallOption) (*PasswordResetResponse, error) {
+func (c *identityServiceClient) RequestPasswordReset(ctx context.Context, in *RequestPasswordResetRequest, opts ...grpc.CallOption) (*RequestPasswordResetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasswordResetResponse)
+	out := new(RequestPasswordResetResponse)
 	err := c.cc.Invoke(ctx, IdentityService_RequestPasswordReset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -152,13 +152,13 @@ type IdentityServiceServer interface {
 	// Login with credentials and get access token
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// Refresh access token using refresh token
-	RefreshToken(context.Context, *RefreshTokenRequest) (*TokenResponse, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	// Get current user's profile
-	GetProfile(context.Context, *GetProfileRequest) (*UserProfile, error)
+	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
 	// Update user profile
-	UpdateProfile(context.Context, *UpdateProfileRequest) (*UserProfile, error)
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	// Request password reset
-	RequestPasswordReset(context.Context, *PasswordResetRequest) (*PasswordResetResponse, error)
+	RequestPasswordReset(context.Context, *RequestPasswordResetRequest) (*RequestPasswordResetResponse, error)
 	// Reset password with token
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
 	// Validate access token (for internal service use)
@@ -179,16 +179,16 @@ func (UnimplementedIdentityServiceServer) Register(context.Context, *RegisterReq
 func (UnimplementedIdentityServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedIdentityServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*TokenResponse, error) {
+func (UnimplementedIdentityServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
 }
-func (UnimplementedIdentityServiceServer) GetProfile(context.Context, *GetProfileRequest) (*UserProfile, error) {
+func (UnimplementedIdentityServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
 }
-func (UnimplementedIdentityServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UserProfile, error) {
+func (UnimplementedIdentityServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
 }
-func (UnimplementedIdentityServiceServer) RequestPasswordReset(context.Context, *PasswordResetRequest) (*PasswordResetResponse, error) {
+func (UnimplementedIdentityServiceServer) RequestPasswordReset(context.Context, *RequestPasswordResetRequest) (*RequestPasswordResetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RequestPasswordReset not implemented")
 }
 func (UnimplementedIdentityServiceServer) ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error) {
@@ -309,7 +309,7 @@ func _IdentityService_UpdateProfile_Handler(srv interface{}, ctx context.Context
 }
 
 func _IdentityService_RequestPasswordReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasswordResetRequest)
+	in := new(RequestPasswordResetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -321,7 +321,7 @@ func _IdentityService_RequestPasswordReset_Handler(srv interface{}, ctx context.
 		FullMethod: IdentityService_RequestPasswordReset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityServiceServer).RequestPasswordReset(ctx, req.(*PasswordResetRequest))
+		return srv.(IdentityServiceServer).RequestPasswordReset(ctx, req.(*RequestPasswordResetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

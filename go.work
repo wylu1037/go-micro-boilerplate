@@ -3,7 +3,7 @@ go 1.25.5
 use (
 	./gen
 	./pkg
-	./api
+	./gateway
 	./services/identity
 	./services/catalog
 	./services/booking
