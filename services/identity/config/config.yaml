@@ -1,0 +1,36 @@
+service:
+  name: ticketing.identity
+  version: 0.0.1
+  address: ":50051"
+  env: dev
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  database: ticketing
+  schema: identity
+  ssl_mode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  max_lifetime: 5m
+
+redis:
+  address: localhost:6379
+  password: ""
+  db: 0
+  pool_size: 10
+
+nats:
+  url: nats://localhost:4222
+
+jwt:
+  secret: your-super-secret-jwt-key-change-in-production
+  access_token_ttl: 15m
+  refresh_token_ttl: 168h  # 7 days
+  issuer: ticketing
+
+log:
+  level: debug
+  format: console

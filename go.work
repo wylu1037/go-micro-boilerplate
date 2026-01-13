@@ -1,0 +1,11 @@
+go 1.25.5
+
+use (
+	./gen
+	./pkg
+	./api
+	./services/identity
+	./services/catalog
+	./services/booking
+	./services/notification
+)

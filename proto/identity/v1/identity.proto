@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package identity.v1;
+
+option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1;identityv1";
+
+import "common/v1/pagination.proto";
+
+// Identity service handles user authentication and profile management
+service IdentityService {
+  // Register a new user account
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Login with credentials and get access token
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  // Refresh access token using refresh token
+  rpc RefreshToken(RefreshTokenRequest) returns (TokenResponse);
+
+  // Get current user's profile
+  rpc GetProfile(GetProfileRequest) returns (UserProfile);
+
+  // Update user profile
+  rpc UpdateProfile(UpdateProfileRequest) returns (UserProfile);
+
+  // Request password reset
+  rpc RequestPasswordReset(PasswordResetRequest) returns (PasswordResetResponse);
+
+  // Reset password with token
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+
+  // Validate access token (for internal service use)
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+// User registration
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string name = 3;
+  string phone = 4;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  string message = 2;
+}
+
+// User login
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;  // Access token expiry in seconds
+  UserProfile user = 4;
+}
+
+// Token refresh
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message TokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+}
+
+// User profile
+message GetProfileRequest {
+  string user_id = 1;  // Empty for current user
+}
+
+message UpdateProfileRequest {
+  string name = 1;
+  string phone = 2;
+  string avatar_url = 3;
+}
+
+message UserProfile {
+  string user_id = 1;
+  string email = 2;
+  string name = 3;
+  string phone = 4;
+  string avatar_url = 5;
+  common.v1.Timestamp created_at = 6;
+  common.v1.Timestamp updated_at = 7;
+}
+
+// Password reset
+message PasswordResetRequest {
+  string email = 1;
+}
+
+message PasswordResetResponse {
+  string message = 1;
+}
+
+message ResetPasswordRequest {
+  string token = 1;
+  string new_password = 2;
+}
+
+message ResetPasswordResponse {
+  string message = 1;
+}
+
+// Token validation (internal)
+message ValidateTokenRequest {
+  string access_token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+  string email = 3;
+}

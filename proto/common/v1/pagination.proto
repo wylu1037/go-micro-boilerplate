@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1;commonv1";
+
+// Pagination request parameters
+message PaginationRequest {
+  int32 page = 1;       // Page number, starting from 1
+  int32 page_size = 2;  // Number of items per page
+}
+
+// Pagination response metadata
+message PaginationResponse {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 total_pages = 3;
+  int64 total_count = 4;
+}
+
+// Timestamp wrapper for consistent datetime handling
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}

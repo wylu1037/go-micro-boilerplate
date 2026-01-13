@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package catalog.v1;
+
+option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1;catalogv1";
+
+import "common/v1/pagination.proto";
+
+// Catalog service manages shows, sessions, and seat inventory
+service CatalogService {
+  // Show management
+  rpc CreateShow(CreateShowRequest) returns (Show);
+  rpc GetShow(GetShowRequest) returns (Show);
+  rpc UpdateShow(UpdateShowRequest) returns (Show);
+  rpc ListShows(ListShowsRequest) returns (ListShowsResponse);
+  rpc DeleteShow(DeleteShowRequest) returns (DeleteShowResponse);
+
+  // Session management
+  rpc CreateSession(CreateSessionRequest) returns (Session);
+  rpc GetSession(GetSessionRequest) returns (Session);
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+  rpc UpdateSession(UpdateSessionRequest) returns (Session);
+  rpc DeleteSession(DeleteSessionRequest) returns (DeleteSessionResponse);
+
+  // Seat area and inventory
+  rpc CreateSeatArea(CreateSeatAreaRequest) returns (SeatArea);
+  rpc GetAvailableSeats(GetAvailableSeatsRequest) returns (AvailableSeatsResponse);
+  rpc GetSeatAreasBySession(GetSeatAreasBySessionRequest) returns (GetSeatAreasResponse);
+
+  // Internal: inventory operations
+  rpc DeductInventory(DeductInventoryRequest) returns (DeductInventoryResponse);
+  rpc RestoreInventory(RestoreInventoryRequest) returns (RestoreInventoryResponse);
+}
+
+// Show represents a concert/performance
+message Show {
+  string show_id = 1;
+  string title = 2;
+  string artist = 3;
+  string description = 4;
+  string venue = 5;
+  string city = 6;
+  string poster_url = 7;
+  ShowStatus status = 8;
+  common.v1.Timestamp created_at = 9;
+  common.v1.Timestamp updated_at = 10;
+}
+
+enum ShowStatus {
+  SHOW_STATUS_UNSPECIFIED = 0;
+  SHOW_STATUS_DRAFT = 1;
+  SHOW_STATUS_ON_SALE = 2;
+  SHOW_STATUS_SOLD_OUT = 3;
+  SHOW_STATUS_CANCELLED = 4;
+  SHOW_STATUS_COMPLETED = 5;
+}
+
+message CreateShowRequest {
+  string title = 1;
+  string artist = 2;
+  string description = 3;
+  string venue = 4;
+  string city = 5;
+  string poster_url = 6;
+}
+
+message GetShowRequest {
+  string show_id = 1;
+}
+
+message UpdateShowRequest {
+  string show_id = 1;
+  optional string title = 2;
+  optional string artist = 3;
+  optional string description = 4;
+  optional string venue = 5;
+  optional string city = 6;
+  optional string poster_url = 7;
+  optional ShowStatus status = 8;
+}
+
+message ListShowsRequest {
+  common.v1.PaginationRequest pagination = 1;
+  string city = 2;  // Filter by city
+  string artist = 3;  // Filter by artist
+  ShowStatus status = 4;  // Filter by status
+}
+
+message ListShowsResponse {
+  repeated Show shows = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message DeleteShowRequest {
+  string show_id = 1;
+}
+
+message DeleteShowResponse {
+  bool success = 1;
+}
+
+// Session represents a specific performance time
+message Session {
+  string session_id = 1;
+  string show_id = 2;
+  common.v1.Timestamp start_time = 3;
+  common.v1.Timestamp end_time = 4;
+  SessionStatus status = 5;
+  repeated SeatArea seat_areas = 6;
+  common.v1.Timestamp created_at = 7;
+}
+
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  SESSION_STATUS_SCHEDULED = 1;
+  SESSION_STATUS_ON_SALE = 2;
+  SESSION_STATUS_SOLD_OUT = 3;
+  SESSION_STATUS_CANCELLED = 4;
+  SESSION_STATUS_COMPLETED = 5;
+}
+
+message CreateSessionRequest {
+  string show_id = 1;
+  common.v1.Timestamp start_time = 2;
+  common.v1.Timestamp end_time = 3;
+}
+
+message GetSessionRequest {
+  string session_id = 1;
+}
+
+message ListSessionsRequest {
+  string show_id = 1;
+  common.v1.PaginationRequest pagination = 2;
+}
+
+message ListSessionsResponse {
+  repeated Session sessions = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateSessionRequest {
+  string session_id = 1;
+  optional common.v1.Timestamp start_time = 2;
+  optional common.v1.Timestamp end_time = 3;
+  optional SessionStatus status = 4;
+}
+
+message DeleteSessionRequest {
+  string session_id = 1;
+}
+
+message DeleteSessionResponse {
+  bool success = 1;
+}
+
+// SeatArea represents a seating section with pricing
+message SeatArea {
+  string seat_area_id = 1;
+  string session_id = 2;
+  string name = 3;  // e.g., "VIP", "A区", "看台"
+  int64 price_cents = 4;  // Price in cents to avoid floating point
+  int32 total_seats = 5;
+  int32 available_seats = 6;
+}
+
+message CreateSeatAreaRequest {
+  string session_id = 1;
+  string name = 2;
+  int64 price_cents = 3;
+  int32 total_seats = 4;
+}
+
+message GetAvailableSeatsRequest {
+  string session_id = 1;
+}
+
+message AvailableSeatsResponse {
+  string session_id = 1;
+  repeated SeatArea seat_areas = 2;
+  int32 total_available = 3;
+}
+
+message GetSeatAreasBySessionRequest {
+  string session_id = 1;
+}
+
+message GetSeatAreasResponse {
+  repeated SeatArea seat_areas = 1;
+}
+
+// Inventory operations (internal use by booking service)
+message DeductInventoryRequest {
+  string seat_area_id = 1;
+  int32 quantity = 2;
+  string order_id = 3;  // For idempotency
+}
+
+message DeductInventoryResponse {
+  bool success = 1;
+  int32 remaining = 2;
+  string error_message = 3;
+}
+
+message RestoreInventoryRequest {
+  string seat_area_id = 1;
+  int32 quantity = 2;
+  string order_id = 3;
+}
+
+message RestoreInventoryResponse {
+  bool success = 1;
+  int32 remaining = 2;
+}

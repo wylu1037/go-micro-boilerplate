@@ -1,0 +1,20 @@
+# buf.yaml - Buf v2 workspace configuration
+version: v2
+
+modules:
+  - path: proto
+    name: buf.build/wylu1037/ticketing
+
+deps:
+  - buf.build/googleapis/googleapis
+
+lint:
+  use:
+    - STANDARD
+  except:
+    - PACKAGE_DIRECTORY_MATCH
+  disallow_comment_ignores: true
+
+breaking:
+  use:
+    - FILE

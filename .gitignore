@@ -1,0 +1,74 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary
+*.test
+
+# Coverage
+*.out
+coverage.html
+
+# Go workspace sum
+go.work.sum
+
+# Vendor
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Local config overrides
+config.local.yaml
+config.*.local.yaml
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/
+
+# Debug
+__debug_bin*
+
+# Air live reload
+.air.toml
+
+# Database
+*.db
+*.sqlite
+
+# Secrets
+*.pem
+*.key
+*.crt
+!testdata/*.pem
+
+# Kubernetes secrets
+*-secret.yaml
+*-secrets.yaml
+deploy/kubernetes/overlays/*/secrets/
+
+# Profiling
+*.prof
+*.pprof
