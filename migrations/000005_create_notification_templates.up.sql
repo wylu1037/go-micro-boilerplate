@@ -1,6 +1,6 @@
--- notification/001_create_templates.sql
+-- Notification service: templates and send logs
 
--- Message templates
+-- 消息模板表
 CREATE TABLE IF NOT EXISTS notification.templates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(100) NOT NULL UNIQUE,
@@ -13,10 +13,21 @@ CREATE TABLE IF NOT EXISTS notification.templates (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+COMMENT ON TABLE notification.templates IS '消息模板表';
+COMMENT ON COLUMN notification.templates.id IS '模板唯一标识';
+COMMENT ON COLUMN notification.templates.code IS '模板代码（唯一标识符）';
+COMMENT ON COLUMN notification.templates.name IS '模板名称';
+COMMENT ON COLUMN notification.templates.type IS '消息类型：email-邮件, sms-短信, push-推送';
+COMMENT ON COLUMN notification.templates.subject IS '消息主题（仅用于邮件）';
+COMMENT ON COLUMN notification.templates.content IS '消息内容模板（支持变量替换，如{{user_name}}）';
+COMMENT ON COLUMN notification.templates.active IS '是否激活';
+COMMENT ON COLUMN notification.templates.created_at IS '创建时间';
+COMMENT ON COLUMN notification.templates.updated_at IS '更新时间';
+
 CREATE INDEX idx_templates_code ON notification.templates(code);
 CREATE INDEX idx_templates_type ON notification.templates(type);
 
--- Send logs for auditing
+-- 发送日志表
 CREATE TABLE IF NOT EXISTS notification.send_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_code VARCHAR(100) NOT NULL,
@@ -26,6 +37,15 @@ CREATE TABLE IF NOT EXISTS notification.send_logs (
     error_message TEXT,
     sent_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+COMMENT ON TABLE notification.send_logs IS '消息发送日志表';
+COMMENT ON COLUMN notification.send_logs.id IS '日志唯一标识';
+COMMENT ON COLUMN notification.send_logs.template_code IS '使用的模板代码';
+COMMENT ON COLUMN notification.send_logs.type IS '消息类型：email-邮件, sms-短信, push-推送';
+COMMENT ON COLUMN notification.send_logs.recipient IS '接收者（邮箱/手机号）';
+COMMENT ON COLUMN notification.send_logs.status IS '发送状态：pending-待发送, sent-已发送, failed-失败';
+COMMENT ON COLUMN notification.send_logs.error_message IS '错误信息（发送失败时记录）';
+COMMENT ON COLUMN notification.send_logs.sent_at IS '发送时间';
 
 CREATE INDEX idx_send_logs_recipient ON notification.send_logs(recipient);
 CREATE INDEX idx_send_logs_template_code ON notification.send_logs(template_code);

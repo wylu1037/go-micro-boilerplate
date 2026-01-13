@@ -6,6 +6,9 @@ managed:
   override:
     - file_option: go_package_prefix
       value: github.com/wylu1037/go-micro-boilerplate/gen/go
+  # Don't manage external dependencies like protovalidate
+  disable:
+    - module: buf.build/bufbuild/protovalidate
 
 plugins:
   # Generate Go structs from protobuf messages

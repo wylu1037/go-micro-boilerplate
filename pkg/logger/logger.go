@@ -2,64 +2,65 @@ package logger
 
 import (
 	"os"
+	"time"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/rs/zerolog"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 )
 
-var defaultLogger *zap.Logger
+var defaultLogger zerolog.Logger
 
-// Init initializes the global logger
 func Init(cfg config.LogConfig) error {
-	var logLevel zapcore.Level
-	if err := logLevel.UnmarshalText([]byte(cfg.Level)); err != nil {
-		logLevel = zapcore.InfoLevel
+	level, err := zerolog.ParseLevel(cfg.Level)
+	if err != nil {
+		level = zerolog.InfoLevel
 	}
 
-	var encoder zapcore.Encoder
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.TimeKey = "timestamp"
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-
+	var output zerolog.LevelWriter
 	if cfg.Format == "console" {
-		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		encoder = zapcore.NewConsoleEncoder(encoderConfig)
+		output = zerolog.LevelWriterAdapter{Writer: zerolog.ConsoleWriter{
+			Out:        os.Stdout,
+			TimeFormat: time.RFC3339,
+		}}
 	} else {
-		encoder = zapcore.NewJSONEncoder(encoderConfig)
+		output = zerolog.LevelWriterAdapter{Writer: os.Stdout}
 	}
 
-	core := zapcore.NewCore(
-		encoder,
-		zapcore.AddSync(os.Stdout),
-		logLevel,
-	)
+	defaultLogger = zerolog.New(output).
+		Level(level).
+		With().
+		Timestamp().
+		Caller().
+		Logger()
 
-	defaultLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	return nil
 }
 
-// Get returns the default logger
-func Get() *zap.Logger {
-	if defaultLogger == nil {
-		defaultLogger, _ = zap.NewProduction()
-	}
-	return defaultLogger
+func Get() *zerolog.Logger {
+	return &defaultLogger
 }
 
-// Sugar returns a sugared logger
-func Sugar() *zap.SugaredLogger {
-	return Get().Sugar()
+func With() zerolog.Context {
+	return defaultLogger.With()
 }
 
-// With creates a child logger with the given fields
-func With(fields ...zap.Field) *zap.Logger {
-	return Get().With(fields...)
+func Debug() *zerolog.Event {
+	return defaultLogger.Debug()
 }
 
-// Sync flushes any buffered log entries
-func Sync() error {
-	return Get().Sync()
+func Info() *zerolog.Event {
+	return defaultLogger.Info()
+}
+
+func Warn() *zerolog.Event {
+	return defaultLogger.Warn()
+}
+
+func Error() *zerolog.Event {
+	return defaultLogger.Error()
+}
+
+func Fatal() *zerolog.Event {
+	return defaultLogger.Fatal()
 }

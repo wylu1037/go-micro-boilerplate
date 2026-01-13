@@ -3,17 +3,18 @@ package middleware
 import (
 	"context"
 	"strings"
-	"time"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/auth"
-	"github.com/wylu1037/go-micro-boilerplate/pkg/logger"
 )
+
+func RegisterInterceptors(unaryServerInterceptors []grpc.UnaryServerInterceptor) grpc.ServerOption {
+	return grpc.ChainUnaryInterceptor(unaryServerInterceptors...)
+}
 
 // ContextKey is a custom type for context keys
 type ContextKey string
@@ -22,58 +23,6 @@ const (
 	UserIDKey ContextKey = "user_id"
 	EmailKey  ContextKey = "email"
 )
-
-// LoggingInterceptor logs gRPC requests
-func LoggingInterceptor() grpc.UnaryServerInterceptor {
-	return func(
-		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (interface{}, error) {
-		start := time.Now()
-
-		resp, err := handler(ctx, req)
-
-		duration := time.Since(start)
-		code := codes.OK
-		if err != nil {
-			if st, ok := status.FromError(err); ok {
-				code = st.Code()
-			}
-		}
-
-		logger.Get().Info("gRPC request",
-			zap.String("method", info.FullMethod),
-			zap.Duration("duration", duration),
-			zap.String("code", code.String()),
-		)
-
-		return resp, err
-	}
-}
-
-// RecoveryInterceptor recovers from panics
-func RecoveryInterceptor() grpc.UnaryServerInterceptor {
-	return func(
-		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (resp interface{}, err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Get().Error("panic recovered",
-					zap.String("method", info.FullMethod),
-					zap.Any("panic", r),
-				)
-				err = status.Error(codes.Internal, "internal server error")
-			}
-		}()
-
-		return handler(ctx, req)
-	}
-}
 
 // AuthInterceptor validates JWT tokens
 func AuthInterceptor(jwtManager *auth.JWTManager, publicMethods []string) grpc.UnaryServerInterceptor {

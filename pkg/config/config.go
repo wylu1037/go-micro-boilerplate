@@ -71,7 +71,7 @@ type JWTConfig struct {
 
 // LogConfig holds logging configuration
 type LogConfig struct {
-	Level  string `mapstructure:"level"` // debug, info, warn, error
+	Level  string `mapstructure:"level"`  // debug, info, warn, error
 	Format string `mapstructure:"format"` // json, console
 }
 
@@ -85,11 +85,9 @@ func Load(serviceName string) (*Config, error) {
 
 	// Add config paths
 	v.AddConfigPath("./config")
+	v.AddConfigPath(fmt.Sprintf("./services/%s/config", serviceName))
 	v.AddConfigPath("../config")
 	v.AddConfigPath("../../config")
-
-	// Set defaults
-	setDefaults(v, serviceName)
 
 	// Read config file
 	if err := v.ReadInConfig(); err != nil {
@@ -110,43 +108,4 @@ func Load(serviceName string) (*Config, error) {
 	}
 
 	return &cfg, nil
-}
-
-func setDefaults(v *viper.Viper, serviceName string) {
-	// Service defaults
-	v.SetDefault("service.name", serviceName)
-	v.SetDefault("service.version", "0.0.1")
-	v.SetDefault("service.address", ":0")
-	v.SetDefault("service.env", "dev")
-
-	// Database defaults
-	v.SetDefault("database.host", "localhost")
-	v.SetDefault("database.port", 5432)
-	v.SetDefault("database.user", "postgres")
-	v.SetDefault("database.password", "postgres")
-	v.SetDefault("database.database", "ticketing")
-	v.SetDefault("database.schema", "public")
-	v.SetDefault("database.ssl_mode", "disable")
-	v.SetDefault("database.max_open_conns", 25)
-	v.SetDefault("database.max_idle_conns", 5)
-	v.SetDefault("database.max_lifetime", 5*time.Minute)
-
-	// Redis defaults
-	v.SetDefault("redis.address", "localhost:6379")
-	v.SetDefault("redis.password", "")
-	v.SetDefault("redis.db", 0)
-	v.SetDefault("redis.pool_size", 10)
-
-	// NATS defaults
-	v.SetDefault("nats.url", "nats://localhost:4222")
-
-	// JWT defaults
-	v.SetDefault("jwt.secret", "your-secret-key-change-in-production")
-	v.SetDefault("jwt.access_token_ttl", 15*time.Minute)
-	v.SetDefault("jwt.refresh_token_ttl", 7*24*time.Hour)
-	v.SetDefault("jwt.issuer", "ticketing")
-
-	// Log defaults
-	v.SetDefault("log.level", "info")
-	v.SetDefault("log.format", "json")
 }

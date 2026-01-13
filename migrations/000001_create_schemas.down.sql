@@ -1,0 +1,6 @@
+-- Drop schemas in reverse order
+
+DROP SCHEMA IF EXISTS notification CASCADE;
+DROP SCHEMA IF EXISTS booking CASCADE;
+DROP SCHEMA IF EXISTS catalog CASCADE;
+DROP SCHEMA IF EXISTS identity CASCADE;

@@ -8,10 +8,12 @@ A microservices boilerplate for concert ticketing system built with go-micro v5 
 |-----------|--------|
 | Framework | go-micro.dev/v5 |
 | RPC | gRPC + Protobuf (buf) |
+| gRPC Middleware | [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) |
 | Database | PostgreSQL |
 | Migration | golang-migrate |
 | Cache | Redis |
 | Message Queue | NATS |
+| Logging | [zerolog](https://github.com/rs/zerolog) |
 | Service Discovery | mDNS (dev) / Kubernetes (prod) |
 
 ## Project Structure
@@ -45,7 +47,7 @@ A microservices boilerplate for concert ticketing system built with go-micro v5 
 │   ├── auth/                # JWT utilities
 │   ├── middleware/          # gRPC interceptors
 │   ├── errors/              # Error handling
-│   └── logger/              # Structured logging (Zap)
+│   └── logger/              # Structured logging (zerolog)
 │
 ├── services/                # Microservices
 │   ├── identity/            # Identity service

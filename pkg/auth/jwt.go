@@ -51,7 +51,7 @@ func NewJWTManager(cfg config.JWTConfig) *JWTManager {
 
 // GenerateTokenPair generates both access and refresh tokens
 func (m *JWTManager) GenerateTokenPair(userID, email string) (*TokenPair, error) {
-	accessToken, err := m.generateAccessToken(userID, email)
+	accessToken, err := m.GenerateAccessToken(userID, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
@@ -68,7 +68,8 @@ func (m *JWTManager) GenerateTokenPair(userID, email string) (*TokenPair, error)
 	}, nil
 }
 
-func (m *JWTManager) generateAccessToken(userID, email string) (string, error) {
+// GenerateAccessToken generates an access token for a user
+func (m *JWTManager) GenerateAccessToken(userID, email string) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		UserID: userID,

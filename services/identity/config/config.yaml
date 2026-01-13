@@ -5,10 +5,10 @@ service:
   env: dev
 
 database:
-  host: localhost
-  port: 5432
+  host: 172.22.0.23
+  port: 25432
   user: postgres
-  password: postgres
+  password: root1234
   database: ticketing
   schema: identity
   ssl_mode: disable
@@ -17,8 +17,8 @@ database:
   max_lifetime: 5m
 
 redis:
-  address: localhost:6379
-  password: ""
+  address: 172.22.0.23:6379
+  password: "root1234"
   db: 0
   pool_size: 10
 

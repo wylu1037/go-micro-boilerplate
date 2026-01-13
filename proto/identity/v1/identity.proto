@@ -5,6 +5,7 @@ package identity.v1;
 option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1;identityv1";
 
 import "common/v1/pagination.proto";
+import "buf/validate/validate.proto";
 
 // Identity service handles user authentication and profile management
 service IdentityService {
@@ -35,9 +36,9 @@ service IdentityService {
 
 // User registration
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string name = 3;
+  string email = 1 [(buf.validate.field).string.email = true];
+  string password = 2 [(buf.validate.field).string.min_len = 6];
+  string name = 3 [(buf.validate.field).string.min_len = 1];
   string phone = 4;
 }
 
@@ -48,8 +49,8 @@ message RegisterResponse {
 
 // User login
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  string email = 1 [(buf.validate.field).string.email = true];
+  string password = 2 [(buf.validate.field).required = true];
 }
 
 message LoginResponse {
@@ -61,7 +62,7 @@ message LoginResponse {
 
 // Token refresh
 message RefreshTokenRequest {
-  string refresh_token = 1;
+  string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 message TokenResponse {
@@ -72,13 +73,14 @@ message TokenResponse {
 
 // User profile
 message GetProfileRequest {
-  string user_id = 1;  // Empty for current user
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 message UpdateProfileRequest {
-  string name = 1;
-  string phone = 2;
-  string avatar_url = 3;
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+  string name = 2;
+  string phone = 3;
+  string avatar_url = 4;
 }
 
 message UserProfile {
@@ -93,7 +95,7 @@ message UserProfile {
 
 // Password reset
 message PasswordResetRequest {
-  string email = 1;
+  string email = 1 [(buf.validate.field).string.email = true];
 }
 
 message PasswordResetResponse {
@@ -101,8 +103,8 @@ message PasswordResetResponse {
 }
 
 message ResetPasswordRequest {
-  string token = 1;
-  string new_password = 2;
+  string token = 1 [(buf.validate.field).string.min_len = 1];
+  string new_password = 2 [(buf.validate.field).string.min_len = 6];
 }
 
 message ResetPasswordResponse {
@@ -111,7 +113,7 @@ message ResetPasswordResponse {
 
 // Token validation (internal)
 message ValidateTokenRequest {
-  string access_token = 1;
+  string access_token = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 message ValidateTokenResponse {
