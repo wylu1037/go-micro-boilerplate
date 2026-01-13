@@ -1,171 +1,186 @@
-# Go Micro Boilerplate - 演唱会票务系统
+# Go Micro Boilerplate
 
-基于 go-micro v5 + buf + gRPC 的微服务项目模板。
+A microservices boilerplate for concert ticketing system built with go-micro v5 + buf + gRPC.
 
-## 技术栈
+## Tech Stack
 
-| 组件 | 选择 |
-|------|------|
-| 框架 | go-micro.dev/v5 |
+| Component | Choice |
+|-----------|--------|
+| Framework | go-micro.dev/v5 |
 | RPC | gRPC + Protobuf (buf) |
-| 数据库 | PostgreSQL |
-| 缓存 | Redis |
-| 消息队列 | NATS |
-| 服务发现 | mDNS (dev) / Kubernetes (prod) |
+| Database | PostgreSQL |
+| Migration | golang-migrate |
+| Cache | Redis |
+| Message Queue | NATS |
+| Service Discovery | mDNS (dev) / Kubernetes (prod) |
 
-## 项目结构
+## Project Structure
 
 ```
 .
-├── proto/                  # Protobuf定义
-│   ├── common/v1/          # 公共类型
-│   ├── identity/v1/        # 身份服务API
-│   ├── catalog/v1/         # 目录服务API
-│   ├── booking/v1/         # 订单服务API
-│   └── notification/v1/    # 通知服务API
-├── gen/go/                 # 生成的Go代码
-├── pkg/                    # 共享库
-│   ├── config/             # 配置管理
-│   ├── db/                 # 数据库连接
-│   ├── cache/              # Redis封装
-│   ├── auth/               # JWT认证
-│   ├── middleware/         # gRPC拦截器
-│   ├── errors/             # 错误处理
-│   └── logger/             # 日志
-├── services/               # 微服务
-│   ├── gateway/            # API网关
-│   ├── identity/           # 身份服务
-│   ├── catalog/            # 目录服务
-│   ├── booking/            # 订单服务
-│   └── notification/       # 通知服务
-├── migrations/             # 数据库迁移
-└── deploy/                 # 部署配置
+├── buf.yaml                 # Buf workspace configuration
+├── buf.gen.yaml             # Code generation rules
+├── go.work                  # Go workspace
+├── Makefile                 # Build scripts
+├── docker-compose.yml       # Local dev infrastructure
+│
+├── proto/                   # Protobuf definitions
+│   ├── common/v1/           # Shared types (pagination, errors)
+│   ├── identity/v1/         # Identity service API
+│   ├── catalog/v1/          # Catalog service API
+│   ├── booking/v1/          # Booking service API
+│   └── notification/v1/     # Notification service API
+│
+├── gen/go/                  # Generated Go code
+│   ├── common/v1/
+│   ├── identity/v1/
+│   ├── catalog/v1/
+│   ├── booking/v1/
+│   └── notification/v1/
+│
+├── pkg/                     # Shared libraries
+│   ├── config/              # Configuration loader (Viper)
+│   ├── db/                  # PostgreSQL connection pool
+│   ├── cache/               # Redis client wrapper
+│   ├── auth/                # JWT utilities
+│   ├── middleware/          # gRPC interceptors
+│   ├── errors/              # Error handling
+│   └── logger/              # Structured logging (Zap)
+│
+├── services/                # Microservices
+│   ├── identity/            # Identity service
+│   ├── catalog/             # Catalog service
+│   ├── booking/             # Booking service
+│   └── notification/        # Notification service
+│
+├── api/                     # API Gateway
+│
+└── migrations/              # Database migrations
+    ├── 001_create_schemas.sql
+    ├── identity/
+    ├── catalog/
+    ├── booking/
+    └── notification/
 ```
 
-## 快速开始
+## Quick Start
 
-### 环境要求
+### Prerequisites
 
-- Go 1.23+
+- Go 1.25+
 - Docker & Docker Compose
 - [buf](https://buf.build/docs/installation)
 - [golang-migrate](https://github.com/golang-migrate/migrate)
 
-### 1. 安装依赖
+### 1. Install Tools
 
 ```bash
-# 安装buf
+# Install buf
 brew install bufbuild/buf/buf
 
-# 安装migrate
+# Install migrate
 brew install golang-migrate
 ```
 
-### 2. 启动基础设施
+### 2. Start Infrastructure
 
 ```bash
-# 启动PostgreSQL, Redis, NATS
+# Start PostgreSQL, Redis, NATS
 docker-compose up -d
 
-# 可选：启动调试工具(pgAdmin, Redis Commander)
+# Optional: Start debug tools (pgAdmin, Redis Commander)
 docker-compose --profile debug up -d
 ```
 
-### 3. 生成Proto代码
+### 3. Generate Proto Code
 
 ```bash
 make gen
 ```
 
-### 4. 运行数据库迁移
+### 4. Run Database Migrations
 
 ```bash
 make migrate-up
 ```
 
-### 5. 下载Go依赖
+### 5. Download Dependencies
 
 ```bash
 make deps
 ```
 
-### 6. 运行服务
+### 6. Run Services
 
 ```bash
-# 在不同终端运行各服务
+# Run each service in separate terminals
 make run-identity
 make run-catalog
 make run-booking
 make run-notification
-make run-gateway
 ```
 
-## 服务说明
+## Services
 
-### Identity Service (身份服务)
-- 用户注册/登录
-- JWT Token管理
-- 用户资料管理
+### Identity Service
+- User registration & login
+- JWT token management
+- User profile management
 
-### Catalog Service (演出目录服务)
-- 演出信息管理
-- 场次管理
-- 座位区域与票价
-- 库存管理
+### Catalog Service
+- Show/concert management
+- Session scheduling
+- Seat areas & pricing
+- Inventory initialization
 
-### Booking Service (交易核心服务)
-- 订单创建与管理
-- 库存预扣 (Redis分布式锁)
-- 支付对接
-- 订单状态机
+### Booking Service
+- Order creation & management
+- Inventory reservation (Redis distributed lock)
+- Payment integration
+- Order state machine
 
-### Notification Service (通知服务)
-- 事件订阅 (NATS)
-- 短信/邮件发送
-- 消息模板管理
+### Notification Service
+- Event subscription (NATS)
+- SMS/Email delivery
+- Message template management
 
-### Gateway Service (API网关)
-- HTTP/REST对外暴露
-- JWT认证校验
-- 限流
+## Configuration
 
-## 环境配置
-
-通过环境变量覆盖配置：
+Override settings via environment variables:
 
 ```bash
 export TICKETING_DATABASE_HOST=localhost
 export TICKETING_DATABASE_PASSWORD=secret
 export TICKETING_JWT_SECRET=your-secret-key
-export MICRO_REGISTRY=kubernetes  # 生产环境
+export MICRO_REGISTRY=kubernetes  # Production
 ```
 
-## 常用命令
+## Make Commands
 
 ```bash
-make help           # 查看所有命令
-make gen            # 生成proto代码
-make build          # 构建所有服务
-make test           # 运行测试
-make lint           # 代码检查
-make docker-build   # 构建Docker镜像
+make help           # Show all commands
+make gen            # Generate proto code
+make build          # Build all services
+make test           # Run tests
+make lint           # Run linters
+make docker-build   # Build Docker images
 ```
 
-## 开发指南
+## Development Guide
 
-### 添加新的API
+### Adding New APIs
 
-1. 在 `proto/{service}/v1/` 下定义 `.proto` 文件
-2. 运行 `make gen` 生成代码
-3. 在 `services/{service}/internal/handler` 实现handler
-4. 注册handler到服务
+1. Define `.proto` file in `proto/{service}/v1/`
+2. Run `make gen` to generate code
+3. Implement handler in `services/{service}/internal/handler`
+4. Register handler with the service
 
-### 添加新服务
+### Adding New Service
 
-1. 在 `proto/` 下创建新的proto目录
-2. 在 `services/` 下创建新的服务目录
-3. 更新 `go.work` 添加新模块
-4. 更新 `Makefile` 添加构建目标
+1. Create proto directory under `proto/`
+2. Create service directory under `services/`
+3. Update `go.work` to add new module
+4. Update `Makefile` to add build targets
 
 ## License
 
