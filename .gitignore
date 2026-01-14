@@ -72,3 +72,10 @@ deploy/kubernetes/overlays/*/secrets/
 # Profiling
 *.prof
 *.pprof
+
+
+# Service Configs
+services/**/config/config.yaml
+!services/**/config/config.example.yaml
+gateway/config/config.yaml
+!gateway/config/config.example.yaml

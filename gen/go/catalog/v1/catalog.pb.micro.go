@@ -4,8 +4,10 @@
 package catalogv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	fmt "fmt"
 	_ "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	proto "google.golang.org/protobuf/proto"
 	math "math"
 )
@@ -31,31 +33,123 @@ var _ server.Option
 // Api Endpoints for CatalogService service
 
 func NewCatalogServiceEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
+	return []*api.Endpoint{
+		{
+			Name:    "CatalogService.CreateShow",
+			Path:    []string{"/api/v1/catalog/shows"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.GetShow",
+			Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.ListShows",
+			Path:    []string{"/api/v1/catalog/shows"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.UpdateShow",
+			Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+			Method:  []string{"PUT"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.DeleteShow",
+			Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+			Method:  []string{"DELETE"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.CreateVenue",
+			Path:    []string{"/api/v1/catalog/venues"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.GetVenue",
+			Path:    []string{"/api/v1/catalog/venues/{venue_id}"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.ListVenues",
+			Path:    []string{"/api/v1/catalog/venues"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.CreateSession",
+			Path:    []string{"/api/v1/catalog/shows/{show_id}/sessions"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.GetSession",
+			Path:    []string{"/api/v1/catalog/sessions/{session_id}"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.ListSessions",
+			Path:    []string{"/api/v1/catalog/shows/{show_id}/sessions"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.CreateSeatArea",
+			Path:    []string{"/api/v1/catalog/sessions/{session_id}/seat-areas"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "CatalogService.ListSeatAreas",
+			Path:    []string{"/api/v1/catalog/sessions/{session_id}/seat-areas"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+	}
 }
 
 // Client API for CatalogService service
 
 type CatalogService interface {
-	// Show management
-	CreateShow(ctx context.Context, in *CreateShowRequest, opts ...client.CallOption) (*Show, error)
-	GetShow(ctx context.Context, in *GetShowRequest, opts ...client.CallOption) (*Show, error)
-	UpdateShow(ctx context.Context, in *UpdateShowRequest, opts ...client.CallOption) (*Show, error)
+	// Create a new show
+	CreateShow(ctx context.Context, in *CreateShowRequest, opts ...client.CallOption) (*CreateShowResponse, error)
+	// Get show by ID
+	GetShow(ctx context.Context, in *GetShowRequest, opts ...client.CallOption) (*GetShowResponse, error)
+	// List shows with pagination and filters
 	ListShows(ctx context.Context, in *ListShowsRequest, opts ...client.CallOption) (*ListShowsResponse, error)
+	// Update show
+	UpdateShow(ctx context.Context, in *UpdateShowRequest, opts ...client.CallOption) (*UpdateShowResponse, error)
+	// Delete show
 	DeleteShow(ctx context.Context, in *DeleteShowRequest, opts ...client.CallOption) (*DeleteShowResponse, error)
-	// Session management
-	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...client.CallOption) (*Session, error)
-	GetSession(ctx context.Context, in *GetSessionRequest, opts ...client.CallOption) (*Session, error)
+	// Create a new venue
+	CreateVenue(ctx context.Context, in *CreateVenueRequest, opts ...client.CallOption) (*CreateVenueResponse, error)
+	// Get venue by ID
+	GetVenue(ctx context.Context, in *GetVenueRequest, opts ...client.CallOption) (*GetVenueResponse, error)
+	// List venues
+	ListVenues(ctx context.Context, in *ListVenuesRequest, opts ...client.CallOption) (*ListVenuesResponse, error)
+	// Create a session for a show
+	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...client.CallOption) (*CreateSessionResponse, error)
+	// Get session by ID
+	GetSession(ctx context.Context, in *GetSessionRequest, opts ...client.CallOption) (*GetSessionResponse, error)
+	// List sessions for a show
 	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...client.CallOption) (*ListSessionsResponse, error)
-	UpdateSession(ctx context.Context, in *UpdateSessionRequest, opts ...client.CallOption) (*Session, error)
-	DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...client.CallOption) (*DeleteSessionResponse, error)
-	// Seat area and inventory
-	CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, opts ...client.CallOption) (*SeatArea, error)
-	GetAvailableSeats(ctx context.Context, in *GetAvailableSeatsRequest, opts ...client.CallOption) (*AvailableSeatsResponse, error)
-	GetSeatAreasBySession(ctx context.Context, in *GetSeatAreasBySessionRequest, opts ...client.CallOption) (*GetSeatAreasResponse, error)
-	// Internal: inventory operations
-	DeductInventory(ctx context.Context, in *DeductInventoryRequest, opts ...client.CallOption) (*DeductInventoryResponse, error)
-	RestoreInventory(ctx context.Context, in *RestoreInventoryRequest, opts ...client.CallOption) (*RestoreInventoryResponse, error)
+	// Create seat area for a session
+	CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, opts ...client.CallOption) (*CreateSeatAreaResponse, error)
+	// Get seat areas for a session
+	ListSeatAreas(ctx context.Context, in *ListSeatAreasRequest, opts ...client.CallOption) (*ListSeatAreasResponse, error)
+	// Check seat availability (for booking service)
+	CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, opts ...client.CallOption) (*CheckAvailabilityResponse, error)
+	// Reserve seats (for booking service)
+	ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, opts ...client.CallOption) (*ReserveSeatsResponse, error)
+	// Release seats (for booking service, when order cancelled/expired)
+	ReleaseSeats(ctx context.Context, in *ReleaseSeatsRequest, opts ...client.CallOption) (*ReleaseSeatsResponse, error)
 }
 
 type catalogService struct {
@@ -70,9 +164,9 @@ func NewCatalogService(name string, c client.Client) CatalogService {
 	}
 }
 
-func (c *catalogService) CreateShow(ctx context.Context, in *CreateShowRequest, opts ...client.CallOption) (*Show, error) {
+func (c *catalogService) CreateShow(ctx context.Context, in *CreateShowRequest, opts ...client.CallOption) (*CreateShowResponse, error) {
 	req := c.c.NewRequest(c.name, "CatalogService.CreateShow", in)
-	out := new(Show)
+	out := new(CreateShowResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -80,19 +174,9 @@ func (c *catalogService) CreateShow(ctx context.Context, in *CreateShowRequest, 
 	return out, nil
 }
 
-func (c *catalogService) GetShow(ctx context.Context, in *GetShowRequest, opts ...client.CallOption) (*Show, error) {
+func (c *catalogService) GetShow(ctx context.Context, in *GetShowRequest, opts ...client.CallOption) (*GetShowResponse, error) {
 	req := c.c.NewRequest(c.name, "CatalogService.GetShow", in)
-	out := new(Show)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *catalogService) UpdateShow(ctx context.Context, in *UpdateShowRequest, opts ...client.CallOption) (*Show, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.UpdateShow", in)
-	out := new(Show)
+	out := new(GetShowResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -110,6 +194,16 @@ func (c *catalogService) ListShows(ctx context.Context, in *ListShowsRequest, op
 	return out, nil
 }
 
+func (c *catalogService) UpdateShow(ctx context.Context, in *UpdateShowRequest, opts ...client.CallOption) (*UpdateShowResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.UpdateShow", in)
+	out := new(UpdateShowResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *catalogService) DeleteShow(ctx context.Context, in *DeleteShowRequest, opts ...client.CallOption) (*DeleteShowResponse, error) {
 	req := c.c.NewRequest(c.name, "CatalogService.DeleteShow", in)
 	out := new(DeleteShowResponse)
@@ -120,9 +214,9 @@ func (c *catalogService) DeleteShow(ctx context.Context, in *DeleteShowRequest, 
 	return out, nil
 }
 
-func (c *catalogService) CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...client.CallOption) (*Session, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.CreateSession", in)
-	out := new(Session)
+func (c *catalogService) CreateVenue(ctx context.Context, in *CreateVenueRequest, opts ...client.CallOption) (*CreateVenueResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.CreateVenue", in)
+	out := new(CreateVenueResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -130,9 +224,39 @@ func (c *catalogService) CreateSession(ctx context.Context, in *CreateSessionReq
 	return out, nil
 }
 
-func (c *catalogService) GetSession(ctx context.Context, in *GetSessionRequest, opts ...client.CallOption) (*Session, error) {
+func (c *catalogService) GetVenue(ctx context.Context, in *GetVenueRequest, opts ...client.CallOption) (*GetVenueResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.GetVenue", in)
+	out := new(GetVenueResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *catalogService) ListVenues(ctx context.Context, in *ListVenuesRequest, opts ...client.CallOption) (*ListVenuesResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.ListVenues", in)
+	out := new(ListVenuesResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *catalogService) CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...client.CallOption) (*CreateSessionResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.CreateSession", in)
+	out := new(CreateSessionResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *catalogService) GetSession(ctx context.Context, in *GetSessionRequest, opts ...client.CallOption) (*GetSessionResponse, error) {
 	req := c.c.NewRequest(c.name, "CatalogService.GetSession", in)
-	out := new(Session)
+	out := new(GetSessionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -150,29 +274,9 @@ func (c *catalogService) ListSessions(ctx context.Context, in *ListSessionsReque
 	return out, nil
 }
 
-func (c *catalogService) UpdateSession(ctx context.Context, in *UpdateSessionRequest, opts ...client.CallOption) (*Session, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.UpdateSession", in)
-	out := new(Session)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *catalogService) DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...client.CallOption) (*DeleteSessionResponse, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.DeleteSession", in)
-	out := new(DeleteSessionResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *catalogService) CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, opts ...client.CallOption) (*SeatArea, error) {
+func (c *catalogService) CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, opts ...client.CallOption) (*CreateSeatAreaResponse, error) {
 	req := c.c.NewRequest(c.name, "CatalogService.CreateSeatArea", in)
-	out := new(SeatArea)
+	out := new(CreateSeatAreaResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -180,9 +284,9 @@ func (c *catalogService) CreateSeatArea(ctx context.Context, in *CreateSeatAreaR
 	return out, nil
 }
 
-func (c *catalogService) GetAvailableSeats(ctx context.Context, in *GetAvailableSeatsRequest, opts ...client.CallOption) (*AvailableSeatsResponse, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.GetAvailableSeats", in)
-	out := new(AvailableSeatsResponse)
+func (c *catalogService) ListSeatAreas(ctx context.Context, in *ListSeatAreasRequest, opts ...client.CallOption) (*ListSeatAreasResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.ListSeatAreas", in)
+	out := new(ListSeatAreasResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -190,9 +294,9 @@ func (c *catalogService) GetAvailableSeats(ctx context.Context, in *GetAvailable
 	return out, nil
 }
 
-func (c *catalogService) GetSeatAreasBySession(ctx context.Context, in *GetSeatAreasBySessionRequest, opts ...client.CallOption) (*GetSeatAreasResponse, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.GetSeatAreasBySession", in)
-	out := new(GetSeatAreasResponse)
+func (c *catalogService) CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, opts ...client.CallOption) (*CheckAvailabilityResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.CheckAvailability", in)
+	out := new(CheckAvailabilityResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -200,9 +304,9 @@ func (c *catalogService) GetSeatAreasBySession(ctx context.Context, in *GetSeatA
 	return out, nil
 }
 
-func (c *catalogService) DeductInventory(ctx context.Context, in *DeductInventoryRequest, opts ...client.CallOption) (*DeductInventoryResponse, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.DeductInventory", in)
-	out := new(DeductInventoryResponse)
+func (c *catalogService) ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, opts ...client.CallOption) (*ReserveSeatsResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.ReserveSeats", in)
+	out := new(ReserveSeatsResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -210,9 +314,9 @@ func (c *catalogService) DeductInventory(ctx context.Context, in *DeductInventor
 	return out, nil
 }
 
-func (c *catalogService) RestoreInventory(ctx context.Context, in *RestoreInventoryRequest, opts ...client.CallOption) (*RestoreInventoryResponse, error) {
-	req := c.c.NewRequest(c.name, "CatalogService.RestoreInventory", in)
-	out := new(RestoreInventoryResponse)
+func (c *catalogService) ReleaseSeats(ctx context.Context, in *ReleaseSeatsRequest, opts ...client.CallOption) (*ReleaseSeatsResponse, error) {
+	req := c.c.NewRequest(c.name, "CatalogService.ReleaseSeats", in)
+	out := new(ReleaseSeatsResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -223,49 +327,141 @@ func (c *catalogService) RestoreInventory(ctx context.Context, in *RestoreInvent
 // Server API for CatalogService service
 
 type CatalogServiceHandler interface {
-	// Show management
-	CreateShow(context.Context, *CreateShowRequest, *Show) error
-	GetShow(context.Context, *GetShowRequest, *Show) error
-	UpdateShow(context.Context, *UpdateShowRequest, *Show) error
+	// Create a new show
+	CreateShow(context.Context, *CreateShowRequest, *CreateShowResponse) error
+	// Get show by ID
+	GetShow(context.Context, *GetShowRequest, *GetShowResponse) error
+	// List shows with pagination and filters
 	ListShows(context.Context, *ListShowsRequest, *ListShowsResponse) error
+	// Update show
+	UpdateShow(context.Context, *UpdateShowRequest, *UpdateShowResponse) error
+	// Delete show
 	DeleteShow(context.Context, *DeleteShowRequest, *DeleteShowResponse) error
-	// Session management
-	CreateSession(context.Context, *CreateSessionRequest, *Session) error
-	GetSession(context.Context, *GetSessionRequest, *Session) error
+	// Create a new venue
+	CreateVenue(context.Context, *CreateVenueRequest, *CreateVenueResponse) error
+	// Get venue by ID
+	GetVenue(context.Context, *GetVenueRequest, *GetVenueResponse) error
+	// List venues
+	ListVenues(context.Context, *ListVenuesRequest, *ListVenuesResponse) error
+	// Create a session for a show
+	CreateSession(context.Context, *CreateSessionRequest, *CreateSessionResponse) error
+	// Get session by ID
+	GetSession(context.Context, *GetSessionRequest, *GetSessionResponse) error
+	// List sessions for a show
 	ListSessions(context.Context, *ListSessionsRequest, *ListSessionsResponse) error
-	UpdateSession(context.Context, *UpdateSessionRequest, *Session) error
-	DeleteSession(context.Context, *DeleteSessionRequest, *DeleteSessionResponse) error
-	// Seat area and inventory
-	CreateSeatArea(context.Context, *CreateSeatAreaRequest, *SeatArea) error
-	GetAvailableSeats(context.Context, *GetAvailableSeatsRequest, *AvailableSeatsResponse) error
-	GetSeatAreasBySession(context.Context, *GetSeatAreasBySessionRequest, *GetSeatAreasResponse) error
-	// Internal: inventory operations
-	DeductInventory(context.Context, *DeductInventoryRequest, *DeductInventoryResponse) error
-	RestoreInventory(context.Context, *RestoreInventoryRequest, *RestoreInventoryResponse) error
+	// Create seat area for a session
+	CreateSeatArea(context.Context, *CreateSeatAreaRequest, *CreateSeatAreaResponse) error
+	// Get seat areas for a session
+	ListSeatAreas(context.Context, *ListSeatAreasRequest, *ListSeatAreasResponse) error
+	// Check seat availability (for booking service)
+	CheckAvailability(context.Context, *CheckAvailabilityRequest, *CheckAvailabilityResponse) error
+	// Reserve seats (for booking service)
+	ReserveSeats(context.Context, *ReserveSeatsRequest, *ReserveSeatsResponse) error
+	// Release seats (for booking service, when order cancelled/expired)
+	ReleaseSeats(context.Context, *ReleaseSeatsRequest, *ReleaseSeatsResponse) error
 }
 
 func RegisterCatalogServiceHandler(s server.Server, hdlr CatalogServiceHandler, opts ...server.HandlerOption) error {
 	type catalogService interface {
-		CreateShow(ctx context.Context, in *CreateShowRequest, out *Show) error
-		GetShow(ctx context.Context, in *GetShowRequest, out *Show) error
-		UpdateShow(ctx context.Context, in *UpdateShowRequest, out *Show) error
+		CreateShow(ctx context.Context, in *CreateShowRequest, out *CreateShowResponse) error
+		GetShow(ctx context.Context, in *GetShowRequest, out *GetShowResponse) error
 		ListShows(ctx context.Context, in *ListShowsRequest, out *ListShowsResponse) error
+		UpdateShow(ctx context.Context, in *UpdateShowRequest, out *UpdateShowResponse) error
 		DeleteShow(ctx context.Context, in *DeleteShowRequest, out *DeleteShowResponse) error
-		CreateSession(ctx context.Context, in *CreateSessionRequest, out *Session) error
-		GetSession(ctx context.Context, in *GetSessionRequest, out *Session) error
+		CreateVenue(ctx context.Context, in *CreateVenueRequest, out *CreateVenueResponse) error
+		GetVenue(ctx context.Context, in *GetVenueRequest, out *GetVenueResponse) error
+		ListVenues(ctx context.Context, in *ListVenuesRequest, out *ListVenuesResponse) error
+		CreateSession(ctx context.Context, in *CreateSessionRequest, out *CreateSessionResponse) error
+		GetSession(ctx context.Context, in *GetSessionRequest, out *GetSessionResponse) error
 		ListSessions(ctx context.Context, in *ListSessionsRequest, out *ListSessionsResponse) error
-		UpdateSession(ctx context.Context, in *UpdateSessionRequest, out *Session) error
-		DeleteSession(ctx context.Context, in *DeleteSessionRequest, out *DeleteSessionResponse) error
-		CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, out *SeatArea) error
-		GetAvailableSeats(ctx context.Context, in *GetAvailableSeatsRequest, out *AvailableSeatsResponse) error
-		GetSeatAreasBySession(ctx context.Context, in *GetSeatAreasBySessionRequest, out *GetSeatAreasResponse) error
-		DeductInventory(ctx context.Context, in *DeductInventoryRequest, out *DeductInventoryResponse) error
-		RestoreInventory(ctx context.Context, in *RestoreInventoryRequest, out *RestoreInventoryResponse) error
+		CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, out *CreateSeatAreaResponse) error
+		ListSeatAreas(ctx context.Context, in *ListSeatAreasRequest, out *ListSeatAreasResponse) error
+		CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, out *CheckAvailabilityResponse) error
+		ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, out *ReserveSeatsResponse) error
+		ReleaseSeats(ctx context.Context, in *ReleaseSeatsRequest, out *ReleaseSeatsResponse) error
 	}
 	type CatalogService struct {
 		catalogService
 	}
 	h := &catalogServiceHandler{hdlr}
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.CreateShow",
+		Path:    []string{"/api/v1/catalog/shows"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.GetShow",
+		Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.ListShows",
+		Path:    []string{"/api/v1/catalog/shows"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.UpdateShow",
+		Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+		Method:  []string{"PUT"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.DeleteShow",
+		Path:    []string{"/api/v1/catalog/shows/{show_id}"},
+		Method:  []string{"DELETE"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.CreateVenue",
+		Path:    []string{"/api/v1/catalog/venues"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.GetVenue",
+		Path:    []string{"/api/v1/catalog/venues/{venue_id}"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.ListVenues",
+		Path:    []string{"/api/v1/catalog/venues"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.CreateSession",
+		Path:    []string{"/api/v1/catalog/shows/{show_id}/sessions"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.GetSession",
+		Path:    []string{"/api/v1/catalog/sessions/{session_id}"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.ListSessions",
+		Path:    []string{"/api/v1/catalog/shows/{show_id}/sessions"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.CreateSeatArea",
+		Path:    []string{"/api/v1/catalog/sessions/{session_id}/seat-areas"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "CatalogService.ListSeatAreas",
+		Path:    []string{"/api/v1/catalog/sessions/{session_id}/seat-areas"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
 	return s.Handle(s.NewHandler(&CatalogService{h}, opts...))
 }
 
@@ -273,31 +469,43 @@ type catalogServiceHandler struct {
 	CatalogServiceHandler
 }
 
-func (h *catalogServiceHandler) CreateShow(ctx context.Context, in *CreateShowRequest, out *Show) error {
+func (h *catalogServiceHandler) CreateShow(ctx context.Context, in *CreateShowRequest, out *CreateShowResponse) error {
 	return h.CatalogServiceHandler.CreateShow(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) GetShow(ctx context.Context, in *GetShowRequest, out *Show) error {
+func (h *catalogServiceHandler) GetShow(ctx context.Context, in *GetShowRequest, out *GetShowResponse) error {
 	return h.CatalogServiceHandler.GetShow(ctx, in, out)
-}
-
-func (h *catalogServiceHandler) UpdateShow(ctx context.Context, in *UpdateShowRequest, out *Show) error {
-	return h.CatalogServiceHandler.UpdateShow(ctx, in, out)
 }
 
 func (h *catalogServiceHandler) ListShows(ctx context.Context, in *ListShowsRequest, out *ListShowsResponse) error {
 	return h.CatalogServiceHandler.ListShows(ctx, in, out)
 }
 
+func (h *catalogServiceHandler) UpdateShow(ctx context.Context, in *UpdateShowRequest, out *UpdateShowResponse) error {
+	return h.CatalogServiceHandler.UpdateShow(ctx, in, out)
+}
+
 func (h *catalogServiceHandler) DeleteShow(ctx context.Context, in *DeleteShowRequest, out *DeleteShowResponse) error {
 	return h.CatalogServiceHandler.DeleteShow(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) CreateSession(ctx context.Context, in *CreateSessionRequest, out *Session) error {
+func (h *catalogServiceHandler) CreateVenue(ctx context.Context, in *CreateVenueRequest, out *CreateVenueResponse) error {
+	return h.CatalogServiceHandler.CreateVenue(ctx, in, out)
+}
+
+func (h *catalogServiceHandler) GetVenue(ctx context.Context, in *GetVenueRequest, out *GetVenueResponse) error {
+	return h.CatalogServiceHandler.GetVenue(ctx, in, out)
+}
+
+func (h *catalogServiceHandler) ListVenues(ctx context.Context, in *ListVenuesRequest, out *ListVenuesResponse) error {
+	return h.CatalogServiceHandler.ListVenues(ctx, in, out)
+}
+
+func (h *catalogServiceHandler) CreateSession(ctx context.Context, in *CreateSessionRequest, out *CreateSessionResponse) error {
 	return h.CatalogServiceHandler.CreateSession(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) GetSession(ctx context.Context, in *GetSessionRequest, out *Session) error {
+func (h *catalogServiceHandler) GetSession(ctx context.Context, in *GetSessionRequest, out *GetSessionResponse) error {
 	return h.CatalogServiceHandler.GetSession(ctx, in, out)
 }
 
@@ -305,30 +513,22 @@ func (h *catalogServiceHandler) ListSessions(ctx context.Context, in *ListSessio
 	return h.CatalogServiceHandler.ListSessions(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) UpdateSession(ctx context.Context, in *UpdateSessionRequest, out *Session) error {
-	return h.CatalogServiceHandler.UpdateSession(ctx, in, out)
-}
-
-func (h *catalogServiceHandler) DeleteSession(ctx context.Context, in *DeleteSessionRequest, out *DeleteSessionResponse) error {
-	return h.CatalogServiceHandler.DeleteSession(ctx, in, out)
-}
-
-func (h *catalogServiceHandler) CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, out *SeatArea) error {
+func (h *catalogServiceHandler) CreateSeatArea(ctx context.Context, in *CreateSeatAreaRequest, out *CreateSeatAreaResponse) error {
 	return h.CatalogServiceHandler.CreateSeatArea(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) GetAvailableSeats(ctx context.Context, in *GetAvailableSeatsRequest, out *AvailableSeatsResponse) error {
-	return h.CatalogServiceHandler.GetAvailableSeats(ctx, in, out)
+func (h *catalogServiceHandler) ListSeatAreas(ctx context.Context, in *ListSeatAreasRequest, out *ListSeatAreasResponse) error {
+	return h.CatalogServiceHandler.ListSeatAreas(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) GetSeatAreasBySession(ctx context.Context, in *GetSeatAreasBySessionRequest, out *GetSeatAreasResponse) error {
-	return h.CatalogServiceHandler.GetSeatAreasBySession(ctx, in, out)
+func (h *catalogServiceHandler) CheckAvailability(ctx context.Context, in *CheckAvailabilityRequest, out *CheckAvailabilityResponse) error {
+	return h.CatalogServiceHandler.CheckAvailability(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) DeductInventory(ctx context.Context, in *DeductInventoryRequest, out *DeductInventoryResponse) error {
-	return h.CatalogServiceHandler.DeductInventory(ctx, in, out)
+func (h *catalogServiceHandler) ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, out *ReserveSeatsResponse) error {
+	return h.CatalogServiceHandler.ReserveSeats(ctx, in, out)
 }
 
-func (h *catalogServiceHandler) RestoreInventory(ctx context.Context, in *RestoreInventoryRequest, out *RestoreInventoryResponse) error {
-	return h.CatalogServiceHandler.RestoreInventory(ctx, in, out)
+func (h *catalogServiceHandler) ReleaseSeats(ctx context.Context, in *ReleaseSeatsRequest, out *ReleaseSeatsResponse) error {
+	return h.CatalogServiceHandler.ReleaseSeats(ctx, in, out)
 }

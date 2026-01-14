@@ -5,7 +5,6 @@ package notificationv1
 
 import (
 	fmt "fmt"
-	_ "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	proto "google.golang.org/protobuf/proto"
 	math "math"
 )
@@ -37,18 +36,6 @@ func NewNotificationServiceEndpoints() []*api.Endpoint {
 // Client API for NotificationService service
 
 type NotificationService interface {
-	// Send notifications
-	SendEmail(ctx context.Context, in *SendEmailRequest, opts ...client.CallOption) (*SendResponse, error)
-	SendSMS(ctx context.Context, in *SendSMSRequest, opts ...client.CallOption) (*SendResponse, error)
-	SendPush(ctx context.Context, in *SendPushRequest, opts ...client.CallOption) (*SendResponse, error)
-	// Template management
-	CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...client.CallOption) (*Template, error)
-	GetTemplate(ctx context.Context, in *GetTemplateRequest, opts ...client.CallOption) (*Template, error)
-	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...client.CallOption) (*ListTemplatesResponse, error)
-	UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...client.CallOption) (*Template, error)
-	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...client.CallOption) (*DeleteTemplateResponse, error)
-	// Send logs query
-	ListSendLogs(ctx context.Context, in *ListSendLogsRequest, opts ...client.CallOption) (*ListSendLogsResponse, error)
 }
 
 type notificationService struct {
@@ -63,124 +50,13 @@ func NewNotificationService(name string, c client.Client) NotificationService {
 	}
 }
 
-func (c *notificationService) SendEmail(ctx context.Context, in *SendEmailRequest, opts ...client.CallOption) (*SendResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.SendEmail", in)
-	out := new(SendResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) SendSMS(ctx context.Context, in *SendSMSRequest, opts ...client.CallOption) (*SendResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.SendSMS", in)
-	out := new(SendResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) SendPush(ctx context.Context, in *SendPushRequest, opts ...client.CallOption) (*SendResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.SendPush", in)
-	out := new(SendResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...client.CallOption) (*Template, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.CreateTemplate", in)
-	out := new(Template)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) GetTemplate(ctx context.Context, in *GetTemplateRequest, opts ...client.CallOption) (*Template, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.GetTemplate", in)
-	out := new(Template)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...client.CallOption) (*ListTemplatesResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.ListTemplates", in)
-	out := new(ListTemplatesResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...client.CallOption) (*Template, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.UpdateTemplate", in)
-	out := new(Template)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...client.CallOption) (*DeleteTemplateResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.DeleteTemplate", in)
-	out := new(DeleteTemplateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *notificationService) ListSendLogs(ctx context.Context, in *ListSendLogsRequest, opts ...client.CallOption) (*ListSendLogsResponse, error) {
-	req := c.c.NewRequest(c.name, "NotificationService.ListSendLogs", in)
-	out := new(ListSendLogsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for NotificationService service
 
 type NotificationServiceHandler interface {
-	// Send notifications
-	SendEmail(context.Context, *SendEmailRequest, *SendResponse) error
-	SendSMS(context.Context, *SendSMSRequest, *SendResponse) error
-	SendPush(context.Context, *SendPushRequest, *SendResponse) error
-	// Template management
-	CreateTemplate(context.Context, *CreateTemplateRequest, *Template) error
-	GetTemplate(context.Context, *GetTemplateRequest, *Template) error
-	ListTemplates(context.Context, *ListTemplatesRequest, *ListTemplatesResponse) error
-	UpdateTemplate(context.Context, *UpdateTemplateRequest, *Template) error
-	DeleteTemplate(context.Context, *DeleteTemplateRequest, *DeleteTemplateResponse) error
-	// Send logs query
-	ListSendLogs(context.Context, *ListSendLogsRequest, *ListSendLogsResponse) error
 }
 
 func RegisterNotificationServiceHandler(s server.Server, hdlr NotificationServiceHandler, opts ...server.HandlerOption) error {
 	type notificationService interface {
-		SendEmail(ctx context.Context, in *SendEmailRequest, out *SendResponse) error
-		SendSMS(ctx context.Context, in *SendSMSRequest, out *SendResponse) error
-		SendPush(ctx context.Context, in *SendPushRequest, out *SendResponse) error
-		CreateTemplate(ctx context.Context, in *CreateTemplateRequest, out *Template) error
-		GetTemplate(ctx context.Context, in *GetTemplateRequest, out *Template) error
-		ListTemplates(ctx context.Context, in *ListTemplatesRequest, out *ListTemplatesResponse) error
-		UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, out *Template) error
-		DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, out *DeleteTemplateResponse) error
-		ListSendLogs(ctx context.Context, in *ListSendLogsRequest, out *ListSendLogsResponse) error
 	}
 	type NotificationService struct {
 		notificationService
@@ -191,40 +67,4 @@ func RegisterNotificationServiceHandler(s server.Server, hdlr NotificationServic
 
 type notificationServiceHandler struct {
 	NotificationServiceHandler
-}
-
-func (h *notificationServiceHandler) SendEmail(ctx context.Context, in *SendEmailRequest, out *SendResponse) error {
-	return h.NotificationServiceHandler.SendEmail(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) SendSMS(ctx context.Context, in *SendSMSRequest, out *SendResponse) error {
-	return h.NotificationServiceHandler.SendSMS(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) SendPush(ctx context.Context, in *SendPushRequest, out *SendResponse) error {
-	return h.NotificationServiceHandler.SendPush(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, out *Template) error {
-	return h.NotificationServiceHandler.CreateTemplate(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) GetTemplate(ctx context.Context, in *GetTemplateRequest, out *Template) error {
-	return h.NotificationServiceHandler.GetTemplate(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) ListTemplates(ctx context.Context, in *ListTemplatesRequest, out *ListTemplatesResponse) error {
-	return h.NotificationServiceHandler.ListTemplates(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, out *Template) error {
-	return h.NotificationServiceHandler.UpdateTemplate(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, out *DeleteTemplateResponse) error {
-	return h.NotificationServiceHandler.DeleteTemplate(ctx, in, out)
-}
-
-func (h *notificationServiceHandler) ListSendLogs(ctx context.Context, in *ListSendLogsRequest, out *ListSendLogsResponse) error {
-	return h.NotificationServiceHandler.ListSendLogs(ctx, in, out)
 }

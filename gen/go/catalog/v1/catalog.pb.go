@@ -7,7 +7,9 @@
 package catalogv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -22,15 +24,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Show status enum
 type ShowStatus int32
 
 const (
 	ShowStatus_SHOW_STATUS_UNSPECIFIED ShowStatus = 0
 	ShowStatus_SHOW_STATUS_DRAFT       ShowStatus = 1
-	ShowStatus_SHOW_STATUS_ON_SALE     ShowStatus = 2
-	ShowStatus_SHOW_STATUS_SOLD_OUT    ShowStatus = 3
-	ShowStatus_SHOW_STATUS_CANCELLED   ShowStatus = 4
-	ShowStatus_SHOW_STATUS_COMPLETED   ShowStatus = 5
+	ShowStatus_SHOW_STATUS_PUBLISHED   ShowStatus = 2
+	ShowStatus_SHOW_STATUS_CANCELLED   ShowStatus = 3
 )
 
 // Enum value maps for ShowStatus.
@@ -38,18 +39,14 @@ var (
 	ShowStatus_name = map[int32]string{
 		0: "SHOW_STATUS_UNSPECIFIED",
 		1: "SHOW_STATUS_DRAFT",
-		2: "SHOW_STATUS_ON_SALE",
-		3: "SHOW_STATUS_SOLD_OUT",
-		4: "SHOW_STATUS_CANCELLED",
-		5: "SHOW_STATUS_COMPLETED",
+		2: "SHOW_STATUS_PUBLISHED",
+		3: "SHOW_STATUS_CANCELLED",
 	}
 	ShowStatus_value = map[string]int32{
 		"SHOW_STATUS_UNSPECIFIED": 0,
 		"SHOW_STATUS_DRAFT":       1,
-		"SHOW_STATUS_ON_SALE":     2,
-		"SHOW_STATUS_SOLD_OUT":    3,
-		"SHOW_STATUS_CANCELLED":   4,
-		"SHOW_STATUS_COMPLETED":   5,
+		"SHOW_STATUS_PUBLISHED":   2,
+		"SHOW_STATUS_CANCELLED":   3,
 	}
 )
 
@@ -80,6 +77,65 @@ func (ShowStatus) EnumDescriptor() ([]byte, []int) {
 	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{0}
 }
 
+// Show category enum
+type ShowCategory int32
+
+const (
+	ShowCategory_SHOW_CATEGORY_UNSPECIFIED ShowCategory = 0
+	ShowCategory_SHOW_CATEGORY_CONCERT     ShowCategory = 1
+	ShowCategory_SHOW_CATEGORY_MUSICAL     ShowCategory = 2
+	ShowCategory_SHOW_CATEGORY_SPORTS      ShowCategory = 3
+	ShowCategory_SHOW_CATEGORY_EXHIBITION  ShowCategory = 4
+	ShowCategory_SHOW_CATEGORY_OTHER       ShowCategory = 5
+)
+
+// Enum value maps for ShowCategory.
+var (
+	ShowCategory_name = map[int32]string{
+		0: "SHOW_CATEGORY_UNSPECIFIED",
+		1: "SHOW_CATEGORY_CONCERT",
+		2: "SHOW_CATEGORY_MUSICAL",
+		3: "SHOW_CATEGORY_SPORTS",
+		4: "SHOW_CATEGORY_EXHIBITION",
+		5: "SHOW_CATEGORY_OTHER",
+	}
+	ShowCategory_value = map[string]int32{
+		"SHOW_CATEGORY_UNSPECIFIED": 0,
+		"SHOW_CATEGORY_CONCERT":     1,
+		"SHOW_CATEGORY_MUSICAL":     2,
+		"SHOW_CATEGORY_SPORTS":      3,
+		"SHOW_CATEGORY_EXHIBITION":  4,
+		"SHOW_CATEGORY_OTHER":       5,
+	}
+)
+
+func (x ShowCategory) Enum() *ShowCategory {
+	p := new(ShowCategory)
+	*p = x
+	return p
+}
+
+func (x ShowCategory) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ShowCategory) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_v1_catalog_proto_enumTypes[1].Descriptor()
+}
+
+func (ShowCategory) Type() protoreflect.EnumType {
+	return &file_catalog_v1_catalog_proto_enumTypes[1]
+}
+
+func (x ShowCategory) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ShowCategory.Descriptor instead.
+func (ShowCategory) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{1}
+}
+
 type SessionStatus int32
 
 const (
@@ -88,7 +144,6 @@ const (
 	SessionStatus_SESSION_STATUS_ON_SALE     SessionStatus = 2
 	SessionStatus_SESSION_STATUS_SOLD_OUT    SessionStatus = 3
 	SessionStatus_SESSION_STATUS_CANCELLED   SessionStatus = 4
-	SessionStatus_SESSION_STATUS_COMPLETED   SessionStatus = 5
 )
 
 // Enum value maps for SessionStatus.
@@ -99,7 +154,6 @@ var (
 		2: "SESSION_STATUS_ON_SALE",
 		3: "SESSION_STATUS_SOLD_OUT",
 		4: "SESSION_STATUS_CANCELLED",
-		5: "SESSION_STATUS_COMPLETED",
 	}
 	SessionStatus_value = map[string]int32{
 		"SESSION_STATUS_UNSPECIFIED": 0,
@@ -107,7 +161,6 @@ var (
 		"SESSION_STATUS_ON_SALE":     2,
 		"SESSION_STATUS_SOLD_OUT":    3,
 		"SESSION_STATUS_CANCELLED":   4,
-		"SESSION_STATUS_COMPLETED":   5,
 	}
 )
 
@@ -122,11 +175,11 @@ func (x SessionStatus) String() string {
 }
 
 func (SessionStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_catalog_v1_catalog_proto_enumTypes[1].Descriptor()
+	return file_catalog_v1_catalog_proto_enumTypes[2].Descriptor()
 }
 
 func (SessionStatus) Type() protoreflect.EnumType {
-	return &file_catalog_v1_catalog_proto_enumTypes[1]
+	return &file_catalog_v1_catalog_proto_enumTypes[2]
 }
 
 func (x SessionStatus) Number() protoreflect.EnumNumber {
@@ -135,22 +188,20 @@ func (x SessionStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SessionStatus.Descriptor instead.
 func (SessionStatus) EnumDescriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{1}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
 }
 
-// Show represents a concert/performance
 type Show struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Artist        string                 `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist,omitempty"`
-	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Venue         string                 `protobuf:"bytes,5,opt,name=venue,proto3" json:"venue,omitempty"`
-	City          string                 `protobuf:"bytes,6,opt,name=city,proto3" json:"city,omitempty"`
-	PosterUrl     string                 `protobuf:"bytes,7,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
-	Status        ShowStatus             `protobuf:"varint,8,opt,name=status,proto3,enum=catalog.v1.ShowStatus" json:"status,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *v1.Timestamp          `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Artist        string                 `protobuf:"bytes,4,opt,name=artist,proto3" json:"artist,omitempty"`
+	Category      ShowCategory           `protobuf:"varint,5,opt,name=category,proto3,enum=catalog.v1.ShowCategory" json:"category,omitempty"`
+	PosterUrl     string                 `protobuf:"bytes,6,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
+	Status        ShowStatus             `protobuf:"varint,7,opt,name=status,proto3,enum=catalog.v1.ShowStatus" json:"status,omitempty"`
+	CreatedAt     *v1.Timestamp          `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *v1.Timestamp          `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,13 +250,6 @@ func (x *Show) GetTitle() string {
 	return ""
 }
 
-func (x *Show) GetArtist() string {
-	if x != nil {
-		return x.Artist
-	}
-	return ""
-}
-
 func (x *Show) GetDescription() string {
 	if x != nil {
 		return x.Description
@@ -213,18 +257,18 @@ func (x *Show) GetDescription() string {
 	return ""
 }
 
-func (x *Show) GetVenue() string {
+func (x *Show) GetArtist() string {
 	if x != nil {
-		return x.Venue
+		return x.Artist
 	}
 	return ""
 }
 
-func (x *Show) GetCity() string {
+func (x *Show) GetCategory() ShowCategory {
 	if x != nil {
-		return x.City
+		return x.Category
 	}
-	return ""
+	return ShowCategory_SHOW_CATEGORY_UNSPECIFIED
 }
 
 func (x *Show) GetPosterUrl() string {
@@ -258,11 +302,10 @@ func (x *Show) GetUpdatedAt() *v1.Timestamp {
 type CreateShowRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Artist        string                 `protobuf:"bytes,2,opt,name=artist,proto3" json:"artist,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Venue         string                 `protobuf:"bytes,4,opt,name=venue,proto3" json:"venue,omitempty"`
-	City          string                 `protobuf:"bytes,5,opt,name=city,proto3" json:"city,omitempty"`
-	PosterUrl     string                 `protobuf:"bytes,6,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
+	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Artist        string                 `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist,omitempty"`
+	Category      ShowCategory           `protobuf:"varint,4,opt,name=category,proto3,enum=catalog.v1.ShowCategory" json:"category,omitempty"`
+	PosterUrl     string                 `protobuf:"bytes,5,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -304,13 +347,6 @@ func (x *CreateShowRequest) GetTitle() string {
 	return ""
 }
 
-func (x *CreateShowRequest) GetArtist() string {
-	if x != nil {
-		return x.Artist
-	}
-	return ""
-}
-
 func (x *CreateShowRequest) GetDescription() string {
 	if x != nil {
 		return x.Description
@@ -318,18 +354,18 @@ func (x *CreateShowRequest) GetDescription() string {
 	return ""
 }
 
-func (x *CreateShowRequest) GetVenue() string {
+func (x *CreateShowRequest) GetArtist() string {
 	if x != nil {
-		return x.Venue
+		return x.Artist
 	}
 	return ""
 }
 
-func (x *CreateShowRequest) GetCity() string {
+func (x *CreateShowRequest) GetCategory() ShowCategory {
 	if x != nil {
-		return x.City
+		return x.Category
 	}
-	return ""
+	return ShowCategory_SHOW_CATEGORY_UNSPECIFIED
 }
 
 func (x *CreateShowRequest) GetPosterUrl() string {
@@ -337,6 +373,50 @@ func (x *CreateShowRequest) GetPosterUrl() string {
 		return x.PosterUrl
 	}
 	return ""
+}
+
+type CreateShowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Show          *Show                  `protobuf:"bytes,1,opt,name=show,proto3" json:"show,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateShowResponse) Reset() {
+	*x = CreateShowResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateShowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateShowResponse) ProtoMessage() {}
+
+func (x *CreateShowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateShowResponse.ProtoReflect.Descriptor instead.
+func (*CreateShowResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateShowResponse) GetShow() *Show {
+	if x != nil {
+		return x.Show
+	}
+	return nil
 }
 
 type GetShowRequest struct {
@@ -348,7 +428,7 @@ type GetShowRequest struct {
 
 func (x *GetShowRequest) Reset() {
 	*x = GetShowRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[2]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +440,7 @@ func (x *GetShowRequest) String() string {
 func (*GetShowRequest) ProtoMessage() {}
 
 func (x *GetShowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[2]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +453,7 @@ func (x *GetShowRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetShowRequest.ProtoReflect.Descriptor instead.
 func (*GetShowRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetShowRequest) GetShowId() string {
@@ -383,35 +463,28 @@ func (x *GetShowRequest) GetShowId() string {
 	return ""
 }
 
-type UpdateShowRequest struct {
+type GetShowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
-	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
-	Artist        *string                `protobuf:"bytes,3,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
-	Description   *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Venue         *string                `protobuf:"bytes,5,opt,name=venue,proto3,oneof" json:"venue,omitempty"`
-	City          *string                `protobuf:"bytes,6,opt,name=city,proto3,oneof" json:"city,omitempty"`
-	PosterUrl     *string                `protobuf:"bytes,7,opt,name=poster_url,json=posterUrl,proto3,oneof" json:"poster_url,omitempty"`
-	Status        *ShowStatus            `protobuf:"varint,8,opt,name=status,proto3,enum=catalog.v1.ShowStatus,oneof" json:"status,omitempty"`
+	Show          *Show                  `protobuf:"bytes,1,opt,name=show,proto3" json:"show,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateShowRequest) Reset() {
-	*x = UpdateShowRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[3]
+func (x *GetShowResponse) Reset() {
+	*x = GetShowResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateShowRequest) String() string {
+func (x *GetShowResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateShowRequest) ProtoMessage() {}
+func (*GetShowResponse) ProtoMessage() {}
 
-func (x *UpdateShowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[3]
+func (x *GetShowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -422,80 +495,31 @@ func (x *UpdateShowRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateShowRequest.ProtoReflect.Descriptor instead.
-func (*UpdateShowRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use GetShowResponse.ProtoReflect.Descriptor instead.
+func (*GetShowResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *UpdateShowRequest) GetShowId() string {
+func (x *GetShowResponse) GetShow() *Show {
 	if x != nil {
-		return x.ShowId
+		return x.Show
 	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetTitle() string {
-	if x != nil && x.Title != nil {
-		return *x.Title
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetArtist() string {
-	if x != nil && x.Artist != nil {
-		return *x.Artist
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetDescription() string {
-	if x != nil && x.Description != nil {
-		return *x.Description
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetVenue() string {
-	if x != nil && x.Venue != nil {
-		return *x.Venue
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetCity() string {
-	if x != nil && x.City != nil {
-		return *x.City
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetPosterUrl() string {
-	if x != nil && x.PosterUrl != nil {
-		return *x.PosterUrl
-	}
-	return ""
-}
-
-func (x *UpdateShowRequest) GetStatus() ShowStatus {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return ShowStatus_SHOW_STATUS_UNSPECIFIED
+	return nil
 }
 
 type ListShowsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pagination    *v1.PaginationRequest  `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	City          string                 `protobuf:"bytes,2,opt,name=city,proto3" json:"city,omitempty"`                                 // Filter by city
-	Artist        string                 `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist,omitempty"`                             // Filter by artist
-	Status        ShowStatus             `protobuf:"varint,4,opt,name=status,proto3,enum=catalog.v1.ShowStatus" json:"status,omitempty"` // Filter by status
+	Category      *ShowCategory          `protobuf:"varint,2,opt,name=category,proto3,enum=catalog.v1.ShowCategory,oneof" json:"category,omitempty"`
+	Status        *ShowStatus            `protobuf:"varint,3,opt,name=status,proto3,enum=catalog.v1.ShowStatus,oneof" json:"status,omitempty"`
+	City          *string                `protobuf:"bytes,4,opt,name=city,proto3,oneof" json:"city,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListShowsRequest) Reset() {
 	*x = ListShowsRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[4]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -507,7 +531,7 @@ func (x *ListShowsRequest) String() string {
 func (*ListShowsRequest) ProtoMessage() {}
 
 func (x *ListShowsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[4]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -520,7 +544,7 @@ func (x *ListShowsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShowsRequest.ProtoReflect.Descriptor instead.
 func (*ListShowsRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{4}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListShowsRequest) GetPagination() *v1.PaginationRequest {
@@ -530,25 +554,25 @@ func (x *ListShowsRequest) GetPagination() *v1.PaginationRequest {
 	return nil
 }
 
-func (x *ListShowsRequest) GetCity() string {
-	if x != nil {
-		return x.City
+func (x *ListShowsRequest) GetCategory() ShowCategory {
+	if x != nil && x.Category != nil {
+		return *x.Category
 	}
-	return ""
-}
-
-func (x *ListShowsRequest) GetArtist() string {
-	if x != nil {
-		return x.Artist
-	}
-	return ""
+	return ShowCategory_SHOW_CATEGORY_UNSPECIFIED
 }
 
 func (x *ListShowsRequest) GetStatus() ShowStatus {
-	if x != nil {
-		return x.Status
+	if x != nil && x.Status != nil {
+		return *x.Status
 	}
 	return ShowStatus_SHOW_STATUS_UNSPECIFIED
+}
+
+func (x *ListShowsRequest) GetCity() string {
+	if x != nil && x.City != nil {
+		return *x.City
+	}
+	return ""
 }
 
 type ListShowsResponse struct {
@@ -561,7 +585,7 @@ type ListShowsResponse struct {
 
 func (x *ListShowsResponse) Reset() {
 	*x = ListShowsResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[5]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -573,7 +597,7 @@ func (x *ListShowsResponse) String() string {
 func (*ListShowsResponse) ProtoMessage() {}
 
 func (x *ListShowsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[5]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -586,7 +610,7 @@ func (x *ListShowsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListShowsResponse.ProtoReflect.Descriptor instead.
 func (*ListShowsResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{5}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListShowsResponse) GetShows() []*Show {
@@ -603,6 +627,142 @@ func (x *ListShowsResponse) GetPagination() *v1.PaginationResponse {
 	return nil
 }
 
+type UpdateShowRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
+	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Artist        *string                `protobuf:"bytes,4,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
+	Category      *ShowCategory          `protobuf:"varint,5,opt,name=category,proto3,enum=catalog.v1.ShowCategory,oneof" json:"category,omitempty"`
+	PosterUrl     *string                `protobuf:"bytes,6,opt,name=poster_url,json=posterUrl,proto3,oneof" json:"poster_url,omitempty"`
+	Status        *ShowStatus            `protobuf:"varint,7,opt,name=status,proto3,enum=catalog.v1.ShowStatus,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateShowRequest) Reset() {
+	*x = UpdateShowRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateShowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateShowRequest) ProtoMessage() {}
+
+func (x *UpdateShowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateShowRequest.ProtoReflect.Descriptor instead.
+func (*UpdateShowRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateShowRequest) GetShowId() string {
+	if x != nil {
+		return x.ShowId
+	}
+	return ""
+}
+
+func (x *UpdateShowRequest) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *UpdateShowRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *UpdateShowRequest) GetArtist() string {
+	if x != nil && x.Artist != nil {
+		return *x.Artist
+	}
+	return ""
+}
+
+func (x *UpdateShowRequest) GetCategory() ShowCategory {
+	if x != nil && x.Category != nil {
+		return *x.Category
+	}
+	return ShowCategory_SHOW_CATEGORY_UNSPECIFIED
+}
+
+func (x *UpdateShowRequest) GetPosterUrl() string {
+	if x != nil && x.PosterUrl != nil {
+		return *x.PosterUrl
+	}
+	return ""
+}
+
+func (x *UpdateShowRequest) GetStatus() ShowStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return ShowStatus_SHOW_STATUS_UNSPECIFIED
+}
+
+type UpdateShowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Show          *Show                  `protobuf:"bytes,1,opt,name=show,proto3" json:"show,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateShowResponse) Reset() {
+	*x = UpdateShowResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateShowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateShowResponse) ProtoMessage() {}
+
+func (x *UpdateShowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateShowResponse.ProtoReflect.Descriptor instead.
+func (*UpdateShowResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateShowResponse) GetShow() *Show {
+	if x != nil {
+		return x.Show
+	}
+	return nil
+}
+
 type DeleteShowRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
@@ -612,7 +772,7 @@ type DeleteShowRequest struct {
 
 func (x *DeleteShowRequest) Reset() {
 	*x = DeleteShowRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[6]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -624,7 +784,7 @@ func (x *DeleteShowRequest) String() string {
 func (*DeleteShowRequest) ProtoMessage() {}
 
 func (x *DeleteShowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[6]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -637,7 +797,7 @@ func (x *DeleteShowRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteShowRequest.ProtoReflect.Descriptor instead.
 func (*DeleteShowRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{6}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteShowRequest) GetShowId() string {
@@ -649,14 +809,14 @@ func (x *DeleteShowRequest) GetShowId() string {
 
 type DeleteShowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteShowResponse) Reset() {
 	*x = DeleteShowResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[7]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -668,7 +828,7 @@ func (x *DeleteShowResponse) String() string {
 func (*DeleteShowResponse) ProtoMessage() {}
 
 func (x *DeleteShowResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[7]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -681,33 +841,423 @@ func (x *DeleteShowResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteShowResponse.ProtoReflect.Descriptor instead.
 func (*DeleteShowResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{7}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *DeleteShowResponse) GetSuccess() bool {
+func (x *DeleteShowResponse) GetMessage() string {
 	if x != nil {
-		return x.Success
+		return x.Message
 	}
-	return false
+	return ""
 }
 
-// Session represents a specific performance time
+type Venue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VenueId       string                 `protobuf:"bytes,1,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	City          string                 `protobuf:"bytes,3,opt,name=city,proto3" json:"city,omitempty"`
+	Address       string                 `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
+	Capacity      int32                  `protobuf:"varint,5,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	CreatedAt     *v1.Timestamp          `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Venue) Reset() {
+	*x = Venue{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Venue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Venue) ProtoMessage() {}
+
+func (x *Venue) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Venue.ProtoReflect.Descriptor instead.
+func (*Venue) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Venue) GetVenueId() string {
+	if x != nil {
+		return x.VenueId
+	}
+	return ""
+}
+
+func (x *Venue) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Venue) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *Venue) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *Venue) GetCapacity() int32 {
+	if x != nil {
+		return x.Capacity
+	}
+	return 0
+}
+
+func (x *Venue) GetCreatedAt() *v1.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type CreateVenueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	City          string                 `protobuf:"bytes,2,opt,name=city,proto3" json:"city,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Capacity      int32                  `protobuf:"varint,4,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVenueRequest) Reset() {
+	*x = CreateVenueRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVenueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVenueRequest) ProtoMessage() {}
+
+func (x *CreateVenueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVenueRequest.ProtoReflect.Descriptor instead.
+func (*CreateVenueRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CreateVenueRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateVenueRequest) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *CreateVenueRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *CreateVenueRequest) GetCapacity() int32 {
+	if x != nil {
+		return x.Capacity
+	}
+	return 0
+}
+
+type CreateVenueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Venue         *Venue                 `protobuf:"bytes,1,opt,name=venue,proto3" json:"venue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVenueResponse) Reset() {
+	*x = CreateVenueResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVenueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVenueResponse) ProtoMessage() {}
+
+func (x *CreateVenueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVenueResponse.ProtoReflect.Descriptor instead.
+func (*CreateVenueResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CreateVenueResponse) GetVenue() *Venue {
+	if x != nil {
+		return x.Venue
+	}
+	return nil
+}
+
+type GetVenueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VenueId       string                 `protobuf:"bytes,1,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVenueRequest) Reset() {
+	*x = GetVenueRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVenueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVenueRequest) ProtoMessage() {}
+
+func (x *GetVenueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVenueRequest.ProtoReflect.Descriptor instead.
+func (*GetVenueRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetVenueRequest) GetVenueId() string {
+	if x != nil {
+		return x.VenueId
+	}
+	return ""
+}
+
+type GetVenueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Venue         *Venue                 `protobuf:"bytes,1,opt,name=venue,proto3" json:"venue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVenueResponse) Reset() {
+	*x = GetVenueResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVenueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVenueResponse) ProtoMessage() {}
+
+func (x *GetVenueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVenueResponse.ProtoReflect.Descriptor instead.
+func (*GetVenueResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetVenueResponse) GetVenue() *Venue {
+	if x != nil {
+		return x.Venue
+	}
+	return nil
+}
+
+type ListVenuesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pagination    *v1.PaginationRequest  `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	City          *string                `protobuf:"bytes,2,opt,name=city,proto3,oneof" json:"city,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVenuesRequest) Reset() {
+	*x = ListVenuesRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVenuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVenuesRequest) ProtoMessage() {}
+
+func (x *ListVenuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVenuesRequest.ProtoReflect.Descriptor instead.
+func (*ListVenuesRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ListVenuesRequest) GetPagination() *v1.PaginationRequest {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+func (x *ListVenuesRequest) GetCity() string {
+	if x != nil && x.City != nil {
+		return *x.City
+	}
+	return ""
+}
+
+type ListVenuesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Venues        []*Venue               `protobuf:"bytes,1,rep,name=venues,proto3" json:"venues,omitempty"`
+	Pagination    *v1.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVenuesResponse) Reset() {
+	*x = ListVenuesResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVenuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVenuesResponse) ProtoMessage() {}
+
+func (x *ListVenuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVenuesResponse.ProtoReflect.Descriptor instead.
+func (*ListVenuesResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListVenuesResponse) GetVenues() []*Venue {
+	if x != nil {
+		return x.Venues
+	}
+	return nil
+}
+
+func (x *ListVenuesResponse) GetPagination() *v1.PaginationResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
 type Session struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	ShowId        string                 `protobuf:"bytes,2,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
-	StartTime     *v1.Timestamp          `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *v1.Timestamp          `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	Status        SessionStatus          `protobuf:"varint,5,opt,name=status,proto3,enum=catalog.v1.SessionStatus" json:"status,omitempty"`
-	SeatAreas     []*SeatArea            `protobuf:"bytes,6,rep,name=seat_areas,json=seatAreas,proto3" json:"seat_areas,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	VenueId       string                 `protobuf:"bytes,3,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
+	Venue         *Venue                 `protobuf:"bytes,4,opt,name=venue,proto3" json:"venue,omitempty"`
+	StartTime     *v1.Timestamp          `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *v1.Timestamp          `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	SaleStartTime *v1.Timestamp          `protobuf:"bytes,7,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
+	SaleEndTime   *v1.Timestamp          `protobuf:"bytes,8,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
+	Status        SessionStatus          `protobuf:"varint,9,opt,name=status,proto3,enum=catalog.v1.SessionStatus" json:"status,omitempty"`
+	CreatedAt     *v1.Timestamp          `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Session) Reset() {
 	*x = Session{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[8]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -719,7 +1269,7 @@ func (x *Session) String() string {
 func (*Session) ProtoMessage() {}
 
 func (x *Session) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[8]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -732,7 +1282,7 @@ func (x *Session) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Session.ProtoReflect.Descriptor instead.
 func (*Session) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{8}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Session) GetSessionId() string {
@@ -749,6 +1299,20 @@ func (x *Session) GetShowId() string {
 	return ""
 }
 
+func (x *Session) GetVenueId() string {
+	if x != nil {
+		return x.VenueId
+	}
+	return ""
+}
+
+func (x *Session) GetVenue() *Venue {
+	if x != nil {
+		return x.Venue
+	}
+	return nil
+}
+
 func (x *Session) GetStartTime() *v1.Timestamp {
 	if x != nil {
 		return x.StartTime
@@ -763,18 +1327,25 @@ func (x *Session) GetEndTime() *v1.Timestamp {
 	return nil
 }
 
+func (x *Session) GetSaleStartTime() *v1.Timestamp {
+	if x != nil {
+		return x.SaleStartTime
+	}
+	return nil
+}
+
+func (x *Session) GetSaleEndTime() *v1.Timestamp {
+	if x != nil {
+		return x.SaleEndTime
+	}
+	return nil
+}
+
 func (x *Session) GetStatus() SessionStatus {
 	if x != nil {
 		return x.Status
 	}
 	return SessionStatus_SESSION_STATUS_UNSPECIFIED
-}
-
-func (x *Session) GetSeatAreas() []*SeatArea {
-	if x != nil {
-		return x.SeatAreas
-	}
-	return nil
 }
 
 func (x *Session) GetCreatedAt() *v1.Timestamp {
@@ -787,15 +1358,18 @@ func (x *Session) GetCreatedAt() *v1.Timestamp {
 type CreateSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
-	StartTime     *v1.Timestamp          `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *v1.Timestamp          `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	VenueId       string                 `protobuf:"bytes,2,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
+	StartTime     *v1.Timestamp          `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *v1.Timestamp          `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	SaleStartTime *v1.Timestamp          `protobuf:"bytes,5,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
+	SaleEndTime   *v1.Timestamp          `protobuf:"bytes,6,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateSessionRequest) Reset() {
 	*x = CreateSessionRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[9]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -807,7 +1381,7 @@ func (x *CreateSessionRequest) String() string {
 func (*CreateSessionRequest) ProtoMessage() {}
 
 func (x *CreateSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[9]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -820,12 +1394,19 @@ func (x *CreateSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSessionRequest.ProtoReflect.Descriptor instead.
 func (*CreateSessionRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{9}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CreateSessionRequest) GetShowId() string {
 	if x != nil {
 		return x.ShowId
+	}
+	return ""
+}
+
+func (x *CreateSessionRequest) GetVenueId() string {
+	if x != nil {
+		return x.VenueId
 	}
 	return ""
 }
@@ -844,6 +1425,64 @@ func (x *CreateSessionRequest) GetEndTime() *v1.Timestamp {
 	return nil
 }
 
+func (x *CreateSessionRequest) GetSaleStartTime() *v1.Timestamp {
+	if x != nil {
+		return x.SaleStartTime
+	}
+	return nil
+}
+
+func (x *CreateSessionRequest) GetSaleEndTime() *v1.Timestamp {
+	if x != nil {
+		return x.SaleEndTime
+	}
+	return nil
+}
+
+type CreateSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Session       *Session               `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateSessionResponse) Reset() {
+	*x = CreateSessionResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSessionResponse) ProtoMessage() {}
+
+func (x *CreateSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSessionResponse.ProtoReflect.Descriptor instead.
+func (*CreateSessionResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *CreateSessionResponse) GetSession() *Session {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
 type GetSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
@@ -853,7 +1492,7 @@ type GetSessionRequest struct {
 
 func (x *GetSessionRequest) Reset() {
 	*x = GetSessionRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[10]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -865,7 +1504,7 @@ func (x *GetSessionRequest) String() string {
 func (*GetSessionRequest) ProtoMessage() {}
 
 func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[10]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -878,7 +1517,7 @@ func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{10}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetSessionRequest) GetSessionId() string {
@@ -888,17 +1527,68 @@ func (x *GetSessionRequest) GetSessionId() string {
 	return ""
 }
 
+type GetSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Session       *Session               `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	SeatAreas     []*SeatArea            `protobuf:"bytes,2,rep,name=seat_areas,json=seatAreas,proto3" json:"seat_areas,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSessionResponse) Reset() {
+	*x = GetSessionResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSessionResponse) ProtoMessage() {}
+
+func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSessionResponse.ProtoReflect.Descriptor instead.
+func (*GetSessionResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetSessionResponse) GetSession() *Session {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+func (x *GetSessionResponse) GetSeatAreas() []*SeatArea {
+	if x != nil {
+		return x.SeatAreas
+	}
+	return nil
+}
+
 type ListSessionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
-	Pagination    *v1.PaginationRequest  `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[11]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -910,7 +1600,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[11]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -923,7 +1613,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{11}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListSessionsRequest) GetShowId() string {
@@ -933,24 +1623,16 @@ func (x *ListSessionsRequest) GetShowId() string {
 	return ""
 }
 
-func (x *ListSessionsRequest) GetPagination() *v1.PaginationRequest {
-	if x != nil {
-		return x.Pagination
-	}
-	return nil
-}
-
 type ListSessionsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sessions      []*Session             `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"`
-	Pagination    *v1.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[12]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +1644,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[12]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +1657,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{12}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*Session {
@@ -985,185 +1667,22 @@ func (x *ListSessionsResponse) GetSessions() []*Session {
 	return nil
 }
 
-func (x *ListSessionsResponse) GetPagination() *v1.PaginationResponse {
-	if x != nil {
-		return x.Pagination
-	}
-	return nil
-}
-
-type UpdateSessionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	StartTime     *v1.Timestamp          `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime       *v1.Timestamp          `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	Status        *SessionStatus         `protobuf:"varint,4,opt,name=status,proto3,enum=catalog.v1.SessionStatus,oneof" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateSessionRequest) Reset() {
-	*x = UpdateSessionRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateSessionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateSessionRequest) ProtoMessage() {}
-
-func (x *UpdateSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateSessionRequest.ProtoReflect.Descriptor instead.
-func (*UpdateSessionRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *UpdateSessionRequest) GetSessionId() string {
-	if x != nil {
-		return x.SessionId
-	}
-	return ""
-}
-
-func (x *UpdateSessionRequest) GetStartTime() *v1.Timestamp {
-	if x != nil {
-		return x.StartTime
-	}
-	return nil
-}
-
-func (x *UpdateSessionRequest) GetEndTime() *v1.Timestamp {
-	if x != nil {
-		return x.EndTime
-	}
-	return nil
-}
-
-func (x *UpdateSessionRequest) GetStatus() SessionStatus {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return SessionStatus_SESSION_STATUS_UNSPECIFIED
-}
-
-type DeleteSessionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteSessionRequest) Reset() {
-	*x = DeleteSessionRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteSessionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteSessionRequest) ProtoMessage() {}
-
-func (x *DeleteSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteSessionRequest.ProtoReflect.Descriptor instead.
-func (*DeleteSessionRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *DeleteSessionRequest) GetSessionId() string {
-	if x != nil {
-		return x.SessionId
-	}
-	return ""
-}
-
-type DeleteSessionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteSessionResponse) Reset() {
-	*x = DeleteSessionResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteSessionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteSessionResponse) ProtoMessage() {}
-
-func (x *DeleteSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteSessionResponse.ProtoReflect.Descriptor instead.
-func (*DeleteSessionResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *DeleteSessionResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-// SeatArea represents a seating section with pricing
 type SeatArea struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	SeatAreaId     string                 `protobuf:"bytes,1,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
 	SessionId      string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // e.g., "VIP", "A区", "看台"
-	PriceCents     int64                  `protobuf:"varint,4,opt,name=price_cents,json=priceCents,proto3" json:"price_cents,omitempty"` // Price in cents to avoid floating point
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Price          string                 `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"` // Use string for decimal precision
 	TotalSeats     int32                  `protobuf:"varint,5,opt,name=total_seats,json=totalSeats,proto3" json:"total_seats,omitempty"`
 	AvailableSeats int32                  `protobuf:"varint,6,opt,name=available_seats,json=availableSeats,proto3" json:"available_seats,omitempty"`
+	CreatedAt      *v1.Timestamp          `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SeatArea) Reset() {
 	*x = SeatArea{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[16]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1694,7 @@ func (x *SeatArea) String() string {
 func (*SeatArea) ProtoMessage() {}
 
 func (x *SeatArea) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[16]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1707,7 @@ func (x *SeatArea) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SeatArea.ProtoReflect.Descriptor instead.
 func (*SeatArea) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{16}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SeatArea) GetSeatAreaId() string {
@@ -1212,11 +1731,11 @@ func (x *SeatArea) GetName() string {
 	return ""
 }
 
-func (x *SeatArea) GetPriceCents() int64 {
+func (x *SeatArea) GetPrice() string {
 	if x != nil {
-		return x.PriceCents
+		return x.Price
 	}
-	return 0
+	return ""
 }
 
 func (x *SeatArea) GetTotalSeats() int32 {
@@ -1233,11 +1752,18 @@ func (x *SeatArea) GetAvailableSeats() int32 {
 	return 0
 }
 
+func (x *SeatArea) GetCreatedAt() *v1.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 type CreateSeatAreaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PriceCents    int64                  `protobuf:"varint,3,opt,name=price_cents,json=priceCents,proto3" json:"price_cents,omitempty"`
+	Price         string                 `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"` // e.g. "1280.00"
 	TotalSeats    int32                  `protobuf:"varint,4,opt,name=total_seats,json=totalSeats,proto3" json:"total_seats,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1245,7 +1771,7 @@ type CreateSeatAreaRequest struct {
 
 func (x *CreateSeatAreaRequest) Reset() {
 	*x = CreateSeatAreaRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[17]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1257,7 +1783,7 @@ func (x *CreateSeatAreaRequest) String() string {
 func (*CreateSeatAreaRequest) ProtoMessage() {}
 
 func (x *CreateSeatAreaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[17]
+	mi := &file_catalog_v1_catalog_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1270,7 +1796,7 @@ func (x *CreateSeatAreaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSeatAreaRequest.ProtoReflect.Descriptor instead.
 func (*CreateSeatAreaRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{17}
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *CreateSeatAreaRequest) GetSessionId() string {
@@ -1287,11 +1813,11 @@ func (x *CreateSeatAreaRequest) GetName() string {
 	return ""
 }
 
-func (x *CreateSeatAreaRequest) GetPriceCents() int64 {
+func (x *CreateSeatAreaRequest) GetPrice() string {
 	if x != nil {
-		return x.PriceCents
+		return x.Price
 	}
-	return 0
+	return ""
 }
 
 func (x *CreateSeatAreaRequest) GetTotalSeats() int32 {
@@ -1301,28 +1827,28 @@ func (x *CreateSeatAreaRequest) GetTotalSeats() int32 {
 	return 0
 }
 
-type GetAvailableSeatsRequest struct {
+type CreateSeatAreaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	SeatArea      *SeatArea              `protobuf:"bytes,1,opt,name=seat_area,json=seatArea,proto3" json:"seat_area,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetAvailableSeatsRequest) Reset() {
-	*x = GetAvailableSeatsRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[18]
+func (x *CreateSeatAreaResponse) Reset() {
+	*x = CreateSeatAreaResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetAvailableSeatsRequest) String() string {
+func (x *CreateSeatAreaResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetAvailableSeatsRequest) ProtoMessage() {}
+func (*CreateSeatAreaResponse) ProtoMessage() {}
 
-func (x *GetAvailableSeatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[18]
+func (x *CreateSeatAreaResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1333,100 +1859,40 @@ func (x *GetAvailableSeatsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetAvailableSeatsRequest.ProtoReflect.Descriptor instead.
-func (*GetAvailableSeatsRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{18}
+// Deprecated: Use CreateSeatAreaResponse.ProtoReflect.Descriptor instead.
+func (*CreateSeatAreaResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *GetAvailableSeatsRequest) GetSessionId() string {
+func (x *CreateSeatAreaResponse) GetSeatArea() *SeatArea {
 	if x != nil {
-		return x.SessionId
-	}
-	return ""
-}
-
-type AvailableSeatsResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	SessionId      string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	SeatAreas      []*SeatArea            `protobuf:"bytes,2,rep,name=seat_areas,json=seatAreas,proto3" json:"seat_areas,omitempty"`
-	TotalAvailable int32                  `protobuf:"varint,3,opt,name=total_available,json=totalAvailable,proto3" json:"total_available,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *AvailableSeatsResponse) Reset() {
-	*x = AvailableSeatsResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AvailableSeatsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AvailableSeatsResponse) ProtoMessage() {}
-
-func (x *AvailableSeatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AvailableSeatsResponse.ProtoReflect.Descriptor instead.
-func (*AvailableSeatsResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *AvailableSeatsResponse) GetSessionId() string {
-	if x != nil {
-		return x.SessionId
-	}
-	return ""
-}
-
-func (x *AvailableSeatsResponse) GetSeatAreas() []*SeatArea {
-	if x != nil {
-		return x.SeatAreas
+		return x.SeatArea
 	}
 	return nil
 }
 
-func (x *AvailableSeatsResponse) GetTotalAvailable() int32 {
-	if x != nil {
-		return x.TotalAvailable
-	}
-	return 0
-}
-
-type GetSeatAreasBySessionRequest struct {
+type ListSeatAreasRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetSeatAreasBySessionRequest) Reset() {
-	*x = GetSeatAreasBySessionRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[20]
+func (x *ListSeatAreasRequest) Reset() {
+	*x = ListSeatAreasRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetSeatAreasBySessionRequest) String() string {
+func (x *ListSeatAreasRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetSeatAreasBySessionRequest) ProtoMessage() {}
+func (*ListSeatAreasRequest) ProtoMessage() {}
 
-func (x *GetSeatAreasBySessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[20]
+func (x *ListSeatAreasRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1437,40 +1903,40 @@ func (x *GetSeatAreasBySessionRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetSeatAreasBySessionRequest.ProtoReflect.Descriptor instead.
-func (*GetSeatAreasBySessionRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{20}
+// Deprecated: Use ListSeatAreasRequest.ProtoReflect.Descriptor instead.
+func (*ListSeatAreasRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *GetSeatAreasBySessionRequest) GetSessionId() string {
+func (x *ListSeatAreasRequest) GetSessionId() string {
 	if x != nil {
 		return x.SessionId
 	}
 	return ""
 }
 
-type GetSeatAreasResponse struct {
+type ListSeatAreasResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SeatAreas     []*SeatArea            `protobuf:"bytes,1,rep,name=seat_areas,json=seatAreas,proto3" json:"seat_areas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetSeatAreasResponse) Reset() {
-	*x = GetSeatAreasResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[21]
+func (x *ListSeatAreasResponse) Reset() {
+	*x = ListSeatAreasResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetSeatAreasResponse) String() string {
+func (x *ListSeatAreasResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetSeatAreasResponse) ProtoMessage() {}
+func (*ListSeatAreasResponse) ProtoMessage() {}
 
-func (x *GetSeatAreasResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[21]
+func (x *ListSeatAreasResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1481,43 +1947,42 @@ func (x *GetSeatAreasResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetSeatAreasResponse.ProtoReflect.Descriptor instead.
-func (*GetSeatAreasResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{21}
+// Deprecated: Use ListSeatAreasResponse.ProtoReflect.Descriptor instead.
+func (*ListSeatAreasResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *GetSeatAreasResponse) GetSeatAreas() []*SeatArea {
+func (x *ListSeatAreasResponse) GetSeatAreas() []*SeatArea {
 	if x != nil {
 		return x.SeatAreas
 	}
 	return nil
 }
 
-// Inventory operations (internal use by booking service)
-type DeductInventoryRequest struct {
+type CheckAvailabilityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SeatAreaId    string                 `protobuf:"bytes,1,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
-	Quantity      int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	OrderId       string                 `protobuf:"bytes,3,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // For idempotency
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	SeatAreaId    string                 `protobuf:"bytes,2,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
+	Quantity      int32                  `protobuf:"varint,3,opt,name=quantity,proto3" json:"quantity,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeductInventoryRequest) Reset() {
-	*x = DeductInventoryRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[22]
+func (x *CheckAvailabilityRequest) Reset() {
+	*x = CheckAvailabilityRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeductInventoryRequest) String() string {
+func (x *CheckAvailabilityRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeductInventoryRequest) ProtoMessage() {}
+func (*CheckAvailabilityRequest) ProtoMessage() {}
 
-func (x *DeductInventoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[22]
+func (x *CheckAvailabilityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1528,56 +1993,56 @@ func (x *DeductInventoryRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeductInventoryRequest.ProtoReflect.Descriptor instead.
-func (*DeductInventoryRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{22}
+// Deprecated: Use CheckAvailabilityRequest.ProtoReflect.Descriptor instead.
+func (*CheckAvailabilityRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *DeductInventoryRequest) GetSeatAreaId() string {
+func (x *CheckAvailabilityRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *CheckAvailabilityRequest) GetSeatAreaId() string {
 	if x != nil {
 		return x.SeatAreaId
 	}
 	return ""
 }
 
-func (x *DeductInventoryRequest) GetQuantity() int32 {
+func (x *CheckAvailabilityRequest) GetQuantity() int32 {
 	if x != nil {
 		return x.Quantity
 	}
 	return 0
 }
 
-func (x *DeductInventoryRequest) GetOrderId() string {
-	if x != nil {
-		return x.OrderId
-	}
-	return ""
+type CheckAvailabilityResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Available      bool                   `protobuf:"varint,1,opt,name=available,proto3" json:"available,omitempty"`
+	AvailableSeats int32                  `protobuf:"varint,2,opt,name=available_seats,json=availableSeats,proto3" json:"available_seats,omitempty"`
+	Price          string                 `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-type DeductInventoryResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Remaining     int32                  `protobuf:"varint,2,opt,name=remaining,proto3" json:"remaining,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeductInventoryResponse) Reset() {
-	*x = DeductInventoryResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[23]
+func (x *CheckAvailabilityResponse) Reset() {
+	*x = CheckAvailabilityResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeductInventoryResponse) String() string {
+func (x *CheckAvailabilityResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeductInventoryResponse) ProtoMessage() {}
+func (*CheckAvailabilityResponse) ProtoMessage() {}
 
-func (x *DeductInventoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[23]
+func (x *CheckAvailabilityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1588,56 +2053,57 @@ func (x *DeductInventoryResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeductInventoryResponse.ProtoReflect.Descriptor instead.
-func (*DeductInventoryResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{23}
+// Deprecated: Use CheckAvailabilityResponse.ProtoReflect.Descriptor instead.
+func (*CheckAvailabilityResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{31}
 }
 
-func (x *DeductInventoryResponse) GetSuccess() bool {
+func (x *CheckAvailabilityResponse) GetAvailable() bool {
 	if x != nil {
-		return x.Success
+		return x.Available
 	}
 	return false
 }
 
-func (x *DeductInventoryResponse) GetRemaining() int32 {
+func (x *CheckAvailabilityResponse) GetAvailableSeats() int32 {
 	if x != nil {
-		return x.Remaining
+		return x.AvailableSeats
 	}
 	return 0
 }
 
-func (x *DeductInventoryResponse) GetErrorMessage() string {
+func (x *CheckAvailabilityResponse) GetPrice() string {
 	if x != nil {
-		return x.ErrorMessage
+		return x.Price
 	}
 	return ""
 }
 
-type RestoreInventoryRequest struct {
+type ReserveSeatsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SeatAreaId    string                 `protobuf:"bytes,1,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
-	Quantity      int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	OrderId       string                 `protobuf:"bytes,3,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	SeatAreaId    string                 `protobuf:"bytes,2,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
+	Quantity      int32                  `protobuf:"varint,3,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	OrderId       string                 `protobuf:"bytes,4,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RestoreInventoryRequest) Reset() {
-	*x = RestoreInventoryRequest{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[24]
+func (x *ReserveSeatsRequest) Reset() {
+	*x = ReserveSeatsRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RestoreInventoryRequest) String() string {
+func (x *ReserveSeatsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RestoreInventoryRequest) ProtoMessage() {}
+func (*ReserveSeatsRequest) ProtoMessage() {}
 
-func (x *RestoreInventoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[24]
+func (x *ReserveSeatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1648,55 +2114,62 @@ func (x *RestoreInventoryRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RestoreInventoryRequest.ProtoReflect.Descriptor instead.
-func (*RestoreInventoryRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{24}
+// Deprecated: Use ReserveSeatsRequest.ProtoReflect.Descriptor instead.
+func (*ReserveSeatsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *RestoreInventoryRequest) GetSeatAreaId() string {
+func (x *ReserveSeatsRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *ReserveSeatsRequest) GetSeatAreaId() string {
 	if x != nil {
 		return x.SeatAreaId
 	}
 	return ""
 }
 
-func (x *RestoreInventoryRequest) GetQuantity() int32 {
+func (x *ReserveSeatsRequest) GetQuantity() int32 {
 	if x != nil {
 		return x.Quantity
 	}
 	return 0
 }
 
-func (x *RestoreInventoryRequest) GetOrderId() string {
+func (x *ReserveSeatsRequest) GetOrderId() string {
 	if x != nil {
 		return x.OrderId
 	}
 	return ""
 }
 
-type RestoreInventoryResponse struct {
+type ReserveSeatsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Remaining     int32                  `protobuf:"varint,2,opt,name=remaining,proto3" json:"remaining,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RestoreInventoryResponse) Reset() {
-	*x = RestoreInventoryResponse{}
-	mi := &file_catalog_v1_catalog_proto_msgTypes[25]
+func (x *ReserveSeatsResponse) Reset() {
+	*x = ReserveSeatsResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RestoreInventoryResponse) String() string {
+func (x *ReserveSeatsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RestoreInventoryResponse) ProtoMessage() {}
+func (*ReserveSeatsResponse) ProtoMessage() {}
 
-func (x *RestoreInventoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_v1_catalog_proto_msgTypes[25]
+func (x *ReserveSeatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,23 +2180,143 @@ func (x *RestoreInventoryResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RestoreInventoryResponse.ProtoReflect.Descriptor instead.
-func (*RestoreInventoryResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{25}
+// Deprecated: Use ReserveSeatsResponse.ProtoReflect.Descriptor instead.
+func (*ReserveSeatsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *RestoreInventoryResponse) GetSuccess() bool {
+func (x *ReserveSeatsResponse) GetSuccess() bool {
 	if x != nil {
 		return x.Success
 	}
 	return false
 }
 
-func (x *RestoreInventoryResponse) GetRemaining() int32 {
+func (x *ReserveSeatsResponse) GetMessage() string {
 	if x != nil {
-		return x.Remaining
+		return x.Message
+	}
+	return ""
+}
+
+type ReleaseSeatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	SeatAreaId    string                 `protobuf:"bytes,2,opt,name=seat_area_id,json=seatAreaId,proto3" json:"seat_area_id,omitempty"`
+	Quantity      int32                  `protobuf:"varint,3,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	OrderId       string                 `protobuf:"bytes,4,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReleaseSeatsRequest) Reset() {
+	*x = ReleaseSeatsRequest{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseSeatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseSeatsRequest) ProtoMessage() {}
+
+func (x *ReleaseSeatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseSeatsRequest.ProtoReflect.Descriptor instead.
+func (*ReleaseSeatsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ReleaseSeatsRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *ReleaseSeatsRequest) GetSeatAreaId() string {
+	if x != nil {
+		return x.SeatAreaId
+	}
+	return ""
+}
+
+func (x *ReleaseSeatsRequest) GetQuantity() int32 {
+	if x != nil {
+		return x.Quantity
 	}
 	return 0
+}
+
+func (x *ReleaseSeatsRequest) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+type ReleaseSeatsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReleaseSeatsResponse) Reset() {
+	*x = ReleaseSeatsResponse{}
+	mi := &file_catalog_v1_catalog_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseSeatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseSeatsResponse) ProtoMessage() {}
+
+func (x *ReleaseSeatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_v1_catalog_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseSeatsResponse.ProtoReflect.Descriptor instead.
+func (*ReleaseSeatsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *ReleaseSeatsResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ReleaseSeatsResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
 }
 
 var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
@@ -1731,196 +2324,233 @@ var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
 const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x18catalog/v1/catalog.proto\x12\n" +
-	"catalog.v1\x1a\x1acommon/v1/pagination.proto\"\xd2\x02\n" +
+	"catalog.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xde\x02\n" +
 	"\x04Show\x12\x17\n" +
 	"\ashow_id\x18\x01 \x01(\tR\x06showId\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
-	"\x06artist\x18\x03 \x01(\tR\x06artist\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05venue\x18\x05 \x01(\tR\x05venue\x12\x12\n" +
-	"\x04city\x18\x06 \x01(\tR\x04city\x12\x1d\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06artist\x18\x04 \x01(\tR\x06artist\x124\n" +
+	"\bcategory\x18\x05 \x01(\x0e2\x18.catalog.v1.ShowCategoryR\bcategory\x12\x1d\n" +
 	"\n" +
-	"poster_url\x18\a \x01(\tR\tposterUrl\x12.\n" +
-	"\x06status\x18\b \x01(\x0e2\x16.catalog.v1.ShowStatusR\x06status\x123\n" +
+	"poster_url\x18\x06 \x01(\tR\tposterUrl\x12.\n" +
+	"\x06status\x18\a \x01(\x0e2\x16.catalog.v1.ShowStatusR\x06status\x123\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\x123\n" +
+	"created_at\x18\b \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\x123\n" +
 	"\n" +
-	"updated_at\x18\n" +
-	" \x01(\v2\x14.common.v1.TimestampR\tupdatedAt\"\xac\x01\n" +
-	"\x11CreateShowRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
-	"\x06artist\x18\x02 \x01(\tR\x06artist\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05venue\x18\x04 \x01(\tR\x05venue\x12\x12\n" +
-	"\x04city\x18\x05 \x01(\tR\x04city\x12\x1d\n" +
+	"updated_at\x18\t \x01(\v2\x14.common.v1.TimestampR\tupdatedAt\"\xcb\x01\n" +
+	"\x11CreateShowRequest\x12\x1d\n" +
+	"\x05title\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05title\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06artist\x18\x03 \x01(\tR\x06artist\x12>\n" +
+	"\bcategory\x18\x04 \x01(\x0e2\x18.catalog.v1.ShowCategoryB\b\xbaH\x05\x82\x01\x02\x10\x01R\bcategory\x12\x1d\n" +
 	"\n" +
-	"poster_url\x18\x06 \x01(\tR\tposterUrl\")\n" +
-	"\x0eGetShowRequest\x12\x17\n" +
-	"\ashow_id\x18\x01 \x01(\tR\x06showId\"\xea\x02\n" +
-	"\x11UpdateShowRequest\x12\x17\n" +
-	"\ashow_id\x18\x01 \x01(\tR\x06showId\x12\x19\n" +
-	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x1b\n" +
-	"\x06artist\x18\x03 \x01(\tH\x01R\x06artist\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\x04 \x01(\tH\x02R\vdescription\x88\x01\x01\x12\x19\n" +
-	"\x05venue\x18\x05 \x01(\tH\x03R\x05venue\x88\x01\x01\x12\x17\n" +
-	"\x04city\x18\x06 \x01(\tH\x04R\x04city\x88\x01\x01\x12\"\n" +
-	"\n" +
-	"poster_url\x18\a \x01(\tH\x05R\tposterUrl\x88\x01\x01\x123\n" +
-	"\x06status\x18\b \x01(\x0e2\x16.catalog.v1.ShowStatusH\x06R\x06status\x88\x01\x01B\b\n" +
-	"\x06_titleB\t\n" +
-	"\a_artistB\x0e\n" +
-	"\f_descriptionB\b\n" +
-	"\x06_venueB\a\n" +
-	"\x05_cityB\r\n" +
-	"\v_poster_urlB\t\n" +
-	"\a_status\"\xac\x01\n" +
+	"poster_url\x18\x05 \x01(\tR\tposterUrl\":\n" +
+	"\x12CreateShowResponse\x12$\n" +
+	"\x04show\x18\x01 \x01(\v2\x10.catalog.v1.ShowR\x04show\"3\n" +
+	"\x0eGetShowRequest\x12!\n" +
+	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\"7\n" +
+	"\x0fGetShowResponse\x12$\n" +
+	"\x04show\x18\x01 \x01(\v2\x10.catalog.v1.ShowR\x04show\"\xfa\x01\n" +
 	"\x10ListShowsRequest\x12<\n" +
 	"\n" +
 	"pagination\x18\x01 \x01(\v2\x1c.common.v1.PaginationRequestR\n" +
-	"pagination\x12\x12\n" +
-	"\x04city\x18\x02 \x01(\tR\x04city\x12\x16\n" +
-	"\x06artist\x18\x03 \x01(\tR\x06artist\x12.\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x16.catalog.v1.ShowStatusR\x06status\"z\n" +
+	"pagination\x129\n" +
+	"\bcategory\x18\x02 \x01(\x0e2\x18.catalog.v1.ShowCategoryH\x00R\bcategory\x88\x01\x01\x123\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x16.catalog.v1.ShowStatusH\x01R\x06status\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\x04 \x01(\tH\x02R\x04city\x88\x01\x01B\v\n" +
+	"\t_categoryB\t\n" +
+	"\a_statusB\a\n" +
+	"\x05_city\"z\n" +
 	"\x11ListShowsResponse\x12&\n" +
 	"\x05shows\x18\x01 \x03(\v2\x10.catalog.v1.ShowR\x05shows\x12=\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1d.common.v1.PaginationResponseR\n" +
-	"pagination\",\n" +
-	"\x11DeleteShowRequest\x12\x17\n" +
-	"\ashow_id\x18\x01 \x01(\tR\x06showId\".\n" +
+	"pagination\"\xf5\x02\n" +
+	"\x11UpdateShowRequest\x12!\n" +
+	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1b\n" +
+	"\x06artist\x18\x04 \x01(\tH\x02R\x06artist\x88\x01\x01\x129\n" +
+	"\bcategory\x18\x05 \x01(\x0e2\x18.catalog.v1.ShowCategoryH\x03R\bcategory\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"poster_url\x18\x06 \x01(\tH\x04R\tposterUrl\x88\x01\x01\x123\n" +
+	"\x06status\x18\a \x01(\x0e2\x16.catalog.v1.ShowStatusH\x05R\x06status\x88\x01\x01B\b\n" +
+	"\x06_titleB\x0e\n" +
+	"\f_descriptionB\t\n" +
+	"\a_artistB\v\n" +
+	"\t_categoryB\r\n" +
+	"\v_poster_urlB\t\n" +
+	"\a_status\":\n" +
+	"\x12UpdateShowResponse\x12$\n" +
+	"\x04show\x18\x01 \x01(\v2\x10.catalog.v1.ShowR\x04show\"6\n" +
+	"\x11DeleteShowRequest\x12!\n" +
+	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\".\n" +
 	"\x12DeleteShowResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xc4\x02\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xb5\x01\n" +
+	"\x05Venue\x12\x19\n" +
+	"\bvenue_id\x18\x01 \x01(\tR\avenueId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04city\x18\x03 \x01(\tR\x04city\x12\x18\n" +
+	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x1a\n" +
+	"\bcapacity\x18\x05 \x01(\x05R\bcapacity\x123\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\x84\x01\n" +
+	"\x12CreateVenueRequest\x12\x1b\n" +
+	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12\x1b\n" +
+	"\x04city\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04city\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x1a\n" +
+	"\bcapacity\x18\x04 \x01(\x05R\bcapacity\">\n" +
+	"\x13CreateVenueResponse\x12'\n" +
+	"\x05venue\x18\x01 \x01(\v2\x11.catalog.v1.VenueR\x05venue\"6\n" +
+	"\x0fGetVenueRequest\x12#\n" +
+	"\bvenue_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\avenueId\";\n" +
+	"\x10GetVenueResponse\x12'\n" +
+	"\x05venue\x18\x01 \x01(\v2\x11.catalog.v1.VenueR\x05venue\"s\n" +
+	"\x11ListVenuesRequest\x12<\n" +
+	"\n" +
+	"pagination\x18\x01 \x01(\v2\x1c.common.v1.PaginationRequestR\n" +
+	"pagination\x12\x17\n" +
+	"\x04city\x18\x02 \x01(\tH\x00R\x04city\x88\x01\x01B\a\n" +
+	"\x05_city\"~\n" +
+	"\x12ListVenuesResponse\x12)\n" +
+	"\x06venues\x18\x01 \x03(\v2\x11.catalog.v1.VenueR\x06venues\x12=\n" +
+	"\n" +
+	"pagination\x18\x02 \x01(\v2\x1d.common.v1.PaginationResponseR\n" +
+	"pagination\"\xcb\x03\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x17\n" +
-	"\ashow_id\x18\x02 \x01(\tR\x06showId\x123\n" +
+	"\ashow_id\x18\x02 \x01(\tR\x06showId\x12\x19\n" +
+	"\bvenue_id\x18\x03 \x01(\tR\avenueId\x12'\n" +
+	"\x05venue\x18\x04 \x01(\v2\x11.catalog.v1.VenueR\x05venue\x123\n" +
 	"\n" +
-	"start_time\x18\x03 \x01(\v2\x14.common.v1.TimestampR\tstartTime\x12/\n" +
-	"\bend_time\x18\x04 \x01(\v2\x14.common.v1.TimestampR\aendTime\x121\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x19.catalog.v1.SessionStatusR\x06status\x123\n" +
+	"start_time\x18\x05 \x01(\v2\x14.common.v1.TimestampR\tstartTime\x12/\n" +
+	"\bend_time\x18\x06 \x01(\v2\x14.common.v1.TimestampR\aendTime\x12<\n" +
+	"\x0fsale_start_time\x18\a \x01(\v2\x14.common.v1.TimestampR\rsaleStartTime\x128\n" +
+	"\rsale_end_time\x18\b \x01(\v2\x14.common.v1.TimestampR\vsaleEndTime\x121\n" +
+	"\x06status\x18\t \x01(\x0e2\x19.catalog.v1.SessionStatusR\x06status\x123\n" +
 	"\n" +
-	"seat_areas\x18\x06 \x03(\v2\x14.catalog.v1.SeatAreaR\tseatAreas\x123\n" +
+	"created_at\x18\n" +
+	" \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\xc4\x02\n" +
+	"\x14CreateSessionRequest\x12!\n" +
+	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\x12#\n" +
+	"\bvenue_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\avenueId\x12;\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\x95\x01\n" +
-	"\x14CreateSessionRequest\x12\x17\n" +
-	"\ashow_id\x18\x01 \x01(\tR\x06showId\x123\n" +
+	"start_time\x18\x03 \x01(\v2\x14.common.v1.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tstartTime\x12/\n" +
+	"\bend_time\x18\x04 \x01(\v2\x14.common.v1.TimestampR\aendTime\x12<\n" +
+	"\x0fsale_start_time\x18\x05 \x01(\v2\x14.common.v1.TimestampR\rsaleStartTime\x128\n" +
+	"\rsale_end_time\x18\x06 \x01(\v2\x14.common.v1.TimestampR\vsaleEndTime\"F\n" +
+	"\x15CreateSessionResponse\x12-\n" +
+	"\asession\x18\x01 \x01(\v2\x13.catalog.v1.SessionR\asession\"<\n" +
+	"\x11GetSessionRequest\x12'\n" +
 	"\n" +
-	"start_time\x18\x02 \x01(\v2\x14.common.v1.TimestampR\tstartTime\x12/\n" +
-	"\bend_time\x18\x03 \x01(\v2\x14.common.v1.TimestampR\aendTime\"2\n" +
-	"\x11GetSessionRequest\x12\x1d\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\"x\n" +
+	"\x12GetSessionResponse\x12-\n" +
+	"\asession\x18\x01 \x01(\v2\x13.catalog.v1.SessionR\asession\x123\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"l\n" +
-	"\x13ListSessionsRequest\x12\x17\n" +
-	"\ashow_id\x18\x01 \x01(\tR\x06showId\x12<\n" +
-	"\n" +
-	"pagination\x18\x02 \x01(\v2\x1c.common.v1.PaginationRequestR\n" +
-	"pagination\"\x86\x01\n" +
+	"seat_areas\x18\x02 \x03(\v2\x14.catalog.v1.SeatAreaR\tseatAreas\"8\n" +
+	"\x13ListSessionsRequest\x12!\n" +
+	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\"G\n" +
 	"\x14ListSessionsResponse\x12/\n" +
-	"\bsessions\x18\x01 \x03(\v2\x13.catalog.v1.SessionR\bsessions\x12=\n" +
-	"\n" +
-	"pagination\x18\x02 \x01(\v2\x1d.common.v1.PaginationResponseR\n" +
-	"pagination\"\x84\x02\n" +
-	"\x14UpdateSessionRequest\x12\x1d\n" +
-	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x128\n" +
-	"\n" +
-	"start_time\x18\x02 \x01(\v2\x14.common.v1.TimestampH\x00R\tstartTime\x88\x01\x01\x124\n" +
-	"\bend_time\x18\x03 \x01(\v2\x14.common.v1.TimestampH\x01R\aendTime\x88\x01\x01\x126\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x19.catalog.v1.SessionStatusH\x02R\x06status\x88\x01\x01B\r\n" +
-	"\v_start_timeB\v\n" +
-	"\t_end_timeB\t\n" +
-	"\a_status\"5\n" +
-	"\x14DeleteSessionRequest\x12\x1d\n" +
-	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"1\n" +
-	"\x15DeleteSessionResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xca\x01\n" +
+	"\bsessions\x18\x01 \x03(\v2\x13.catalog.v1.SessionR\bsessions\"\xf4\x01\n" +
 	"\bSeatArea\x12 \n" +
 	"\fseat_area_id\x18\x01 \x01(\tR\n" +
 	"seatAreaId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1f\n" +
-	"\vprice_cents\x18\x04 \x01(\x03R\n" +
-	"priceCents\x12\x1f\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
+	"\x05price\x18\x04 \x01(\tR\x05price\x12\x1f\n" +
 	"\vtotal_seats\x18\x05 \x01(\x05R\n" +
 	"totalSeats\x12'\n" +
-	"\x0favailable_seats\x18\x06 \x01(\x05R\x0eavailableSeats\"\x8c\x01\n" +
-	"\x15CreateSeatAreaRequest\x12\x1d\n" +
+	"\x0favailable_seats\x18\x06 \x01(\x05R\x0eavailableSeats\x123\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
-	"\vprice_cents\x18\x03 \x01(\x03R\n" +
-	"priceCents\x12\x1f\n" +
-	"\vtotal_seats\x18\x04 \x01(\x05R\n" +
-	"totalSeats\"9\n" +
-	"\x18GetAvailableSeatsRequest\x12\x1d\n" +
+	"created_at\x18\a \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\xa6\x01\n" +
+	"\x15CreateSeatAreaRequest\x12'\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"\x95\x01\n" +
-	"\x16AvailableSeatsResponse\x12\x1d\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12\x1d\n" +
+	"\x05price\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05price\x12(\n" +
+	"\vtotal_seats\x18\x04 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\n" +
+	"totalSeats\"K\n" +
+	"\x16CreateSeatAreaResponse\x121\n" +
+	"\tseat_area\x18\x01 \x01(\v2\x14.catalog.v1.SeatAreaR\bseatArea\"?\n" +
+	"\x14ListSeatAreasRequest\x12'\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x123\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\"L\n" +
+	"\x15ListSeatAreasResponse\x123\n" +
 	"\n" +
-	"seat_areas\x18\x02 \x03(\v2\x14.catalog.v1.SeatAreaR\tseatAreas\x12'\n" +
-	"\x0ftotal_available\x18\x03 \x01(\x05R\x0etotalAvailable\"=\n" +
-	"\x1cGetSeatAreasBySessionRequest\x12\x1d\n" +
+	"seat_areas\x18\x01 \x03(\v2\x14.catalog.v1.SeatAreaR\tseatAreas\"\x94\x01\n" +
+	"\x18CheckAvailabilityRequest\x12'\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"K\n" +
-	"\x14GetSeatAreasResponse\x123\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\x12*\n" +
+	"\fseat_area_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"seatAreaId\x12#\n" +
+	"\bquantity\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bquantity\"x\n" +
+	"\x19CheckAvailabilityResponse\x12\x1c\n" +
+	"\tavailable\x18\x01 \x01(\bR\tavailable\x12'\n" +
+	"\x0favailable_seats\x18\x02 \x01(\x05R\x0eavailableSeats\x12\x14\n" +
+	"\x05price\x18\x03 \x01(\tR\x05price\"\xb4\x01\n" +
+	"\x13ReserveSeatsRequest\x12'\n" +
 	"\n" +
-	"seat_areas\x18\x01 \x03(\v2\x14.catalog.v1.SeatAreaR\tseatAreas\"q\n" +
-	"\x16DeductInventoryRequest\x12 \n" +
-	"\fseat_area_id\x18\x01 \x01(\tR\n" +
-	"seatAreaId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x05R\bquantity\x12\x19\n" +
-	"\border_id\x18\x03 \x01(\tR\aorderId\"v\n" +
-	"\x17DeductInventoryResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1c\n" +
-	"\tremaining\x18\x02 \x01(\x05R\tremaining\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"r\n" +
-	"\x17RestoreInventoryRequest\x12 \n" +
-	"\fseat_area_id\x18\x01 \x01(\tR\n" +
-	"seatAreaId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x05R\bquantity\x12\x19\n" +
-	"\border_id\x18\x03 \x01(\tR\aorderId\"R\n" +
-	"\x18RestoreInventoryResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1c\n" +
-	"\tremaining\x18\x02 \x01(\x05R\tremaining*\xa9\x01\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\x12*\n" +
+	"\fseat_area_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"seatAreaId\x12#\n" +
+	"\bquantity\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bquantity\x12#\n" +
+	"\border_id\x18\x04 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aorderId\"J\n" +
+	"\x14ReserveSeatsResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xb4\x01\n" +
+	"\x13ReleaseSeatsRequest\x12'\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\x12*\n" +
+	"\fseat_area_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"seatAreaId\x12#\n" +
+	"\bquantity\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bquantity\x12#\n" +
+	"\border_id\x18\x04 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aorderId\"J\n" +
+	"\x14ReleaseSeatsResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*v\n" +
 	"\n" +
 	"ShowStatus\x12\x1b\n" +
 	"\x17SHOW_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
-	"\x11SHOW_STATUS_DRAFT\x10\x01\x12\x17\n" +
-	"\x13SHOW_STATUS_ON_SALE\x10\x02\x12\x18\n" +
-	"\x14SHOW_STATUS_SOLD_OUT\x10\x03\x12\x19\n" +
-	"\x15SHOW_STATUS_CANCELLED\x10\x04\x12\x19\n" +
-	"\x15SHOW_STATUS_COMPLETED\x10\x05*\xc2\x01\n" +
+	"\x11SHOW_STATUS_DRAFT\x10\x01\x12\x19\n" +
+	"\x15SHOW_STATUS_PUBLISHED\x10\x02\x12\x19\n" +
+	"\x15SHOW_STATUS_CANCELLED\x10\x03*\xb4\x01\n" +
+	"\fShowCategory\x12\x1d\n" +
+	"\x19SHOW_CATEGORY_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15SHOW_CATEGORY_CONCERT\x10\x01\x12\x19\n" +
+	"\x15SHOW_CATEGORY_MUSICAL\x10\x02\x12\x18\n" +
+	"\x14SHOW_CATEGORY_SPORTS\x10\x03\x12\x1c\n" +
+	"\x18SHOW_CATEGORY_EXHIBITION\x10\x04\x12\x17\n" +
+	"\x13SHOW_CATEGORY_OTHER\x10\x05*\xa4\x01\n" +
 	"\rSessionStatus\x12\x1e\n" +
 	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18SESSION_STATUS_SCHEDULED\x10\x01\x12\x1a\n" +
 	"\x16SESSION_STATUS_ON_SALE\x10\x02\x12\x1b\n" +
 	"\x17SESSION_STATUS_SOLD_OUT\x10\x03\x12\x1c\n" +
-	"\x18SESSION_STATUS_CANCELLED\x10\x04\x12\x1c\n" +
-	"\x18SESSION_STATUS_COMPLETED\x10\x052\xa3\t\n" +
-	"\x0eCatalogService\x12=\n" +
+	"\x18SESSION_STATUS_CANCELLED\x10\x042\xd4\x0e\n" +
+	"\x0eCatalogService\x12m\n" +
 	"\n" +
-	"CreateShow\x12\x1d.catalog.v1.CreateShowRequest\x1a\x10.catalog.v1.Show\x127\n" +
-	"\aGetShow\x12\x1a.catalog.v1.GetShowRequest\x1a\x10.catalog.v1.Show\x12=\n" +
+	"CreateShow\x12\x1d.catalog.v1.CreateShowRequest\x1a\x1e.catalog.v1.CreateShowResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/catalog/shows\x12k\n" +
+	"\aGetShow\x12\x1a.catalog.v1.GetShowRequest\x1a\x1b.catalog.v1.GetShowResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/catalog/shows/{show_id}\x12g\n" +
+	"\tListShows\x12\x1c.catalog.v1.ListShowsRequest\x1a\x1d.catalog.v1.ListShowsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/catalog/shows\x12w\n" +
 	"\n" +
-	"UpdateShow\x12\x1d.catalog.v1.UpdateShowRequest\x1a\x10.catalog.v1.Show\x12H\n" +
-	"\tListShows\x12\x1c.catalog.v1.ListShowsRequest\x1a\x1d.catalog.v1.ListShowsResponse\x12K\n" +
+	"UpdateShow\x12\x1d.catalog.v1.UpdateShowRequest\x1a\x1e.catalog.v1.UpdateShowResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/catalog/shows/{show_id}\x12t\n" +
 	"\n" +
-	"DeleteShow\x12\x1d.catalog.v1.DeleteShowRequest\x1a\x1e.catalog.v1.DeleteShowResponse\x12F\n" +
-	"\rCreateSession\x12 .catalog.v1.CreateSessionRequest\x1a\x13.catalog.v1.Session\x12@\n" +
+	"DeleteShow\x12\x1d.catalog.v1.DeleteShowRequest\x1a\x1e.catalog.v1.DeleteShowResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/api/v1/catalog/shows/{show_id}\x12q\n" +
+	"\vCreateVenue\x12\x1e.catalog.v1.CreateVenueRequest\x1a\x1f.catalog.v1.CreateVenueResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/catalog/venues\x12p\n" +
+	"\bGetVenue\x12\x1b.catalog.v1.GetVenueRequest\x1a\x1c.catalog.v1.GetVenueResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/catalog/venues/{venue_id}\x12k\n" +
 	"\n" +
-	"GetSession\x12\x1d.catalog.v1.GetSessionRequest\x1a\x13.catalog.v1.Session\x12Q\n" +
-	"\fListSessions\x12\x1f.catalog.v1.ListSessionsRequest\x1a .catalog.v1.ListSessionsResponse\x12F\n" +
-	"\rUpdateSession\x12 .catalog.v1.UpdateSessionRequest\x1a\x13.catalog.v1.Session\x12T\n" +
-	"\rDeleteSession\x12 .catalog.v1.DeleteSessionRequest\x1a!.catalog.v1.DeleteSessionResponse\x12I\n" +
-	"\x0eCreateSeatArea\x12!.catalog.v1.CreateSeatAreaRequest\x1a\x14.catalog.v1.SeatArea\x12]\n" +
-	"\x11GetAvailableSeats\x12$.catalog.v1.GetAvailableSeatsRequest\x1a\".catalog.v1.AvailableSeatsResponse\x12c\n" +
-	"\x15GetSeatAreasBySession\x12(.catalog.v1.GetSeatAreasBySessionRequest\x1a .catalog.v1.GetSeatAreasResponse\x12Z\n" +
-	"\x0fDeductInventory\x12\".catalog.v1.DeductInventoryRequest\x1a#.catalog.v1.DeductInventoryResponse\x12]\n" +
-	"\x10RestoreInventory\x12#.catalog.v1.RestoreInventoryRequest\x1a$.catalog.v1.RestoreInventoryResponseB\xad\x01\n" +
+	"ListVenues\x12\x1d.catalog.v1.ListVenuesRequest\x1a\x1e.catalog.v1.ListVenuesResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/catalog/venues\x12\x89\x01\n" +
+	"\rCreateSession\x12 .catalog.v1.CreateSessionRequest\x1a!.catalog.v1.CreateSessionResponse\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/catalog/shows/{show_id}/sessions\x12z\n" +
+	"\n" +
+	"GetSession\x12\x1d.catalog.v1.GetSessionRequest\x1a\x1e.catalog.v1.GetSessionResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/catalog/sessions/{session_id}\x12\x83\x01\n" +
+	"\fListSessions\x12\x1f.catalog.v1.ListSessionsRequest\x1a .catalog.v1.ListSessionsResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/catalog/shows/{show_id}/sessions\x12\x94\x01\n" +
+	"\x0eCreateSeatArea\x12!.catalog.v1.CreateSeatAreaRequest\x1a\".catalog.v1.CreateSeatAreaResponse\";\x82\xd3\xe4\x93\x025:\x01*\"0/api/v1/catalog/sessions/{session_id}/seat-areas\x12\x8e\x01\n" +
+	"\rListSeatAreas\x12 .catalog.v1.ListSeatAreasRequest\x1a!.catalog.v1.ListSeatAreasResponse\"8\x82\xd3\xe4\x93\x022\x120/api/v1/catalog/sessions/{session_id}/seat-areas\x12`\n" +
+	"\x11CheckAvailability\x12$.catalog.v1.CheckAvailabilityRequest\x1a%.catalog.v1.CheckAvailabilityResponse\x12Q\n" +
+	"\fReserveSeats\x12\x1f.catalog.v1.ReserveSeatsRequest\x1a .catalog.v1.ReserveSeatsResponse\x12Q\n" +
+	"\fReleaseSeats\x12\x1f.catalog.v1.ReleaseSeatsRequest\x1a .catalog.v1.ReleaseSeatsResponseB\xad\x01\n" +
 	"\x0ecom.catalog.v1B\fCatalogProtoP\x01ZDgithub.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1;catalogv1\xa2\x02\x03CXX\xaa\x02\n" +
 	"Catalog.V1\xca\x02\n" +
 	"Catalog\\V1\xe2\x02\x16Catalog\\V1\\GPBMetadata\xea\x02\vCatalog::V1b\x06proto3"
@@ -1937,100 +2567,129 @@ func file_catalog_v1_catalog_proto_rawDescGZIP() []byte {
 	return file_catalog_v1_catalog_proto_rawDescData
 }
 
-var file_catalog_v1_catalog_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_catalog_v1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_catalog_v1_catalog_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_catalog_v1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_catalog_v1_catalog_proto_goTypes = []any{
-	(ShowStatus)(0),                      // 0: catalog.v1.ShowStatus
-	(SessionStatus)(0),                   // 1: catalog.v1.SessionStatus
-	(*Show)(nil),                         // 2: catalog.v1.Show
-	(*CreateShowRequest)(nil),            // 3: catalog.v1.CreateShowRequest
-	(*GetShowRequest)(nil),               // 4: catalog.v1.GetShowRequest
-	(*UpdateShowRequest)(nil),            // 5: catalog.v1.UpdateShowRequest
-	(*ListShowsRequest)(nil),             // 6: catalog.v1.ListShowsRequest
-	(*ListShowsResponse)(nil),            // 7: catalog.v1.ListShowsResponse
-	(*DeleteShowRequest)(nil),            // 8: catalog.v1.DeleteShowRequest
-	(*DeleteShowResponse)(nil),           // 9: catalog.v1.DeleteShowResponse
-	(*Session)(nil),                      // 10: catalog.v1.Session
-	(*CreateSessionRequest)(nil),         // 11: catalog.v1.CreateSessionRequest
-	(*GetSessionRequest)(nil),            // 12: catalog.v1.GetSessionRequest
-	(*ListSessionsRequest)(nil),          // 13: catalog.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),         // 14: catalog.v1.ListSessionsResponse
-	(*UpdateSessionRequest)(nil),         // 15: catalog.v1.UpdateSessionRequest
-	(*DeleteSessionRequest)(nil),         // 16: catalog.v1.DeleteSessionRequest
-	(*DeleteSessionResponse)(nil),        // 17: catalog.v1.DeleteSessionResponse
-	(*SeatArea)(nil),                     // 18: catalog.v1.SeatArea
-	(*CreateSeatAreaRequest)(nil),        // 19: catalog.v1.CreateSeatAreaRequest
-	(*GetAvailableSeatsRequest)(nil),     // 20: catalog.v1.GetAvailableSeatsRequest
-	(*AvailableSeatsResponse)(nil),       // 21: catalog.v1.AvailableSeatsResponse
-	(*GetSeatAreasBySessionRequest)(nil), // 22: catalog.v1.GetSeatAreasBySessionRequest
-	(*GetSeatAreasResponse)(nil),         // 23: catalog.v1.GetSeatAreasResponse
-	(*DeductInventoryRequest)(nil),       // 24: catalog.v1.DeductInventoryRequest
-	(*DeductInventoryResponse)(nil),      // 25: catalog.v1.DeductInventoryResponse
-	(*RestoreInventoryRequest)(nil),      // 26: catalog.v1.RestoreInventoryRequest
-	(*RestoreInventoryResponse)(nil),     // 27: catalog.v1.RestoreInventoryResponse
-	(*v1.Timestamp)(nil),                 // 28: common.v1.Timestamp
-	(*v1.PaginationRequest)(nil),         // 29: common.v1.PaginationRequest
-	(*v1.PaginationResponse)(nil),        // 30: common.v1.PaginationResponse
+	(ShowStatus)(0),                   // 0: catalog.v1.ShowStatus
+	(ShowCategory)(0),                 // 1: catalog.v1.ShowCategory
+	(SessionStatus)(0),                // 2: catalog.v1.SessionStatus
+	(*Show)(nil),                      // 3: catalog.v1.Show
+	(*CreateShowRequest)(nil),         // 4: catalog.v1.CreateShowRequest
+	(*CreateShowResponse)(nil),        // 5: catalog.v1.CreateShowResponse
+	(*GetShowRequest)(nil),            // 6: catalog.v1.GetShowRequest
+	(*GetShowResponse)(nil),           // 7: catalog.v1.GetShowResponse
+	(*ListShowsRequest)(nil),          // 8: catalog.v1.ListShowsRequest
+	(*ListShowsResponse)(nil),         // 9: catalog.v1.ListShowsResponse
+	(*UpdateShowRequest)(nil),         // 10: catalog.v1.UpdateShowRequest
+	(*UpdateShowResponse)(nil),        // 11: catalog.v1.UpdateShowResponse
+	(*DeleteShowRequest)(nil),         // 12: catalog.v1.DeleteShowRequest
+	(*DeleteShowResponse)(nil),        // 13: catalog.v1.DeleteShowResponse
+	(*Venue)(nil),                     // 14: catalog.v1.Venue
+	(*CreateVenueRequest)(nil),        // 15: catalog.v1.CreateVenueRequest
+	(*CreateVenueResponse)(nil),       // 16: catalog.v1.CreateVenueResponse
+	(*GetVenueRequest)(nil),           // 17: catalog.v1.GetVenueRequest
+	(*GetVenueResponse)(nil),          // 18: catalog.v1.GetVenueResponse
+	(*ListVenuesRequest)(nil),         // 19: catalog.v1.ListVenuesRequest
+	(*ListVenuesResponse)(nil),        // 20: catalog.v1.ListVenuesResponse
+	(*Session)(nil),                   // 21: catalog.v1.Session
+	(*CreateSessionRequest)(nil),      // 22: catalog.v1.CreateSessionRequest
+	(*CreateSessionResponse)(nil),     // 23: catalog.v1.CreateSessionResponse
+	(*GetSessionRequest)(nil),         // 24: catalog.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),        // 25: catalog.v1.GetSessionResponse
+	(*ListSessionsRequest)(nil),       // 26: catalog.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),      // 27: catalog.v1.ListSessionsResponse
+	(*SeatArea)(nil),                  // 28: catalog.v1.SeatArea
+	(*CreateSeatAreaRequest)(nil),     // 29: catalog.v1.CreateSeatAreaRequest
+	(*CreateSeatAreaResponse)(nil),    // 30: catalog.v1.CreateSeatAreaResponse
+	(*ListSeatAreasRequest)(nil),      // 31: catalog.v1.ListSeatAreasRequest
+	(*ListSeatAreasResponse)(nil),     // 32: catalog.v1.ListSeatAreasResponse
+	(*CheckAvailabilityRequest)(nil),  // 33: catalog.v1.CheckAvailabilityRequest
+	(*CheckAvailabilityResponse)(nil), // 34: catalog.v1.CheckAvailabilityResponse
+	(*ReserveSeatsRequest)(nil),       // 35: catalog.v1.ReserveSeatsRequest
+	(*ReserveSeatsResponse)(nil),      // 36: catalog.v1.ReserveSeatsResponse
+	(*ReleaseSeatsRequest)(nil),       // 37: catalog.v1.ReleaseSeatsRequest
+	(*ReleaseSeatsResponse)(nil),      // 38: catalog.v1.ReleaseSeatsResponse
+	(*v1.Timestamp)(nil),              // 39: common.v1.Timestamp
+	(*v1.PaginationRequest)(nil),      // 40: common.v1.PaginationRequest
+	(*v1.PaginationResponse)(nil),     // 41: common.v1.PaginationResponse
 }
 var file_catalog_v1_catalog_proto_depIdxs = []int32{
-	0,  // 0: catalog.v1.Show.status:type_name -> catalog.v1.ShowStatus
-	28, // 1: catalog.v1.Show.created_at:type_name -> common.v1.Timestamp
-	28, // 2: catalog.v1.Show.updated_at:type_name -> common.v1.Timestamp
-	0,  // 3: catalog.v1.UpdateShowRequest.status:type_name -> catalog.v1.ShowStatus
-	29, // 4: catalog.v1.ListShowsRequest.pagination:type_name -> common.v1.PaginationRequest
-	0,  // 5: catalog.v1.ListShowsRequest.status:type_name -> catalog.v1.ShowStatus
-	2,  // 6: catalog.v1.ListShowsResponse.shows:type_name -> catalog.v1.Show
-	30, // 7: catalog.v1.ListShowsResponse.pagination:type_name -> common.v1.PaginationResponse
-	28, // 8: catalog.v1.Session.start_time:type_name -> common.v1.Timestamp
-	28, // 9: catalog.v1.Session.end_time:type_name -> common.v1.Timestamp
-	1,  // 10: catalog.v1.Session.status:type_name -> catalog.v1.SessionStatus
-	18, // 11: catalog.v1.Session.seat_areas:type_name -> catalog.v1.SeatArea
-	28, // 12: catalog.v1.Session.created_at:type_name -> common.v1.Timestamp
-	28, // 13: catalog.v1.CreateSessionRequest.start_time:type_name -> common.v1.Timestamp
-	28, // 14: catalog.v1.CreateSessionRequest.end_time:type_name -> common.v1.Timestamp
-	29, // 15: catalog.v1.ListSessionsRequest.pagination:type_name -> common.v1.PaginationRequest
-	10, // 16: catalog.v1.ListSessionsResponse.sessions:type_name -> catalog.v1.Session
-	30, // 17: catalog.v1.ListSessionsResponse.pagination:type_name -> common.v1.PaginationResponse
-	28, // 18: catalog.v1.UpdateSessionRequest.start_time:type_name -> common.v1.Timestamp
-	28, // 19: catalog.v1.UpdateSessionRequest.end_time:type_name -> common.v1.Timestamp
-	1,  // 20: catalog.v1.UpdateSessionRequest.status:type_name -> catalog.v1.SessionStatus
-	18, // 21: catalog.v1.AvailableSeatsResponse.seat_areas:type_name -> catalog.v1.SeatArea
-	18, // 22: catalog.v1.GetSeatAreasResponse.seat_areas:type_name -> catalog.v1.SeatArea
-	3,  // 23: catalog.v1.CatalogService.CreateShow:input_type -> catalog.v1.CreateShowRequest
-	4,  // 24: catalog.v1.CatalogService.GetShow:input_type -> catalog.v1.GetShowRequest
-	5,  // 25: catalog.v1.CatalogService.UpdateShow:input_type -> catalog.v1.UpdateShowRequest
-	6,  // 26: catalog.v1.CatalogService.ListShows:input_type -> catalog.v1.ListShowsRequest
-	8,  // 27: catalog.v1.CatalogService.DeleteShow:input_type -> catalog.v1.DeleteShowRequest
-	11, // 28: catalog.v1.CatalogService.CreateSession:input_type -> catalog.v1.CreateSessionRequest
-	12, // 29: catalog.v1.CatalogService.GetSession:input_type -> catalog.v1.GetSessionRequest
-	13, // 30: catalog.v1.CatalogService.ListSessions:input_type -> catalog.v1.ListSessionsRequest
-	15, // 31: catalog.v1.CatalogService.UpdateSession:input_type -> catalog.v1.UpdateSessionRequest
-	16, // 32: catalog.v1.CatalogService.DeleteSession:input_type -> catalog.v1.DeleteSessionRequest
-	19, // 33: catalog.v1.CatalogService.CreateSeatArea:input_type -> catalog.v1.CreateSeatAreaRequest
-	20, // 34: catalog.v1.CatalogService.GetAvailableSeats:input_type -> catalog.v1.GetAvailableSeatsRequest
-	22, // 35: catalog.v1.CatalogService.GetSeatAreasBySession:input_type -> catalog.v1.GetSeatAreasBySessionRequest
-	24, // 36: catalog.v1.CatalogService.DeductInventory:input_type -> catalog.v1.DeductInventoryRequest
-	26, // 37: catalog.v1.CatalogService.RestoreInventory:input_type -> catalog.v1.RestoreInventoryRequest
-	2,  // 38: catalog.v1.CatalogService.CreateShow:output_type -> catalog.v1.Show
-	2,  // 39: catalog.v1.CatalogService.GetShow:output_type -> catalog.v1.Show
-	2,  // 40: catalog.v1.CatalogService.UpdateShow:output_type -> catalog.v1.Show
-	7,  // 41: catalog.v1.CatalogService.ListShows:output_type -> catalog.v1.ListShowsResponse
-	9,  // 42: catalog.v1.CatalogService.DeleteShow:output_type -> catalog.v1.DeleteShowResponse
-	10, // 43: catalog.v1.CatalogService.CreateSession:output_type -> catalog.v1.Session
-	10, // 44: catalog.v1.CatalogService.GetSession:output_type -> catalog.v1.Session
-	14, // 45: catalog.v1.CatalogService.ListSessions:output_type -> catalog.v1.ListSessionsResponse
-	10, // 46: catalog.v1.CatalogService.UpdateSession:output_type -> catalog.v1.Session
-	17, // 47: catalog.v1.CatalogService.DeleteSession:output_type -> catalog.v1.DeleteSessionResponse
-	18, // 48: catalog.v1.CatalogService.CreateSeatArea:output_type -> catalog.v1.SeatArea
-	21, // 49: catalog.v1.CatalogService.GetAvailableSeats:output_type -> catalog.v1.AvailableSeatsResponse
-	23, // 50: catalog.v1.CatalogService.GetSeatAreasBySession:output_type -> catalog.v1.GetSeatAreasResponse
-	25, // 51: catalog.v1.CatalogService.DeductInventory:output_type -> catalog.v1.DeductInventoryResponse
-	27, // 52: catalog.v1.CatalogService.RestoreInventory:output_type -> catalog.v1.RestoreInventoryResponse
-	38, // [38:53] is the sub-list for method output_type
-	23, // [23:38] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	1,  // 0: catalog.v1.Show.category:type_name -> catalog.v1.ShowCategory
+	0,  // 1: catalog.v1.Show.status:type_name -> catalog.v1.ShowStatus
+	39, // 2: catalog.v1.Show.created_at:type_name -> common.v1.Timestamp
+	39, // 3: catalog.v1.Show.updated_at:type_name -> common.v1.Timestamp
+	1,  // 4: catalog.v1.CreateShowRequest.category:type_name -> catalog.v1.ShowCategory
+	3,  // 5: catalog.v1.CreateShowResponse.show:type_name -> catalog.v1.Show
+	3,  // 6: catalog.v1.GetShowResponse.show:type_name -> catalog.v1.Show
+	40, // 7: catalog.v1.ListShowsRequest.pagination:type_name -> common.v1.PaginationRequest
+	1,  // 8: catalog.v1.ListShowsRequest.category:type_name -> catalog.v1.ShowCategory
+	0,  // 9: catalog.v1.ListShowsRequest.status:type_name -> catalog.v1.ShowStatus
+	3,  // 10: catalog.v1.ListShowsResponse.shows:type_name -> catalog.v1.Show
+	41, // 11: catalog.v1.ListShowsResponse.pagination:type_name -> common.v1.PaginationResponse
+	1,  // 12: catalog.v1.UpdateShowRequest.category:type_name -> catalog.v1.ShowCategory
+	0,  // 13: catalog.v1.UpdateShowRequest.status:type_name -> catalog.v1.ShowStatus
+	3,  // 14: catalog.v1.UpdateShowResponse.show:type_name -> catalog.v1.Show
+	39, // 15: catalog.v1.Venue.created_at:type_name -> common.v1.Timestamp
+	14, // 16: catalog.v1.CreateVenueResponse.venue:type_name -> catalog.v1.Venue
+	14, // 17: catalog.v1.GetVenueResponse.venue:type_name -> catalog.v1.Venue
+	40, // 18: catalog.v1.ListVenuesRequest.pagination:type_name -> common.v1.PaginationRequest
+	14, // 19: catalog.v1.ListVenuesResponse.venues:type_name -> catalog.v1.Venue
+	41, // 20: catalog.v1.ListVenuesResponse.pagination:type_name -> common.v1.PaginationResponse
+	14, // 21: catalog.v1.Session.venue:type_name -> catalog.v1.Venue
+	39, // 22: catalog.v1.Session.start_time:type_name -> common.v1.Timestamp
+	39, // 23: catalog.v1.Session.end_time:type_name -> common.v1.Timestamp
+	39, // 24: catalog.v1.Session.sale_start_time:type_name -> common.v1.Timestamp
+	39, // 25: catalog.v1.Session.sale_end_time:type_name -> common.v1.Timestamp
+	2,  // 26: catalog.v1.Session.status:type_name -> catalog.v1.SessionStatus
+	39, // 27: catalog.v1.Session.created_at:type_name -> common.v1.Timestamp
+	39, // 28: catalog.v1.CreateSessionRequest.start_time:type_name -> common.v1.Timestamp
+	39, // 29: catalog.v1.CreateSessionRequest.end_time:type_name -> common.v1.Timestamp
+	39, // 30: catalog.v1.CreateSessionRequest.sale_start_time:type_name -> common.v1.Timestamp
+	39, // 31: catalog.v1.CreateSessionRequest.sale_end_time:type_name -> common.v1.Timestamp
+	21, // 32: catalog.v1.CreateSessionResponse.session:type_name -> catalog.v1.Session
+	21, // 33: catalog.v1.GetSessionResponse.session:type_name -> catalog.v1.Session
+	28, // 34: catalog.v1.GetSessionResponse.seat_areas:type_name -> catalog.v1.SeatArea
+	21, // 35: catalog.v1.ListSessionsResponse.sessions:type_name -> catalog.v1.Session
+	39, // 36: catalog.v1.SeatArea.created_at:type_name -> common.v1.Timestamp
+	28, // 37: catalog.v1.CreateSeatAreaResponse.seat_area:type_name -> catalog.v1.SeatArea
+	28, // 38: catalog.v1.ListSeatAreasResponse.seat_areas:type_name -> catalog.v1.SeatArea
+	4,  // 39: catalog.v1.CatalogService.CreateShow:input_type -> catalog.v1.CreateShowRequest
+	6,  // 40: catalog.v1.CatalogService.GetShow:input_type -> catalog.v1.GetShowRequest
+	8,  // 41: catalog.v1.CatalogService.ListShows:input_type -> catalog.v1.ListShowsRequest
+	10, // 42: catalog.v1.CatalogService.UpdateShow:input_type -> catalog.v1.UpdateShowRequest
+	12, // 43: catalog.v1.CatalogService.DeleteShow:input_type -> catalog.v1.DeleteShowRequest
+	15, // 44: catalog.v1.CatalogService.CreateVenue:input_type -> catalog.v1.CreateVenueRequest
+	17, // 45: catalog.v1.CatalogService.GetVenue:input_type -> catalog.v1.GetVenueRequest
+	19, // 46: catalog.v1.CatalogService.ListVenues:input_type -> catalog.v1.ListVenuesRequest
+	22, // 47: catalog.v1.CatalogService.CreateSession:input_type -> catalog.v1.CreateSessionRequest
+	24, // 48: catalog.v1.CatalogService.GetSession:input_type -> catalog.v1.GetSessionRequest
+	26, // 49: catalog.v1.CatalogService.ListSessions:input_type -> catalog.v1.ListSessionsRequest
+	29, // 50: catalog.v1.CatalogService.CreateSeatArea:input_type -> catalog.v1.CreateSeatAreaRequest
+	31, // 51: catalog.v1.CatalogService.ListSeatAreas:input_type -> catalog.v1.ListSeatAreasRequest
+	33, // 52: catalog.v1.CatalogService.CheckAvailability:input_type -> catalog.v1.CheckAvailabilityRequest
+	35, // 53: catalog.v1.CatalogService.ReserveSeats:input_type -> catalog.v1.ReserveSeatsRequest
+	37, // 54: catalog.v1.CatalogService.ReleaseSeats:input_type -> catalog.v1.ReleaseSeatsRequest
+	5,  // 55: catalog.v1.CatalogService.CreateShow:output_type -> catalog.v1.CreateShowResponse
+	7,  // 56: catalog.v1.CatalogService.GetShow:output_type -> catalog.v1.GetShowResponse
+	9,  // 57: catalog.v1.CatalogService.ListShows:output_type -> catalog.v1.ListShowsResponse
+	11, // 58: catalog.v1.CatalogService.UpdateShow:output_type -> catalog.v1.UpdateShowResponse
+	13, // 59: catalog.v1.CatalogService.DeleteShow:output_type -> catalog.v1.DeleteShowResponse
+	16, // 60: catalog.v1.CatalogService.CreateVenue:output_type -> catalog.v1.CreateVenueResponse
+	18, // 61: catalog.v1.CatalogService.GetVenue:output_type -> catalog.v1.GetVenueResponse
+	20, // 62: catalog.v1.CatalogService.ListVenues:output_type -> catalog.v1.ListVenuesResponse
+	23, // 63: catalog.v1.CatalogService.CreateSession:output_type -> catalog.v1.CreateSessionResponse
+	25, // 64: catalog.v1.CatalogService.GetSession:output_type -> catalog.v1.GetSessionResponse
+	27, // 65: catalog.v1.CatalogService.ListSessions:output_type -> catalog.v1.ListSessionsResponse
+	30, // 66: catalog.v1.CatalogService.CreateSeatArea:output_type -> catalog.v1.CreateSeatAreaResponse
+	32, // 67: catalog.v1.CatalogService.ListSeatAreas:output_type -> catalog.v1.ListSeatAreasResponse
+	34, // 68: catalog.v1.CatalogService.CheckAvailability:output_type -> catalog.v1.CheckAvailabilityResponse
+	36, // 69: catalog.v1.CatalogService.ReserveSeats:output_type -> catalog.v1.ReserveSeatsResponse
+	38, // 70: catalog.v1.CatalogService.ReleaseSeats:output_type -> catalog.v1.ReleaseSeatsResponse
+	55, // [55:71] is the sub-list for method output_type
+	39, // [39:55] is the sub-list for method input_type
+	39, // [39:39] is the sub-list for extension type_name
+	39, // [39:39] is the sub-list for extension extendee
+	0,  // [0:39] is the sub-list for field type_name
 }
 
 func init() { file_catalog_v1_catalog_proto_init() }
@@ -2038,15 +2697,16 @@ func file_catalog_v1_catalog_proto_init() {
 	if File_catalog_v1_catalog_proto != nil {
 		return
 	}
-	file_catalog_v1_catalog_proto_msgTypes[3].OneofWrappers = []any{}
-	file_catalog_v1_catalog_proto_msgTypes[13].OneofWrappers = []any{}
+	file_catalog_v1_catalog_proto_msgTypes[5].OneofWrappers = []any{}
+	file_catalog_v1_catalog_proto_msgTypes[7].OneofWrappers = []any{}
+	file_catalog_v1_catalog_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_v1_catalog_proto_rawDesc), len(file_catalog_v1_catalog_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   26,
+			NumEnums:      3,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

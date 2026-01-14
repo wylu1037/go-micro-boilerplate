@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// AppError represents an application error
 type AppError struct {
 	Code       string            `json:"code"`
 	Message    string            `json:"message"`
@@ -21,12 +20,10 @@ func (e *AppError) Error() string {
 	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
 }
 
-// GRPCStatus returns the gRPC status for this error
 func (e *AppError) GRPCStatus() *status.Status {
 	return status.New(e.GRPCCode, e.Message)
 }
 
-// Common errors
 var (
 	ErrInvalidArgument = &AppError{
 		Code:       "INVALID_ARGUMENT",

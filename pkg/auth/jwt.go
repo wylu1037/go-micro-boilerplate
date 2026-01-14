@@ -31,7 +31,6 @@ type TokenPair struct {
 	ExpiresIn    int64 // Access token expiry in seconds
 }
 
-// JWTManager handles JWT operations
 type JWTManager struct {
 	secret          []byte
 	accessTokenTTL  time.Duration

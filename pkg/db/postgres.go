@@ -11,13 +11,14 @@ import (
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 )
 
-// Pool wraps pgxpool.Pool with additional methods
 type Pool struct {
 	*pgxpool.Pool
 }
 
-// NewPool creates a new database connection pool
-func NewPool(ctx context.Context, cfg config.DatabaseConfig) (*Pool, error) {
+func NewPool(
+	ctx context.Context,
+	cfg config.DatabaseConfig,
+) (*Pool, error) {
 	poolConfig, err := pgxpool.ParseConfig(cfg.DSN())
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
@@ -45,17 +46,14 @@ func NewPool(ctx context.Context, cfg config.DatabaseConfig) (*Pool, error) {
 	return &Pool{Pool: pool}, nil
 }
 
-// Close closes the database connection pool
 func (p *Pool) Close() {
 	p.Pool.Close()
 }
 
-// HealthCheck performs a health check on the database
 func (p *Pool) HealthCheck(ctx context.Context) error {
 	return p.Ping(ctx)
 }
 
-// Transaction executes a function within a database transaction
 func (p *Pool) Transaction(ctx context.Context, fn func(tx pgx.Tx) error) error {
 	tx, err := p.Begin(ctx)
 	if err != nil {

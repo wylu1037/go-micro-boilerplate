@@ -5,7 +5,6 @@ package bookingv1
 
 import (
 	fmt "fmt"
-	_ "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	proto "google.golang.org/protobuf/proto"
 	math "math"
 )
@@ -37,18 +36,6 @@ func NewBookingServiceEndpoints() []*api.Endpoint {
 // Client API for BookingService service
 
 type BookingService interface {
-	// Order management
-	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...client.CallOption) (*Order, error)
-	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...client.CallOption) (*Order, error)
-	ListUserOrders(ctx context.Context, in *ListUserOrdersRequest, opts ...client.CallOption) (*ListOrdersResponse, error)
-	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...client.CallOption) (*Order, error)
-	// Payment
-	InitiatePayment(ctx context.Context, in *InitiatePaymentRequest, opts ...client.CallOption) (*InitiatePaymentResponse, error)
-	HandlePaymentCallback(ctx context.Context, in *PaymentCallbackRequest, opts ...client.CallOption) (*PaymentCallbackResponse, error)
-	GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, opts ...client.CallOption) (*PaymentStatus, error)
-	// Seat reservation (Redis-backed)
-	ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, opts ...client.CallOption) (*ReserveSeatsResponse, error)
-	ReleaseReservation(ctx context.Context, in *ReleaseReservationRequest, opts ...client.CallOption) (*ReleaseReservationResponse, error)
 }
 
 type bookingService struct {
@@ -63,124 +50,13 @@ func NewBookingService(name string, c client.Client) BookingService {
 	}
 }
 
-func (c *bookingService) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...client.CallOption) (*Order, error) {
-	req := c.c.NewRequest(c.name, "BookingService.CreateOrder", in)
-	out := new(Order)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) GetOrder(ctx context.Context, in *GetOrderRequest, opts ...client.CallOption) (*Order, error) {
-	req := c.c.NewRequest(c.name, "BookingService.GetOrder", in)
-	out := new(Order)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) ListUserOrders(ctx context.Context, in *ListUserOrdersRequest, opts ...client.CallOption) (*ListOrdersResponse, error) {
-	req := c.c.NewRequest(c.name, "BookingService.ListUserOrders", in)
-	out := new(ListOrdersResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...client.CallOption) (*Order, error) {
-	req := c.c.NewRequest(c.name, "BookingService.CancelOrder", in)
-	out := new(Order)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) InitiatePayment(ctx context.Context, in *InitiatePaymentRequest, opts ...client.CallOption) (*InitiatePaymentResponse, error) {
-	req := c.c.NewRequest(c.name, "BookingService.InitiatePayment", in)
-	out := new(InitiatePaymentResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) HandlePaymentCallback(ctx context.Context, in *PaymentCallbackRequest, opts ...client.CallOption) (*PaymentCallbackResponse, error) {
-	req := c.c.NewRequest(c.name, "BookingService.HandlePaymentCallback", in)
-	out := new(PaymentCallbackResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, opts ...client.CallOption) (*PaymentStatus, error) {
-	req := c.c.NewRequest(c.name, "BookingService.GetPaymentStatus", in)
-	out := new(PaymentStatus)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, opts ...client.CallOption) (*ReserveSeatsResponse, error) {
-	req := c.c.NewRequest(c.name, "BookingService.ReserveSeats", in)
-	out := new(ReserveSeatsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookingService) ReleaseReservation(ctx context.Context, in *ReleaseReservationRequest, opts ...client.CallOption) (*ReleaseReservationResponse, error) {
-	req := c.c.NewRequest(c.name, "BookingService.ReleaseReservation", in)
-	out := new(ReleaseReservationResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for BookingService service
 
 type BookingServiceHandler interface {
-	// Order management
-	CreateOrder(context.Context, *CreateOrderRequest, *Order) error
-	GetOrder(context.Context, *GetOrderRequest, *Order) error
-	ListUserOrders(context.Context, *ListUserOrdersRequest, *ListOrdersResponse) error
-	CancelOrder(context.Context, *CancelOrderRequest, *Order) error
-	// Payment
-	InitiatePayment(context.Context, *InitiatePaymentRequest, *InitiatePaymentResponse) error
-	HandlePaymentCallback(context.Context, *PaymentCallbackRequest, *PaymentCallbackResponse) error
-	GetPaymentStatus(context.Context, *GetPaymentStatusRequest, *PaymentStatus) error
-	// Seat reservation (Redis-backed)
-	ReserveSeats(context.Context, *ReserveSeatsRequest, *ReserveSeatsResponse) error
-	ReleaseReservation(context.Context, *ReleaseReservationRequest, *ReleaseReservationResponse) error
 }
 
 func RegisterBookingServiceHandler(s server.Server, hdlr BookingServiceHandler, opts ...server.HandlerOption) error {
 	type bookingService interface {
-		CreateOrder(ctx context.Context, in *CreateOrderRequest, out *Order) error
-		GetOrder(ctx context.Context, in *GetOrderRequest, out *Order) error
-		ListUserOrders(ctx context.Context, in *ListUserOrdersRequest, out *ListOrdersResponse) error
-		CancelOrder(ctx context.Context, in *CancelOrderRequest, out *Order) error
-		InitiatePayment(ctx context.Context, in *InitiatePaymentRequest, out *InitiatePaymentResponse) error
-		HandlePaymentCallback(ctx context.Context, in *PaymentCallbackRequest, out *PaymentCallbackResponse) error
-		GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, out *PaymentStatus) error
-		ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, out *ReserveSeatsResponse) error
-		ReleaseReservation(ctx context.Context, in *ReleaseReservationRequest, out *ReleaseReservationResponse) error
 	}
 	type BookingService struct {
 		bookingService
@@ -191,40 +67,4 @@ func RegisterBookingServiceHandler(s server.Server, hdlr BookingServiceHandler, 
 
 type bookingServiceHandler struct {
 	BookingServiceHandler
-}
-
-func (h *bookingServiceHandler) CreateOrder(ctx context.Context, in *CreateOrderRequest, out *Order) error {
-	return h.BookingServiceHandler.CreateOrder(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) GetOrder(ctx context.Context, in *GetOrderRequest, out *Order) error {
-	return h.BookingServiceHandler.GetOrder(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) ListUserOrders(ctx context.Context, in *ListUserOrdersRequest, out *ListOrdersResponse) error {
-	return h.BookingServiceHandler.ListUserOrders(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) CancelOrder(ctx context.Context, in *CancelOrderRequest, out *Order) error {
-	return h.BookingServiceHandler.CancelOrder(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) InitiatePayment(ctx context.Context, in *InitiatePaymentRequest, out *InitiatePaymentResponse) error {
-	return h.BookingServiceHandler.InitiatePayment(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) HandlePaymentCallback(ctx context.Context, in *PaymentCallbackRequest, out *PaymentCallbackResponse) error {
-	return h.BookingServiceHandler.HandlePaymentCallback(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) GetPaymentStatus(ctx context.Context, in *GetPaymentStatusRequest, out *PaymentStatus) error {
-	return h.BookingServiceHandler.GetPaymentStatus(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) ReserveSeats(ctx context.Context, in *ReserveSeatsRequest, out *ReserveSeatsResponse) error {
-	return h.BookingServiceHandler.ReserveSeats(ctx, in, out)
-}
-
-func (h *bookingServiceHandler) ReleaseReservation(ctx context.Context, in *ReleaseReservationRequest, out *ReleaseReservationResponse) error {
-	return h.BookingServiceHandler.ReleaseReservation(ctx, in, out)
 }

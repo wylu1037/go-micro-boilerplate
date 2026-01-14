@@ -5,85 +5,176 @@ package catalog.v1;
 option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1;catalogv1";
 
 import "common/v1/pagination.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 
-// Catalog service manages shows, sessions, and seat inventory
 service CatalogService {
-  // Show management
-  rpc CreateShow(CreateShowRequest) returns (Show);
-  rpc GetShow(GetShowRequest) returns (Show);
-  rpc UpdateShow(UpdateShowRequest) returns (Show);
-  rpc ListShows(ListShowsRequest) returns (ListShowsResponse);
-  rpc DeleteShow(DeleteShowRequest) returns (DeleteShowResponse);
 
-  // Session management
-  rpc CreateSession(CreateSessionRequest) returns (Session);
-  rpc GetSession(GetSessionRequest) returns (Session);
-  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
-  rpc UpdateSession(UpdateSessionRequest) returns (Session);
-  rpc DeleteSession(DeleteSessionRequest) returns (DeleteSessionResponse);
+  // Create a new show
+  rpc CreateShow(CreateShowRequest) returns (CreateShowResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/catalog/shows"
+      body: "*"
+    };
+  }
 
-  // Seat area and inventory
-  rpc CreateSeatArea(CreateSeatAreaRequest) returns (SeatArea);
-  rpc GetAvailableSeats(GetAvailableSeatsRequest) returns (AvailableSeatsResponse);
-  rpc GetSeatAreasBySession(GetSeatAreasBySessionRequest) returns (GetSeatAreasResponse);
+  // Get show by ID
+  rpc GetShow(GetShowRequest) returns (GetShowResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/shows/{show_id}"
+    };
+  }
 
-  // Internal: inventory operations
-  rpc DeductInventory(DeductInventoryRequest) returns (DeductInventoryResponse);
-  rpc RestoreInventory(RestoreInventoryRequest) returns (RestoreInventoryResponse);
+  // List shows with pagination and filters
+  rpc ListShows(ListShowsRequest) returns (ListShowsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/shows"
+    };
+  }
+
+  // Update show
+  rpc UpdateShow(UpdateShowRequest) returns (UpdateShowResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/catalog/shows/{show_id}"
+      body: "*"
+    };
+  }
+
+  // Delete show
+  rpc DeleteShow(DeleteShowRequest) returns (DeleteShowResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/catalog/shows/{show_id}"
+    };
+  }
+
+
+  // Create a new venue
+  rpc CreateVenue(CreateVenueRequest) returns (CreateVenueResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/catalog/venues"
+      body: "*"
+    };
+  }
+
+  // Get venue by ID
+  rpc GetVenue(GetVenueRequest) returns (GetVenueResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/venues/{venue_id}"
+    };
+  }
+
+  // List venues
+  rpc ListVenues(ListVenuesRequest) returns (ListVenuesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/venues"
+    };
+  }
+
+
+  // Create a session for a show
+  rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/catalog/shows/{show_id}/sessions"
+      body: "*"
+    };
+  }
+
+  // Get session by ID
+  rpc GetSession(GetSessionRequest) returns (GetSessionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/sessions/{session_id}"
+    };
+  }
+
+  // List sessions for a show
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/shows/{show_id}/sessions"
+    };
+  }
+
+
+  // Create seat area for a session
+  rpc CreateSeatArea(CreateSeatAreaRequest) returns (CreateSeatAreaResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/catalog/sessions/{session_id}/seat-areas"
+      body: "*"
+    };
+  }
+
+  // Get seat areas for a session
+  rpc ListSeatAreas(ListSeatAreasRequest) returns (ListSeatAreasResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/catalog/sessions/{session_id}/seat-areas"
+    };
+  }
+
+  // Check seat availability (for booking service)
+  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+
+  // Reserve seats (for booking service)
+  rpc ReserveSeats(ReserveSeatsRequest) returns (ReserveSeatsResponse);
+
+  // Release seats (for booking service, when order cancelled/expired)
+  rpc ReleaseSeats(ReleaseSeatsRequest) returns (ReleaseSeatsResponse);
 }
 
-// Show represents a concert/performance
-message Show {
-  string show_id = 1;
-  string title = 2;
-  string artist = 3;
-  string description = 4;
-  string venue = 5;
-  string city = 6;
-  string poster_url = 7;
-  ShowStatus status = 8;
-  common.v1.Timestamp created_at = 9;
-  common.v1.Timestamp updated_at = 10;
-}
 
+// Show status enum
 enum ShowStatus {
   SHOW_STATUS_UNSPECIFIED = 0;
   SHOW_STATUS_DRAFT = 1;
-  SHOW_STATUS_ON_SALE = 2;
-  SHOW_STATUS_SOLD_OUT = 3;
-  SHOW_STATUS_CANCELLED = 4;
-  SHOW_STATUS_COMPLETED = 5;
+  SHOW_STATUS_PUBLISHED = 2;
+  SHOW_STATUS_CANCELLED = 3;
+}
+
+// Show category enum
+enum ShowCategory {
+  SHOW_CATEGORY_UNSPECIFIED = 0;
+  SHOW_CATEGORY_CONCERT = 1;
+  SHOW_CATEGORY_MUSICAL = 2;
+  SHOW_CATEGORY_SPORTS = 3;
+  SHOW_CATEGORY_EXHIBITION = 4;
+  SHOW_CATEGORY_OTHER = 5;
+}
+
+message Show {
+  string show_id = 1;
+  string title = 2;
+  string description = 3;
+  string artist = 4;
+  ShowCategory category = 5;
+  string poster_url = 6;
+  ShowStatus status = 7;
+  common.v1.Timestamp created_at = 8;
+  common.v1.Timestamp updated_at = 9;
 }
 
 message CreateShowRequest {
-  string title = 1;
-  string artist = 2;
-  string description = 3;
-  string venue = 4;
-  string city = 5;
-  string poster_url = 6;
+  string title = 1 [(buf.validate.field).string.min_len = 1];
+  string description = 2;
+  string artist = 3;
+  ShowCategory category = 4 [(buf.validate.field).enum.defined_only = true];
+  string poster_url = 5;
+}
+
+message CreateShowResponse {
+  Show show = 1;
 }
 
 message GetShowRequest {
-  string show_id = 1;
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
-message UpdateShowRequest {
-  string show_id = 1;
-  optional string title = 2;
-  optional string artist = 3;
-  optional string description = 4;
-  optional string venue = 5;
-  optional string city = 6;
-  optional string poster_url = 7;
-  optional ShowStatus status = 8;
+message GetShowResponse {
+  Show show = 1;
 }
 
 message ListShowsRequest {
   common.v1.PaginationRequest pagination = 1;
-  string city = 2;  // Filter by city
-  string artist = 3;  // Filter by artist
-  ShowStatus status = 4;  // Filter by status
+  optional ShowCategory category = 2;
+  optional ShowStatus status = 3;
+  optional string city = 4;
 }
 
 message ListShowsResponse {
@@ -91,24 +182,67 @@ message ListShowsResponse {
   common.v1.PaginationResponse pagination = 2;
 }
 
+message UpdateShowRequest {
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
+  optional string title = 2;
+  optional string description = 3;
+  optional string artist = 4;
+  optional ShowCategory category = 5;
+  optional string poster_url = 6;
+  optional ShowStatus status = 7;
+}
+
+message UpdateShowResponse {
+  Show show = 1;
+}
+
 message DeleteShowRequest {
-  string show_id = 1;
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message DeleteShowResponse {
-  bool success = 1;
+  string message = 1;
 }
 
-// Session represents a specific performance time
-message Session {
-  string session_id = 1;
-  string show_id = 2;
-  common.v1.Timestamp start_time = 3;
-  common.v1.Timestamp end_time = 4;
-  SessionStatus status = 5;
-  repeated SeatArea seat_areas = 6;
-  common.v1.Timestamp created_at = 7;
+
+message Venue {
+  string venue_id = 1;
+  string name = 2;
+  string city = 3;
+  string address = 4;
+  int32 capacity = 5;
+  common.v1.Timestamp created_at = 6;
 }
+
+message CreateVenueRequest {
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  string city = 2 [(buf.validate.field).string.min_len = 1];
+  string address = 3;
+  int32 capacity = 4;
+}
+
+message CreateVenueResponse {
+  Venue venue = 1;
+}
+
+message GetVenueRequest {
+  string venue_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetVenueResponse {
+  Venue venue = 1;
+}
+
+message ListVenuesRequest {
+  common.v1.PaginationRequest pagination = 1;
+  optional string city = 2;
+}
+
+message ListVenuesResponse {
+  repeated Venue venues = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
 
 enum SessionStatus {
   SESSION_STATUS_UNSPECIFIED = 0;
@@ -116,99 +250,114 @@ enum SessionStatus {
   SESSION_STATUS_ON_SALE = 2;
   SESSION_STATUS_SOLD_OUT = 3;
   SESSION_STATUS_CANCELLED = 4;
-  SESSION_STATUS_COMPLETED = 5;
+}
+
+message Session {
+  string session_id = 1;
+  string show_id = 2;
+  string venue_id = 3;
+  Venue venue = 4;
+  common.v1.Timestamp start_time = 5;
+  common.v1.Timestamp end_time = 6;
+  common.v1.Timestamp sale_start_time = 7;
+  common.v1.Timestamp sale_end_time = 8;
+  SessionStatus status = 9;
+  common.v1.Timestamp created_at = 10;
 }
 
 message CreateSessionRequest {
-  string show_id = 1;
-  common.v1.Timestamp start_time = 2;
-  common.v1.Timestamp end_time = 3;
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
+  string venue_id = 2 [(buf.validate.field).string.uuid = true];
+  common.v1.Timestamp start_time = 3 [(buf.validate.field).required = true];
+  common.v1.Timestamp end_time = 4;
+  common.v1.Timestamp sale_start_time = 5;
+  common.v1.Timestamp sale_end_time = 6;
+}
+
+message CreateSessionResponse {
+  Session session = 1;
 }
 
 message GetSessionRequest {
-  string session_id = 1;
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetSessionResponse {
+  Session session = 1;
+  repeated SeatArea seat_areas = 2;
 }
 
 message ListSessionsRequest {
-  string show_id = 1;
-  common.v1.PaginationRequest pagination = 2;
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message ListSessionsResponse {
   repeated Session sessions = 1;
-  common.v1.PaginationResponse pagination = 2;
 }
 
-message UpdateSessionRequest {
-  string session_id = 1;
-  optional common.v1.Timestamp start_time = 2;
-  optional common.v1.Timestamp end_time = 3;
-  optional SessionStatus status = 4;
-}
 
-message DeleteSessionRequest {
-  string session_id = 1;
-}
-
-message DeleteSessionResponse {
-  bool success = 1;
-}
-
-// SeatArea represents a seating section with pricing
 message SeatArea {
   string seat_area_id = 1;
   string session_id = 2;
-  string name = 3;  // e.g., "VIP", "A区", "看台"
-  int64 price_cents = 4;  // Price in cents to avoid floating point
+  string name = 3;
+  string price = 4; // Use string for decimal precision
   int32 total_seats = 5;
   int32 available_seats = 6;
+  common.v1.Timestamp created_at = 7;
 }
 
 message CreateSeatAreaRequest {
-  string session_id = 1;
-  string name = 2;
-  int64 price_cents = 3;
-  int32 total_seats = 4;
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+  string name = 2 [(buf.validate.field).string.min_len = 1];
+  string price = 3 [(buf.validate.field).string.min_len = 1]; // e.g. "1280.00"
+  int32 total_seats = 4 [(buf.validate.field).int32.gt = 0];
 }
 
-message GetAvailableSeatsRequest {
-  string session_id = 1;
+message CreateSeatAreaResponse {
+  SeatArea seat_area = 1;
 }
 
-message AvailableSeatsResponse {
-  string session_id = 1;
-  repeated SeatArea seat_areas = 2;
-  int32 total_available = 3;
+message ListSeatAreasRequest {
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
-message GetSeatAreasBySessionRequest {
-  string session_id = 1;
-}
-
-message GetSeatAreasResponse {
+message ListSeatAreasResponse {
   repeated SeatArea seat_areas = 1;
 }
 
-// Inventory operations (internal use by booking service)
-message DeductInventoryRequest {
-  string seat_area_id = 1;
-  int32 quantity = 2;
-  string order_id = 3;  // For idempotency
+
+message CheckAvailabilityRequest {
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+  string seat_area_id = 2 [(buf.validate.field).string.uuid = true];
+  int32 quantity = 3 [(buf.validate.field).int32.gt = 0];
 }
 
-message DeductInventoryResponse {
+message CheckAvailabilityResponse {
+  bool available = 1;
+  int32 available_seats = 2;
+  string price = 3;
+}
+
+message ReserveSeatsRequest {
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+  string seat_area_id = 2 [(buf.validate.field).string.uuid = true];
+  int32 quantity = 3 [(buf.validate.field).int32.gt = 0];
+  string order_id = 4 [(buf.validate.field).string.uuid = true];
+}
+
+message ReserveSeatsResponse {
   bool success = 1;
-  int32 remaining = 2;
-  string error_message = 3;
+  string message = 2;
 }
 
-message RestoreInventoryRequest {
-  string seat_area_id = 1;
-  int32 quantity = 2;
-  string order_id = 3;
+message ReleaseSeatsRequest {
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+  string seat_area_id = 2 [(buf.validate.field).string.uuid = true];
+  int32 quantity = 3 [(buf.validate.field).int32.gt = 0];
+  string order_id = 4 [(buf.validate.field).string.uuid = true];
 }
 
-message RestoreInventoryResponse {
+message ReleaseSeatsResponse {
   bool success = 1;
-  int32 remaining = 2;
+  string message = 2;
 }

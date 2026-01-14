@@ -10,8 +10,8 @@ COMMENT ON SCHEMA catalog IS '演出目录服务 Schema - 管理演出、场次�
 COMMENT ON SCHEMA booking IS '订单预订服务 Schema - 管理订单、支付';
 COMMENT ON SCHEMA notification IS '通知服务 Schema - 管理消息模板、发送日志';
 
--- Grant permissions (adjust as needed for production)
-GRANT ALL ON SCHEMA identity TO postgres;
-GRANT ALL ON SCHEMA catalog TO postgres;
-GRANT ALL ON SCHEMA booking TO postgres;
-GRANT ALL ON SCHEMA notification TO postgres;
+-- Grant permissions (use PUBLIC for development compatibility)
+GRANT ALL ON SCHEMA identity TO PUBLIC;
+GRANT ALL ON SCHEMA catalog TO PUBLIC;
+GRANT ALL ON SCHEMA booking TO PUBLIC;
+GRANT ALL ON SCHEMA notification TO PUBLIC;

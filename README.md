@@ -217,6 +217,12 @@ The API Gateway is the single entry point for all client requests, built with **
 - SMS/Email delivery
 - Message template management
 
+---
+
+## Business Architecture
+
+For detailed business architecture, workflows, and usage scenarios, please refer to [Business Architecture Documentation](docs/architecture.md).
+
 ## Configuration
 
 Override settings via environment variables:
