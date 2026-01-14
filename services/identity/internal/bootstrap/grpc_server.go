@@ -2,65 +2,63 @@ package bootstrap
 
 import (
 	"context"
-	"net"
 
 	"github.com/rs/zerolog"
+	"go-micro.dev/v4"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
-	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/router"
 )
 
-func NewGRPCServer(cfg *config.Config, logger *zerolog.Logger) *grpc.Server {
-	server := grpc.NewServer(
-		middleware.RegisterInterceptors(
-			[]grpc.UnaryServerInterceptor{
-				middleware.NewLoggingInterceptor(logger),
-				middleware.NewRecoveryInterceptor(),
-				middleware.NewValidatorInterceptor(),
-			}),
+// NewMicroService creates a new go-micro service instance.
+// The etcd registry is automatically enabled via blank import in main.go
+// and controlled through environment variables:
+// - MICRO_REGISTRY=etcd
+// - MICRO_REGISTRY_ADDRESS=localhost:2379
+func NewMicroService(cfg *config.Config, logger *zerolog.Logger) micro.Service {
+	service := micro.NewService(
+		micro.Name(cfg.Service.Name),
+		micro.Version(cfg.Service.Version),
+		micro.Address(cfg.Service.Address),
 	)
 
-	return server
+	// Parse command line flags and environment variables
+	service.Init()
+
+	return service
 }
 
-type GRPCServerParams struct {
+type MicroServiceParams struct {
 	fx.In
 
-	Lifecycle  fx.Lifecycle
-	Config     *config.Config
-	Logger     *zerolog.Logger
-	Router     router.Router
-	GRPCServer *grpc.Server
+	Lifecycle    fx.Lifecycle
+	Config       *config.Config
+	Logger       *zerolog.Logger
+	MicroService micro.Service
+	Router       router.Router
 }
 
-func Start(p GRPCServerParams) {
+func Start(p MicroServiceParams) {
 	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			lis, err := net.Listen("tcp", p.Config.Service.Address)
-			if err != nil {
-				return err
-			}
+			p.Logger.Info().
+				Str("name", p.Config.Service.Name).
+				Str("version", p.Config.Service.Version).
+				Str("address", p.Config.Service.Address).
+				Msg("Starting go-micro service")
 
 			p.Router.Register()
 
-			p.Logger.Info().
-				Str("name", p.Config.Service.Name).
-				Str("address", p.Config.Service.Address).
-				Msg("Starting gRPC server")
-
 			go func() {
-				if err := p.GRPCServer.Serve(lis); err != nil {
-					p.Logger.Fatal().Err(err).Msg("gRPC server failed")
+				if err := p.MicroService.Run(); err != nil {
+					p.Logger.Fatal().Err(err).Msg("Micro service failed")
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			p.Logger.Info().Msg("Stopping gRPC server")
-			p.GRPCServer.GracefulStop()
+			p.Logger.Info().Msg("Stopping go-micro service")
 			return nil
 		},
 	})

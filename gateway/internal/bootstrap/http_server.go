@@ -11,12 +11,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/config"
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/middleware"
-	identityv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1"
 )
 
 func NewHTTPServer(
@@ -50,7 +47,7 @@ func NewHTTPServer(
 			runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
 		)
 
-		ctx := context.Background()
+		/* ctx := context.Background()
 		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		}
@@ -60,7 +57,7 @@ func NewHTTPServer(
 		if err := identityv1.RegisterIdentityServiceHandlerFromEndpoint(ctx, gwMux, identityAddr, opts); err != nil {
 			logger.Fatal().Err(err).Str("address", identityAddr).Msg("Failed to register Identity service handler")
 		}
-		logger.Info().Str("address", identityAddr).Msg("Registered Identity service")
+		logger.Info().Str("address", identityAddr).Msg("Registered Identity service") */
 
 		// Mount grpc-gateway to /api/*
 		r.Mount("/", gwMux)

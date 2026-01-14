@@ -13,6 +13,6 @@ var Module = fx.Module(
 		repository.NewUserRepository,
 		repository.NewTokenRepository,
 		service.NewIdentityService,
-		handler.NewIdentityHandler,
+		handler.NewMicroIdentityHandler,
 	),
 )

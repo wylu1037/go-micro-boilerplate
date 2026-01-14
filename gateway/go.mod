@@ -9,15 +9,12 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.20.1
-	github.com/wylu1037/go-micro-boilerplate/gen v0.0.0
 	github.com/wylu1037/go-micro-boilerplate/pkg v0.0.0-20260113141713-aa0b798983d0
 	go.uber.org/fx v1.24.0
 	golang.org/x/time v0.14.0
-	google.golang.org/grpc v1.78.0
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20251209175733-2a1774d88802.1 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -37,6 +34,7 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
+	google.golang.org/grpc v1.78.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -2,16 +2,16 @@ package router
 
 import (
 	identityv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1"
-	"google.golang.org/grpc"
+	"go-micro.dev/v4"
 )
 
 func NewRouter(
-	grpcServer *grpc.Server,
-	identityServiceServer identityv1.IdentityServiceServer,
+	service micro.Service,
+	handler identityv1.IdentityServiceHandler,
 ) Router {
 	return &router{
-		grpcServer:            grpcServer,
-		identityServiceServer: identityServiceServer,
+		microService: service,
+		handler:      handler,
 	}
 }
 
@@ -20,10 +20,10 @@ type Router interface {
 }
 
 type router struct {
-	grpcServer            *grpc.Server
-	identityServiceServer identityv1.IdentityServiceServer
+	microService micro.Service
+	handler      identityv1.IdentityServiceHandler
 }
 
 func (r *router) Register() {
-	identityv1.RegisterIdentityServiceServer(r.grpcServer, r.identityServiceServer)
+	identityv1.RegisterIdentityServiceHandler(r.microService.Server(), r.handler)
 }

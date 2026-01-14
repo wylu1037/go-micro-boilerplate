@@ -117,6 +117,8 @@ make deps
 
 ### 6. Run Services
 
+#### Default Mode (No Service Discovery)
+
 ```bash
 # Run API Gateway
 make run-gateway
@@ -127,6 +129,25 @@ make run-catalog
 make run-booking
 make run-notification
 ```
+
+#### With etcd Service Discovery (Optional)
+
+```bash
+# Start etcd
+docker-compose up -d etcd
+
+# Run services with etcd registry
+MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-identity
+MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-catalog
+MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-booking
+```
+
+**Environment Variables for Service Discovery:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MICRO_REGISTRY` | - | Registry type: `etcd` (留空禁用服务发现) |
+| `MICRO_REGISTRY_ADDRESS` | `localhost:2379` | etcd server endpoint |
 
 ## Services
 
