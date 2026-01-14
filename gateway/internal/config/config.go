@@ -8,9 +8,8 @@ import (
 )
 
 type Config struct {
-	Service  ServiceConfig            `mapstructure:"service"`
-	Backends map[string]BackendConfig `mapstructure:"backends"`
-	Log      LogConfig                `mapstructure:"log"`
+	Service ServiceConfig `mapstructure:"service"`
+	Log     LogConfig     `mapstructure:"log"`
 }
 
 type ServiceConfig struct {
@@ -18,10 +17,6 @@ type ServiceConfig struct {
 	Version string `mapstructure:"version"`
 	Address string `mapstructure:"address"`
 	Env     string `mapstructure:"env"`
-}
-
-type BackendConfig struct {
-	Address string `mapstructure:"address"`
 }
 
 type LogConfig struct {

@@ -8,8 +8,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/api/handler"
+	"go-micro.dev/v4/api/handler/rpc"
+	"go-micro.dev/v4/api/router"
+	"go-micro.dev/v4/api/router/registry"
 	"go.uber.org/fx"
 
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/config"
@@ -19,6 +23,7 @@ import (
 func NewHTTPServer(
 	cfg *config.Config,
 	logger *zerolog.Logger,
+	service micro.Service,
 ) *http.Server {
 	r := chi.NewRouter()
 
@@ -36,31 +41,18 @@ func NewHTTPServer(
 	}))
 	r.Use(chimiddleware.Timeout(60 * time.Second))
 
-	r.Get("/health", healthCheckHandler)
-	r.Get("/ready", readinessCheckHandler())
-	r.Get("/version", versionHandler(cfg))
+	microRouter := registry.NewRouter(
+		router.WithRegistry(service.Options().Registry),
+	)
+
+	microHandler := rpc.NewHandler(
+		handler.WithClient(service.Client()),
+		handler.WithRouter(microRouter),
+	)
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(middleware.RateLimiter(100, 200))
-
-		gwMux := runtime.NewServeMux(
-			runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
-		)
-
-		/* ctx := context.Background()
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		}
-
-		// 注册 Identity service
-		identityAddr := cfg.Backends["identity"].Address
-		if err := identityv1.RegisterIdentityServiceHandlerFromEndpoint(ctx, gwMux, identityAddr, opts); err != nil {
-			logger.Fatal().Err(err).Str("address", identityAddr).Msg("Failed to register Identity service handler")
-		}
-		logger.Info().Str("address", identityAddr).Msg("Registered Identity service") */
-
-		// Mount grpc-gateway to /api/*
-		r.Mount("/", gwMux)
+		r.Mount("/", microHandler)
 	})
 
 	server := &http.Server{
@@ -72,38 +64,6 @@ func NewHTTPServer(
 	}
 
 	return server
-}
-
-func customHeaderMatcher(key string) (string, bool) {
-	switch key {
-	case "Authorization", "X-Request-Id":
-		return key, true
-	default:
-		return runtime.DefaultHeaderMatcher(key)
-	}
-}
-
-func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"healthy"}`))
-}
-
-func readinessCheckHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ready"}`))
-	}
-}
-
-func versionHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		response := `{"name":"` + cfg.Service.Name + `","version":"` + cfg.Service.Version + `","env":"` + cfg.Service.Env + `"}`
-		w.Write([]byte(response))
-	}
 }
 
 func Start(
