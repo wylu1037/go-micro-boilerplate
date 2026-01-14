@@ -1,5 +1,5 @@
 service:
-  name: "ticketing.api-gateway"
+  name: "ticketing.gateway"
   version: "0.0.1"
   address: ":8080"
   env: "dev"

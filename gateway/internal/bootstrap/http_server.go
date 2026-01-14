@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
@@ -12,6 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/config"
+	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/middleware"
 	identityv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1"
 )
 
@@ -19,26 +23,52 @@ func NewHTTPServer(
 	cfg *config.Config,
 	logger *zerolog.Logger,
 ) *http.Server {
-	ctx := context.Background()
+	r := chi.NewRouter()
 
-	mux := runtime.NewServeMux(
-		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
-	)
+	r.Use(middleware.Recovery(logger))
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.RealIP)
+	r.Use(middleware.Logging(logger))
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-Id"},
+		ExposedHeaders:   []string{"X-Request-Id"},
+		AllowCredentials: false,
+		MaxAge:           3600,
+	}))
+	r.Use(chimiddleware.Timeout(60 * time.Second))
 
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
+	r.Get("/health", healthCheckHandler)
+	r.Get("/ready", readinessCheckHandler())
+	r.Get("/version", versionHandler(cfg))
 
-	// Register Identity service handler
-	identityAddr := cfg.Backends["identity"].Address
-	if err := identityv1.RegisterIdentityServiceHandlerFromEndpoint(ctx, mux, identityAddr, opts); err != nil {
-		logger.Fatal().Err(err).Str("address", identityAddr).Msg("Failed to register Identity service handler")
-	}
-	logger.Info().Str("address", identityAddr).Msg("Registered Identity service")
+	r.Route("/api", func(r chi.Router) {
+		r.Use(middleware.RateLimiter(100, 200))
+
+		gwMux := runtime.NewServeMux(
+			runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
+		)
+
+		ctx := context.Background()
+		opts := []grpc.DialOption{
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		}
+
+		// 注册 Identity service
+		identityAddr := cfg.Backends["identity"].Address
+		if err := identityv1.RegisterIdentityServiceHandlerFromEndpoint(ctx, gwMux, identityAddr, opts); err != nil {
+			logger.Fatal().Err(err).Str("address", identityAddr).Msg("Failed to register Identity service handler")
+		}
+		logger.Info().Str("address", identityAddr).Msg("Registered Identity service")
+
+		// Mount grpc-gateway to /api/*
+		r.Mount("/", gwMux)
+	})
 
 	server := &http.Server{
 		Addr:         cfg.Service.Address,
-		Handler:      corsMiddleware(mux),
+		Handler:      r,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
@@ -56,19 +86,27 @@ func customHeaderMatcher(key string) (string, bool) {
 	}
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-Id")
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"healthy"}`))
+}
 
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
+func readinessCheckHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ready"}`))
+	}
+}
 
-		next.ServeHTTP(w, r)
-	})
+func versionHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		response := `{"name":"` + cfg.Service.Name + `","version":"` + cfg.Service.Version + `","env":"` + cfg.Service.Env + `"}`
+		w.Write([]byte(response))
+	}
 }
 
 func Start(

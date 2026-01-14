@@ -8,6 +8,7 @@ A microservices boilerplate for concert ticketing system built with go-micro v5 
 |-----------|--------|
 | Framework | go-micro.dev/v5 |
 | RPC | gRPC + Protobuf (buf) |
+| API Gateway | [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) + [chi](https://github.com/go-chi/chi) |
 | gRPC Middleware | [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) |
 | Database | PostgreSQL |
 | Migration | golang-migrate |
@@ -128,6 +129,62 @@ make run-notification
 ```
 
 ## Services
+
+### API Gateway
+
+The API Gateway is the single entry point for all client requests, built with **Chi router** + **grpc-gateway**.
+
+#### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        API Gateway (:8080)                      │
+├─────────────────────────────────────────────────────────────────┤
+│  HTTP Request → Chi Router → Middleware Stack → grpc-gateway   │
+│                                    ↓                            │
+│                           gRPC Backend Services                 │
+│                    (:50051, :50052, :50053, ...)               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Middleware Stack
+
+| Order | Middleware | Description |
+|-------|------------|-------------|
+| 1 | Recovery | Panic recovery with JSON error response |
+| 2 | RequestID | Request tracing (chi built-in) |
+| 3 | RealIP | Extract real client IP from proxy headers |
+| 4 | Logging | Structured request logging (zerolog) |
+| 5 | CORS | Cross-origin resource sharing (go-chi/cors) |
+| 6 | Timeout | Request timeout (60s default) |
+| 7 | RateLimiter | IP-based rate limiting with LRU cache (API routes only) |
+
+#### Key Features
+
+- **Protocol Translation**: RESTful HTTP ↔ gRPC via grpc-gateway
+- **Unified Entry Point**: Single endpoint for all microservices
+- **Structured Logging**: Request/response logging with request ID tracing
+- **Rate Limiting**: Token bucket algorithm with LRU cache for 10K IPs
+- **Graceful Shutdown**: Proper cleanup on SIGINT/SIGTERM
+
+#### Configuration
+
+```yaml
+# gateway/config/config.yaml
+service:
+  name: "ticketing.gateway"
+  address: ":8080"
+
+backends:
+  identity:
+    address: "localhost:50051"
+  catalog:
+    address: "localhost:50052"
+  booking:
+    address: "localhost:50053"
+```
+
+---
 
 ### Identity Service
 - User registration & login
