@@ -1,27 +1,29 @@
 package middleware
 
 import (
+	"context"
 	"runtime"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
+	"go-micro.dev/v4/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func NewRecoveryInterceptor() grpc.UnaryServerInterceptor {
-	// Define recoveryFunc to handle panic
-	recoveryFunc := func(p any) (err error) {
-		stack := make([]byte, 64<<10)
-		stack = stack[:runtime.Stack(stack, false)]
-		log.Error().Msgf("panic triggered: %v, stack: %s", p, stack)
-		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
-	}
-	// Shared options for the logger, with a custom gRPC code to log level function.
-	opts := []recovery.Option{
-		recovery.WithRecoveryHandler(recoveryFunc),
-	}
+// NewRecoveryMiddleware returns a go-micro server.HandlerWrapper that recovers from panics.
+func NewRecoveryMiddleware() server.HandlerWrapper {
+	return func(fn server.HandlerFunc) server.HandlerFunc {
+		return func(ctx context.Context, req server.Request, rsp any) (err error) {
+			defer func() {
+				if r := recover(); r != nil {
+					stack := make([]byte, 64<<10)
+					stack = stack[:runtime.Stack(stack, false)]
+					log.Error().Msgf("panic recovered in handler: %v, stack: %s", r, stack)
+					err = status.Errorf(codes.Internal, "internal server error: %v", r)
+				}
+			}()
 
-	return recovery.UnaryServerInterceptor(opts...)
+			return fn(ctx, req, rsp)
+		}
+	}
 }

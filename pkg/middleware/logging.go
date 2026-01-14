@@ -2,41 +2,45 @@ package middleware
 
 import (
 	"context"
+	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/rs/zerolog"
-	"google.golang.org/grpc"
+	"go-micro.dev/v4/server"
 )
 
-// InterceptorLogger adapts zerolog logger to interceptor logger.
-// This code is based on the example from https://github.com/grpc-ecosystem/go-grpc-middleware/blob/main/interceptors/logging/examples/zerolog/example_test.go
-type InterceptorLogger struct {
-	logger *zerolog.Logger
-}
+// NewLoggingMiddleware returns a go-micro server.HandlerWrapper that logs requests.
+func NewLoggingMiddleware(logger *zerolog.Logger) server.HandlerWrapper {
+	return func(fn server.HandlerFunc) server.HandlerFunc {
+		return func(ctx context.Context, req server.Request, rsp any) error {
+			start := time.Now()
 
-func (l *InterceptorLogger) Log(ctx context.Context, level logging.Level, msg string, fields ...any) {
-	logger := l.logger.With().Fields(fields).Logger()
-	switch level {
-	case logging.LevelDebug:
-		logger.Debug().Msg(msg)
-	case logging.LevelInfo:
-		logger.Info().Msg(msg)
-	case logging.LevelWarn:
-		logger.Warn().Msg(msg)
-	case logging.LevelError:
-		logger.Error().Msg(msg)
-	default:
-		logger.Info().Msg(msg)
+			// Log request start
+			logger.Info().
+				Str("requestId", req.Header()["X-Request-Id"]).
+				Str("service", req.Service()).
+				Str("endpoint", req.Endpoint()).
+				Str("method", req.Method()).
+				Msg("request started")
+
+			// Call the handler
+			err := fn(ctx, req, rsp)
+
+			// Log request completion
+			duration := time.Since(start)
+			event := logger.Info().
+				Str("requestId", req.Header()["X-Request-Id"]).
+				Str("service", req.Service()).
+				Str("endpoint", req.Endpoint()).
+				Str("method", req.Method()).
+				Dur("duration", duration)
+
+			if err != nil {
+				event.Err(err).Msg("request failed")
+			} else {
+				event.Msg("request completed")
+			}
+
+			return err
+		}
 	}
-}
-
-func NewLoggingInterceptor(logger *zerolog.Logger) grpc.UnaryServerInterceptor {
-	interceptorLogger := &InterceptorLogger{logger: logger}
-
-	opts := []logging.Option{
-		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall, logging.PayloadReceived, logging.PayloadSent),
-		logging.WithTimestampFormat(zerolog.TimeFormatUnix),
-	}
-
-	return logging.UnaryServerInterceptor(interceptorLogger, opts...)
 }

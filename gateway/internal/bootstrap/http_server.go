@@ -29,6 +29,7 @@ func NewHTTPServer(
 
 	r.Use(middleware.Recovery(logger))
 	r.Use(chimiddleware.RequestID)
+	r.Use(middleware.RequestIDInjector)
 	r.Use(chimiddleware.RealIP)
 	r.Use(middleware.Logging(logger))
 	r.Use(cors.Handler(cors.Options{

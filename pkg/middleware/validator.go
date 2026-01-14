@@ -5,43 +5,13 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
+	"go-micro.dev/v4/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
-// NewValidatorInterceptor
-// See https://github.com/grpc-ecosystem/go-grpc-middleware/blob/main/interceptors/validator/doc.go
-// See https://github.com/bufbuild/protovalidate
-// See https://github.com/bufbuild/protovalidate-go
-func NewValidatorInterceptor() grpc.UnaryServerInterceptor {
-	logErr := func(ctx context.Context, err error) {
-		log.Error().Err(err).Msgf("middleware: failed to validate")
-	}
-	goValidator, err := protovalidate.New()
-	if err != nil {
-		log.Error().Err(err).Msgf("middleware: failed to new protovalidate")
-	}
-	return UnaryServerInterceptor(WithProtoValidate(goValidator), WithOnValidationErrCallback(logErr))
-}
-
-// UnaryServerInterceptor returns a new unary server interceptor that validates incoming messages.
-//
-// Invalid messages will be rejected with `InvalidArgument` before reaching any userspace handlers.
-// Note that generated codes prior to protoc-gen-validate v0.6.0 do not provide an all-validation
-// interface. In this case the interceptor fallbacks to legacy validation and `all` is ignored.
-func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
-	o := evaluateOpts(opts)
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		if err := validate(ctx, req, o.protoValidate, o.onValidationErrCallback); err != nil {
-			return nil, err
-		}
-		return handler(ctx, req)
-	}
-}
-
-func validate(ctx context.Context, reqOrRes interface{}, protoValidate ProtoValidateFunc, onValidationErrCallback OnValidationErrCallback) (err error) {
+func validate(ctx context.Context, reqOrRes any, protoValidate ProtoValidateFunc, onValidationErrCallback OnValidationErrCallback) (err error) {
 	message, ok := reqOrRes.(proto.Message)
 	if !ok {
 		return nil
@@ -87,6 +57,33 @@ func WithProtoValidate(v protovalidate.Validator) Option {
 	return func(o *options) {
 		o.protoValidate = func(msg proto.Message) error {
 			return v.Validate(msg)
+		}
+	}
+}
+
+// NewValidatorMiddleware returns a go-micro server.HandlerWrapper that validates incoming messages.
+func NewValidatorMiddleware() server.HandlerWrapper {
+	logErr := func(ctx context.Context, err error) {
+		log.Error().Err(err).Msgf("middleware: failed to validate")
+	}
+	goValidator, err := protovalidate.New()
+	if err != nil {
+		log.Error().Err(err).Msgf("middleware: failed to new protovalidate")
+	}
+
+	opts := []Option{
+		WithProtoValidate(goValidator),
+		WithOnValidationErrCallback(logErr),
+	}
+	o := evaluateOpts(opts)
+
+	return func(fn server.HandlerFunc) server.HandlerFunc {
+		return func(ctx context.Context, req server.Request, rsp any) error {
+			// Validate the request body (which is the message)
+			if err := validate(ctx, req.Body(), o.protoValidate, o.onValidationErrCallback); err != nil {
+				return err
+			}
+			return fn(ctx, req, rsp)
 		}
 	}
 }

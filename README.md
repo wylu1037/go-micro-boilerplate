@@ -1,21 +1,21 @@
 # Go Micro Boilerplate
 
-A microservices boilerplate for concert ticketing system built with go-micro v5 + buf + gRPC.
+A microservices boilerplate for concert ticketing system built with go-micro v4 + buf + gRPC + Etcd.
 
 ## Tech Stack
 
 | Component | Choice |
 |-----------|--------|
-| Framework | go-micro.dev/v5 |
+| Framework | go-micro.dev/v4 |
 | RPC | gRPC + Protobuf (buf) |
-| API Gateway | [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) + [chi](https://github.com/go-chi/chi) |
-| gRPC Middleware | [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) |
+| API Gateway | go-micro API Handler + [chi](https://github.com/go-chi/chi) |
+| Middleware | Custom go-micro HandlerWrapper (Validator, Logging, Recovery) |
 | Database | PostgreSQL |
 | Migration | golang-migrate |
 | Cache | Redis |
 | Message Queue | NATS |
 | Logging | [zerolog](https://github.com/rs/zerolog) |
-| Service Discovery | mDNS (dev) / Kubernetes (prod) |
+| Service Discovery | Etcd |
 
 ## Project Structure
 
@@ -56,7 +56,7 @@ A microservices boilerplate for concert ticketing system built with go-micro v5 
 │   ├── booking/             # Booking service
 │   └── notification/        # Notification service
 │
-├── gateway/                 # API Gateway (gRPC-Gateway)
+├── gateway/                 # API Gateway (go-micro API Handler)
 │
 └── migrations/              # Database migrations (golang-migrate)
     ├── 000001_create_schemas.up.sql
@@ -117,58 +117,53 @@ make deps
 
 ### 6. Run Services
 
-#### Default Mode (No Service Discovery)
-
 ```bash
-# Run API Gateway
-make run-gateway
-
-# Run each service in separate terminals
-make run-identity
-make run-catalog
-make run-booking
-make run-notification
-```
-
-#### With etcd Service Discovery (Optional)
-
-```bash
-# Start etcd
+# Start etcd (required for service discovery)
 docker-compose up -d etcd
 
 # Run services with etcd registry
 MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-identity
 MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-catalog
 MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-booking
+MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-notification
+
+# Run API Gateway
+MICRO_REGISTRY=etcd MICRO_REGISTRY_ADDRESS=localhost:2379 make run-gateway
 ```
 
 **Environment Variables for Service Discovery:**
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MICRO_REGISTRY` | - | Registry type: `etcd` (留空禁用服务发现) |
+| `MICRO_REGISTRY` | `etcd` | Registry type (required) |
 | `MICRO_REGISTRY_ADDRESS` | `localhost:2379` | etcd server endpoint |
 
 ## Services
 
 ### API Gateway
 
-The API Gateway is the single entry point for all client requests, built with **Chi router** + **grpc-gateway**.
+The API Gateway is the single entry point for all client requests, built with **Chi router** + **go-micro API Handler**.
 
 #### Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway (:8080)                      │
-├─────────────────────────────────────────────────────────────────┤
-│  HTTP Request → Chi Router → Middleware Stack → grpc-gateway   │
-│                                    ↓                            │
-│                           gRPC Backend Services                 │
-│                    (:50051, :50052, :50053, ...)               │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                        API Gateway (:8080)                         │
+├────────────────────────────────────────────────────────────────────┤
+│  HTTP Request → Chi Router → Middleware Stack → go-micro Handler  │
+│                                    ↓                               │
+│                      Service Discovery (Etcd)                      │
+│                                    ↓                               │
+│                    Dynamic Service Resolution                      │
+│                                    ↓                               │
+│                        Backend Microservices                       │
+│                    (Auto-discovered via Etcd)                      │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Middleware Stack
+
+**Chi Router Middleware (Gateway Level):**
 
 | Order | Middleware | Description |
 |-------|------------|-------------|
@@ -180,30 +175,23 @@ The API Gateway is the single entry point for all client requests, built with **
 | 6 | Timeout | Request timeout (60s default) |
 | 7 | RateLimiter | IP-based rate limiting with LRU cache (API routes only) |
 
+**go-micro Handler Middleware (Service Level):**
+
+| Order | Middleware | Description |
+|-------|------------|-------------|
+| 1 | Recovery | Panic recovery with stack trace logging |
+| 2 | Logging | Request/response logging (service, endpoint, duration) |
+| 3 | Validator | Protocol buffer validation (protovalidate) |
+
 #### Key Features
 
-- **Protocol Translation**: RESTful HTTP ↔ gRPC via grpc-gateway
+- **Dynamic Service Discovery**: Auto-discover services via Etcd registry
+- **Protocol Translation**: RESTful HTTP ↔ gRPC via go-micro API handler
 - **Unified Entry Point**: Single endpoint for all microservices
+- **No Static Configuration**: Services register/deregister dynamically
 - **Structured Logging**: Request/response logging with request ID tracing
 - **Rate Limiting**: Token bucket algorithm with LRU cache for 10K IPs
 - **Graceful Shutdown**: Proper cleanup on SIGINT/SIGTERM
-
-#### Configuration
-
-```yaml
-# gateway/config/config.yaml
-service:
-  name: "ticketing.gateway"
-  address: ":8080"
-
-backends:
-  identity:
-    address: "localhost:50051"
-  catalog:
-    address: "localhost:50052"
-  booking:
-    address: "localhost:50053"
-```
 
 ---
 
@@ -237,7 +225,8 @@ Override settings via environment variables:
 export TICKETING_DATABASE_HOST=localhost
 export TICKETING_DATABASE_PASSWORD=secret
 export TICKETING_JWT_SECRET=your-secret-key
-export MICRO_REGISTRY=kubernetes  # Production
+export MICRO_REGISTRY=etcd
+export MICRO_REGISTRY_ADDRESS=localhost:2379
 ```
 
 ## Make Commands

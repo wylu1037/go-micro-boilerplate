@@ -8,23 +8,26 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
+	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/router"
 )
 
-// NewMicroService creates a new go-micro service instance.
-// The etcd registry is automatically enabled via blank import in main.go
-// and controlled through environment variables:
-// - MICRO_REGISTRY=etcd
-// - MICRO_REGISTRY_ADDRESS=localhost:2379
-func NewMicroService(cfg *config.Config, logger *zerolog.Logger) micro.Service {
+func NewMicroService(
+	cfg *config.Config,
+	logger *zerolog.Logger,
+) micro.Service {
 	service := micro.NewService(
 		micro.Name(cfg.Service.Name),
 		micro.Version(cfg.Service.Version),
 		micro.Address(cfg.Service.Address),
+		micro.WrapHandler(
+			middleware.NewRecoveryMiddleware(),
+			middleware.NewLoggingMiddleware(logger),
+			middleware.NewValidatorMiddleware(),
+		),
 	)
 
-	// Parse command line flags and environment variables
-	service.Init()
+	service.Init() // Parse command line flags and environment variables
 
 	return service
 }
