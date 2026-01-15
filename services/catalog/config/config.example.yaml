@@ -1,0 +1,21 @@
+service:
+  name: ticketing.catalog
+  version: 0.0.1
+  address: ":50052"
+  env: dev
+
+database:
+  host: 172.22.0.23
+  port: 25432
+  user: postgres
+  password: root1234
+  database: ticketing
+  schema: identity
+  ssl_mode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  max_lifetime: 5m
+
+log:
+  level: debug
+  format: console
