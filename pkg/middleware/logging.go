@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"go-micro.dev/v4/server"
 )
 
@@ -14,9 +15,16 @@ func NewLoggingMiddleware(logger *zerolog.Logger) server.HandlerWrapper {
 		return func(ctx context.Context, req server.Request, rsp any) error {
 			start := time.Now()
 
+			userId := lo.TernaryF(ctx.Value("userId") != nil, func() string {
+				return ctx.Value("userId").(string)
+			}, func() string {
+				return ""
+			})
+
 			// Log request start
 			logger.Info().
 				Str("requestId", req.Header()["X-Request-Id"]).
+				Str("userId", userId).
 				Str("service", req.Service()).
 				Str("endpoint", req.Endpoint()).
 				Str("method", req.Method()).
@@ -29,6 +37,7 @@ func NewLoggingMiddleware(logger *zerolog.Logger) server.HandlerWrapper {
 			duration := time.Since(start)
 			event := logger.Info().
 				Str("requestId", req.Header()["X-Request-Id"]).
+				Str("userId", userId).
 				Str("service", req.Service()).
 				Str("endpoint", req.Endpoint()).
 				Str("method", req.Method()).

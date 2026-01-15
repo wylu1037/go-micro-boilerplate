@@ -43,10 +43,11 @@ func (c DatabaseConfig) DSN() string {
 }
 
 type JWTConfig struct {
-	Secret          string        `mapstructure:"secret"`
-	AccessTokenTTL  time.Duration `mapstructure:"access_token_ttl"`
-	RefreshTokenTTL time.Duration `mapstructure:"refresh_token_ttl"`
-	Issuer          string        `mapstructure:"issuer"`
+	PrivateKey      string        `mapstructure:"privateKey"` // RSA 私钥 (Base64 编码)
+	PublicKey       string        `mapstructure:"publicKey"`  // RSA 公钥 (Base64 编码)
+	AccessTokenTTL  time.Duration `mapstructure:"accessTokenTtl"`
+	RefreshTokenTTL time.Duration `mapstructure:"refreshTokenTtl"`
+	Namespace       string        `mapstructure:"namespace"`
 }
 
 type LogConfig struct {

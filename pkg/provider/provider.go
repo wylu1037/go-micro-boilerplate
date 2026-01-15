@@ -10,6 +10,6 @@ var InfraModule = fx.Options(
 	fx.Provide(
 		NewLogger,
 		NewDatabase,
-		NewJWTManager,
+		NewMicroAuth,
 	),
 )

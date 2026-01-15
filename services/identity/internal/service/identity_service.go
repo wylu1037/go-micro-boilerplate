@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"go-micro.dev/v4/auth"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/wylu1037/go-micro-boilerplate/pkg/auth"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/model"
@@ -25,30 +25,30 @@ type IdentityService interface {
 	UpdateProfile(ctx context.Context, userID, name, phone, avatarURL string) (*model.User, error)
 	RequestPasswordReset(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, token, newPassword string) error
-	ValidateToken(ctx context.Context, accessToken string) (*auth.Claims, error)
+	ValidateToken(ctx context.Context, accessToken string) (*auth.Account, error)
 }
 
 type identityService struct {
-	userRepo   repository.UserRepository
-	tokenRepo  repository.TokenRepository
-	jwtManager *auth.JWTManager
-	config     *config.Config
-	logger     *zerolog.Logger
+	userRepo  repository.UserRepository
+	tokenRepo repository.TokenRepository
+	auth      auth.Auth
+	config    *config.Config
+	logger    *zerolog.Logger
 }
 
 func NewIdentityService(
 	userRepo repository.UserRepository,
 	tokenRepo repository.TokenRepository,
-	jwtManager *auth.JWTManager,
+	microAuth auth.Auth,
 	cfg *config.Config,
 	logger *zerolog.Logger,
 ) IdentityService {
 	return &identityService{
-		userRepo:   userRepo,
-		tokenRepo:  tokenRepo,
-		jwtManager: jwtManager,
-		config:     cfg,
-		logger:     logger,
+		userRepo:  userRepo,
+		tokenRepo: tokenRepo,
+		auth:      microAuth,
+		config:    cfg,
+		logger:    logger,
 	}
 }
 
@@ -85,6 +85,7 @@ func (svc *identityService) Register(ctx context.Context, email, password, name,
 func (svc *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
 	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
+		svc.logger.Error().Err(err).Str("email", email).Msg("failed to get user by email")
 		if errors.Is(err, identityerrors.ErrUserNotFound) {
 			return nil, identityerrors.ErrInvalidCredentials
 		}
@@ -92,26 +93,39 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		svc.logger.Error().Err(err).Str("email", email).Msg("failed to compare password")
 		return nil, identityerrors.ErrInvalidCredentials
 	}
 
-	accessToken, err := svc.jwtManager.GenerateAccessToken(user.ID, user.Email)
+	// 生成 auth.Account
+	account, err := svc.auth.Generate(user.ID, auth.WithMetadata(map[string]string{
+		"email": user.Email,
+		"name":  user.Name,
+	}))
 	if err != nil {
+		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth account")
 		return nil, err
 	}
 
-	refreshToken, err := svc.generateRefreshToken()
+	// 生成 access token 和 refresh token
+	tokenPair, err := svc.auth.Token(
+		auth.WithCredentials(account.ID, account.Secret),
+		auth.WithExpiry(svc.config.JWT.AccessTokenTTL),
+	)
 	if err != nil {
+		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate token pair")
 		return nil, err
 	}
 
+	// 保存 refresh token
 	refreshTokenEntity := &model.RefreshToken{
 		UserID:    user.ID,
-		TokenHash: model.HashToken(refreshToken),
+		TokenHash: model.HashToken(tokenPair.RefreshToken),
 		ExpiresAt: time.Now().Add(svc.config.JWT.RefreshTokenTTL),
 	}
 
 	if err := svc.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
+		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to create refresh token")
 		return nil, err
 	}
 
@@ -119,8 +133,8 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 
 	return &model.LoginResult{
 		User:         user,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
 		ExpiresIn:    int64(svc.config.JWT.AccessTokenTTL.Seconds()),
 	}, nil
 }
@@ -128,12 +142,12 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 func (svc *identityService) RefreshToken(ctx context.Context, refreshToken string) (*model.TokenResult, error) {
 	tokenHash := model.HashToken(refreshToken)
 
-	token, err := svc.tokenRepo.GetRefreshTokenByHash(ctx, tokenHash)
+	oldToken, err := svc.tokenRepo.GetRefreshTokenByHash(ctx, tokenHash)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := svc.userRepo.GetByID(ctx, token.UserID)
+	user, err := svc.userRepo.GetByID(ctx, oldToken.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -143,20 +157,19 @@ func (svc *identityService) RefreshToken(ctx context.Context, refreshToken strin
 		return nil, err
 	}
 
-	// Generate new tokens
-	accessToken, err := svc.jwtManager.GenerateAccessToken(user.ID, user.Email)
+	// 使用 refresh token 生成新的 token pair
+	newTokenPair, err := svc.auth.Token(
+		auth.WithToken(refreshToken),
+		auth.WithExpiry(svc.config.JWT.AccessTokenTTL),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	newRefreshToken, err := svc.generateRefreshToken()
-	if err != nil {
-		return nil, err
-	}
-
+	// 保存新的 refresh token
 	refreshTokenEntity := &model.RefreshToken{
 		UserID:    user.ID,
-		TokenHash: model.HashToken(newRefreshToken),
+		TokenHash: model.HashToken(newTokenPair.RefreshToken),
 		ExpiresAt: time.Now().Add(svc.config.JWT.RefreshTokenTTL),
 	}
 
@@ -165,8 +178,8 @@ func (svc *identityService) RefreshToken(ctx context.Context, refreshToken strin
 	}
 
 	return &model.TokenResult{
-		AccessToken:  accessToken,
-		RefreshToken: newRefreshToken,
+		AccessToken:  newTokenPair.AccessToken,
+		RefreshToken: newTokenPair.RefreshToken,
 		ExpiresIn:    int64(svc.config.JWT.AccessTokenTTL.Seconds()),
 	}, nil
 }
@@ -269,8 +282,8 @@ func (svc *identityService) ResetPassword(ctx context.Context, token, newPasswor
 	return nil
 }
 
-func (svc *identityService) ValidateToken(ctx context.Context, accessToken string) (*auth.Claims, error) {
-	return svc.jwtManager.ValidateAccessToken(accessToken)
+func (svc *identityService) ValidateToken(ctx context.Context, accessToken string) (*auth.Account, error) {
+	return svc.auth.Inspect(accessToken)
 }
 
 func (svc *identityService) generateRefreshToken() (string, error) {

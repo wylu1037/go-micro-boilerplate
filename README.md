@@ -182,8 +182,9 @@ The API Gateway is the single entry point for all client requests, built with **
 | Order | Middleware | Description |
 |-------|------------|-------------|
 | 1 | Recovery | Panic recovery with stack trace logging |
-| 2 | Logging | Request/response logging (service, endpoint, duration) |
-| 3 | Validator | Protocol buffer validation (protovalidate) |
+| 2 | Auth | JWT Authentication & Whitelist check (Injects userId) |
+| 3 | Logging | Request/response logging (Logs userId if present) |
+| 4 | Validator | Protocol buffer validation (protovalidate) |
 
 #### Key Features
 
@@ -199,20 +200,23 @@ The API Gateway is the single entry point for all client requests, built with **
 
 ### Identity Service
 - User registration & login
-- JWT token management
+- JWT token management (RSA Asymmetric Encryption)
 - User profile management
+- **Authenticated by default** with configurable whitelist
 
 ### Catalog Service
 - Show/concert management
 - Session scheduling
 - Seat areas & pricing
 - Inventory initialization
+- **Public access** for read operations
 
 ### Booking Service
 - Order creation & management
 - Inventory reservation (Redis distributed lock)
 - Payment integration
 - Order state machine
+- **Strictly authenticated**
 
 ### Notification Service
 - Event subscription (NATS)
@@ -232,9 +236,11 @@ Override settings via environment variables:
 ```bash
 export TICKETING_DATABASE_HOST=localhost
 export TICKETING_DATABASE_PASSWORD=secret
-export TICKETING_JWT_SECRET=your-secret-key
 export MICRO_REGISTRY=etcd
 export MICRO_REGISTRY_ADDRESS=localhost:2379
+# JWT Configuration (PEM format expected in config file)
+# export TICKETING_JWT_PUBLICKEY="..."
+# export TICKETING_JWT_PRIVATEKEY="..."
 ```
 
 ## Make Commands
@@ -263,6 +269,10 @@ make docker-build   # Build Docker images
 2. Create service directory under `services/`
 3. Update `go.work` to add new module
 4. Update `Makefile` to add build targets
+
+## TODO
+
+- [ ] Integrate OpenTelemetry (OTel) for distributed tracing
 
 ## License
 

@@ -24,8 +24,8 @@ graph TB
     Booking --> Broker
 
     subgraph Broker Implementation
-    Broker -.-> Memory[Memory (Default)]
-    Broker -.-> Nats[NATS (Plugin)]
+    Broker -.-> Memory["Memory (Default)"]
+    Broker -.-> Nats["NATS (Plugin)"]
     end
 ```
 

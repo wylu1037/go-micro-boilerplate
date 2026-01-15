@@ -111,14 +111,14 @@ func (h *microIdentityHandler) ResetPassword(ctx context.Context, req *identityv
 }
 
 func (h *microIdentityHandler) ValidateToken(ctx context.Context, req *identityv1.ValidateTokenRequest, rsp *identityv1.ValidateTokenResponse) error {
-	claims, err := h.svc.ValidateToken(ctx, req.AccessToken)
+	account, err := h.svc.ValidateToken(ctx, req.AccessToken)
 	if err != nil {
 		rsp.Valid = false
 		return nil
 	}
 
 	rsp.Valid = true
-	rsp.UserId = claims.UserID
-	rsp.Email = claims.Email
+	rsp.UserId = account.ID
+	rsp.Email = account.Metadata["email"]
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"go-micro.dev/v4"
+	"go-micro.dev/v4/auth"
 	"go.uber.org/fx"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
@@ -15,13 +16,20 @@ import (
 func NewMicroService(
 	cfg *config.Config,
 	logger *zerolog.Logger,
+	microAuth auth.Auth,
 ) micro.Service {
 	service := micro.NewService(
 		micro.Name(cfg.Service.Name),
 		micro.Version(cfg.Service.Version),
 		micro.Address(cfg.Service.Address),
+		micro.Auth(microAuth),
 		micro.WrapHandler(
 			middleware.NewRecoveryMiddleware(),
+			middleware.AuthWrapper(microAuth, []string{
+				"IdentityService.Register",
+				"IdentityService.Login",
+				"IdentityService.RefreshToken",
+			}),
 			middleware.NewLoggingMiddleware(logger),
 			middleware.NewValidatorMiddleware(),
 		),
