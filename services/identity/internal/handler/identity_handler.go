@@ -4,6 +4,7 @@ import (
 	"context"
 
 	identityv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/identity/v1"
+	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/service"
 )
 
@@ -20,7 +21,7 @@ type microIdentityHandler struct {
 func (h *microIdentityHandler) Register(ctx context.Context, req *identityv1.RegisterRequest, rsp *identityv1.RegisterResponse) error {
 	result, err := h.svc.Register(ctx, req.Email, req.Password, req.Name, req.Phone)
 	if err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.UserId = result.ID
@@ -31,7 +32,7 @@ func (h *microIdentityHandler) Register(ctx context.Context, req *identityv1.Reg
 func (h *microIdentityHandler) Login(ctx context.Context, req *identityv1.LoginRequest, rsp *identityv1.LoginResponse) error {
 	result, err := h.svc.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.AccessToken = result.AccessToken
@@ -50,7 +51,7 @@ func (h *microIdentityHandler) Login(ctx context.Context, req *identityv1.LoginR
 func (h *microIdentityHandler) RefreshToken(ctx context.Context, req *identityv1.RefreshTokenRequest, rsp *identityv1.RefreshTokenResponse) error {
 	result, err := h.svc.RefreshToken(ctx, req.RefreshToken)
 	if err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.AccessToken = result.AccessToken
@@ -62,7 +63,7 @@ func (h *microIdentityHandler) RefreshToken(ctx context.Context, req *identityv1
 func (h *microIdentityHandler) GetProfile(ctx context.Context, req *identityv1.GetProfileRequest, rsp *identityv1.GetProfileResponse) error {
 	user, err := h.svc.GetProfile(ctx, req.UserId)
 	if err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.User = &identityv1.UserProfile{
@@ -78,7 +79,7 @@ func (h *microIdentityHandler) GetProfile(ctx context.Context, req *identityv1.G
 func (h *microIdentityHandler) UpdateProfile(ctx context.Context, req *identityv1.UpdateProfileRequest, rsp *identityv1.UpdateProfileResponse) error {
 	user, err := h.svc.UpdateProfile(ctx, req.UserId, req.Name, req.Phone, req.AvatarUrl)
 	if err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.User = &identityv1.UserProfile{
@@ -93,7 +94,7 @@ func (h *microIdentityHandler) UpdateProfile(ctx context.Context, req *identityv
 
 func (h *microIdentityHandler) RequestPasswordReset(ctx context.Context, req *identityv1.RequestPasswordResetRequest, rsp *identityv1.RequestPasswordResetResponse) error {
 	if err := h.svc.RequestPasswordReset(ctx, req.Email); err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.Message = "If the email exists, a password reset link has been sent"
@@ -102,7 +103,7 @@ func (h *microIdentityHandler) RequestPasswordReset(ctx context.Context, req *id
 
 func (h *microIdentityHandler) ResetPassword(ctx context.Context, req *identityv1.ResetPasswordRequest, rsp *identityv1.ResetPasswordResponse) error {
 	if err := h.svc.ResetPassword(ctx, req.Token, req.NewPassword); err != nil {
-		return err
+		return identityerrors.ToMicroError(err)
 	}
 
 	rsp.Message = "Password has been reset successfully"

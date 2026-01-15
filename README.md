@@ -1,3 +1,5 @@
+[![Powered by Go Micro](https://img.shields.io/badge/Powered%20by-Go%20Micro-00ADD8?style=flat&logo=go&logoColor=white)](https://go-micro.dev)
+
 # Go Micro Boilerplate
 
 A microservices boilerplate for concert ticketing system built with go-micro v4 + buf + gRPC + Etcd.

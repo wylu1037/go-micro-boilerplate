@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"errors"
+	stderrors "errors"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
+	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 )
 
@@ -56,8 +57,8 @@ func (repo *venueRepository) GetByID(ctx context.Context, id string) (*model.Ven
 		&venue.CreatedAt,
 	)
 
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrVenueNotFound
+	if stderrors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.ErrVenueNotFound
 	}
 	if err != nil {
 		return nil, err

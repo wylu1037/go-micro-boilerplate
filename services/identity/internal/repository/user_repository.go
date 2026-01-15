@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
+	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/model"
 )
 
@@ -70,7 +71,7 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*model.User, e
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrUserNotFound
+		return nil, identityerrors.ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -100,7 +101,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.U
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrUserNotFound
+		return nil, identityerrors.ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -125,7 +126,7 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 	).Scan(&user.UpdatedAt)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return model.ErrUserNotFound
+		return identityerrors.ErrUserNotFound
 	}
 
 	return err

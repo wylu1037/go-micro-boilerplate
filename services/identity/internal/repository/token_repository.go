@@ -8,17 +8,15 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
+	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/model"
 )
 
 type TokenRepository interface {
-	// Refresh tokens
 	CreateRefreshToken(ctx context.Context, token *model.RefreshToken) error
 	GetRefreshTokenByHash(ctx context.Context, tokenHash string) (*model.RefreshToken, error)
 	DeleteRefreshTokensByUserID(ctx context.Context, userID string) error
 	DeleteRefreshToken(ctx context.Context, tokenHash string) error
-
-	// Password reset tokens
 	CreatePasswordResetToken(ctx context.Context, token *model.PasswordResetToken) error
 	GetPasswordResetTokenByHash(ctx context.Context, tokenHash string) (*model.PasswordResetToken, error)
 	MarkPasswordResetTokenUsed(ctx context.Context, tokenHash string) error
@@ -31,8 +29,6 @@ type tokenRepository struct {
 func NewTokenRepository(db *db.Pool) TokenRepository {
 	return &tokenRepository{db: db}
 }
-
-// Refresh token methods
 
 func (r *tokenRepository) CreateRefreshToken(ctx context.Context, token *model.RefreshToken) error {
 	query := `
@@ -65,14 +61,14 @@ func (r *tokenRepository) GetRefreshTokenByHash(ctx context.Context, tokenHash s
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrTokenNotFound
+		return nil, identityerrors.ErrTokenNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
 
 	if time.Now().After(token.ExpiresAt) {
-		return nil, model.ErrTokenExpired
+		return nil, identityerrors.ErrTokenExpired
 	}
 
 	return token, nil
@@ -89,8 +85,6 @@ func (r *tokenRepository) DeleteRefreshToken(ctx context.Context, tokenHash stri
 	_, err := r.db.Exec(ctx, query, tokenHash)
 	return err
 }
-
-// Password reset token methods
 
 func (r *tokenRepository) CreatePasswordResetToken(ctx context.Context, token *model.PasswordResetToken) error {
 	query := `
@@ -124,18 +118,18 @@ func (r *tokenRepository) GetPasswordResetTokenByHash(ctx context.Context, token
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrTokenNotFound
+		return nil, identityerrors.ErrTokenNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
 
 	if token.Used {
-		return nil, model.ErrTokenUsed
+		return nil, identityerrors.ErrTokenUsed
 	}
 
 	if time.Now().After(token.ExpiresAt) {
-		return nil, model.ErrTokenExpired
+		return nil, identityerrors.ErrTokenExpired
 	}
 
 	return token, nil

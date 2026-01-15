@@ -8,6 +8,7 @@ import (
 
 	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
 	commonv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
+	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/service"
 )
@@ -58,7 +59,7 @@ func (h *CatalogHandler) CreateShow(ctx context.Context, req *catalogv1.CreateSh
 	}
 
 	if err := h.svc.CreateShow(ctx, show); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Show = h.convertShow(show)
@@ -68,7 +69,7 @@ func (h *CatalogHandler) CreateShow(ctx context.Context, req *catalogv1.CreateSh
 func (h *CatalogHandler) GetShow(ctx context.Context, req *catalogv1.GetShowRequest, rsp *catalogv1.GetShowResponse) error {
 	show, err := h.svc.GetShow(ctx, req.ShowId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Show = h.convertShow(show)
@@ -94,7 +95,7 @@ func (h *CatalogHandler) ListShows(ctx context.Context, req *catalogv1.ListShows
 
 	shows, total, err := h.svc.ListShows(ctx, category, status, city, offset, limit)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Shows = make([]*catalogv1.Show, len(shows))
@@ -137,7 +138,7 @@ func (h *CatalogHandler) UpdateShow(ctx context.Context, req *catalogv1.UpdateSh
 	}
 
 	if err := h.svc.UpdateShow(ctx, show); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Show = h.convertShow(show)
@@ -146,7 +147,7 @@ func (h *CatalogHandler) UpdateShow(ctx context.Context, req *catalogv1.UpdateSh
 
 func (h *CatalogHandler) DeleteShow(ctx context.Context, req *catalogv1.DeleteShowRequest, rsp *catalogv1.DeleteShowResponse) error {
 	if err := h.svc.DeleteShow(ctx, req.ShowId); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 	rsp.Message = "Show deleted successfully"
 	return nil
@@ -177,7 +178,7 @@ func (h *CatalogHandler) CreateVenue(ctx context.Context, req *catalogv1.CreateV
 	}
 
 	if err := h.svc.CreateVenue(ctx, venue); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Venue = h.convertVenue(venue)
@@ -187,7 +188,7 @@ func (h *CatalogHandler) CreateVenue(ctx context.Context, req *catalogv1.CreateV
 func (h *CatalogHandler) GetVenue(ctx context.Context, req *catalogv1.GetVenueRequest, rsp *catalogv1.GetVenueResponse) error {
 	venue, err := h.svc.GetVenue(ctx, req.VenueId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Venue = h.convertVenue(venue)
@@ -200,7 +201,7 @@ func (h *CatalogHandler) ListVenues(ctx context.Context, req *catalogv1.ListVenu
 
 	venues, total, err := h.svc.ListVenues(ctx, req.City, offset, limit)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Venues = make([]*catalogv1.Venue, len(venues))
@@ -241,7 +242,7 @@ func (h *CatalogHandler) CreateSession(ctx context.Context, req *catalogv1.Creat
 	}
 
 	if err := h.svc.CreateSession(ctx, session); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Session = h.convertSession(session)
@@ -251,7 +252,7 @@ func (h *CatalogHandler) CreateSession(ctx context.Context, req *catalogv1.Creat
 func (h *CatalogHandler) GetSession(ctx context.Context, req *catalogv1.GetSessionRequest, rsp *catalogv1.GetSessionResponse) error {
 	session, err := h.svc.GetSession(ctx, req.SessionId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Session = h.convertSession(session)
@@ -270,7 +271,7 @@ func (h *CatalogHandler) GetSession(ctx context.Context, req *catalogv1.GetSessi
 func (h *CatalogHandler) ListSessions(ctx context.Context, req *catalogv1.ListSessionsRequest, rsp *catalogv1.ListSessionsResponse) error {
 	sessions, err := h.svc.ListSessions(ctx, req.ShowId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Sessions = make([]*catalogv1.Session, len(sessions))
@@ -316,7 +317,7 @@ func (h *CatalogHandler) CreateSeatArea(ctx context.Context, req *catalogv1.Crea
 	}
 	price, err := decimal.NewFromString(req.Price)
 	if err != nil {
-		return err
+		return errors.ToMicroError(errors.ErrInvalidPrice)
 	}
 
 	seatArea := &model.SeatArea{
@@ -327,7 +328,7 @@ func (h *CatalogHandler) CreateSeatArea(ctx context.Context, req *catalogv1.Crea
 	}
 
 	if err := h.svc.CreateSeatArea(ctx, seatArea); err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.SeatArea = h.convertSeatArea(seatArea)
@@ -337,7 +338,7 @@ func (h *CatalogHandler) CreateSeatArea(ctx context.Context, req *catalogv1.Crea
 func (h *CatalogHandler) ListSeatAreas(ctx context.Context, req *catalogv1.ListSeatAreasRequest, rsp *catalogv1.ListSeatAreasResponse) error {
 	seatAreas, err := h.svc.ListSeatAreas(ctx, req.SessionId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.SeatAreas = make([]*catalogv1.SeatArea, len(seatAreas))
@@ -365,7 +366,7 @@ func (h *CatalogHandler) convertSeatArea(sa *model.SeatArea) *catalogv1.SeatArea
 func (h *CatalogHandler) CheckAvailability(ctx context.Context, req *catalogv1.CheckAvailabilityRequest, rsp *catalogv1.CheckAvailabilityResponse) error {
 	available, count, price, err := h.svc.CheckAvailability(ctx, req.SessionId, req.SeatAreaId, req.Quantity)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Available = available
@@ -377,12 +378,7 @@ func (h *CatalogHandler) CheckAvailability(ctx context.Context, req *catalogv1.C
 func (h *CatalogHandler) ReserveSeats(ctx context.Context, req *catalogv1.ReserveSeatsRequest, rsp *catalogv1.ReserveSeatsResponse) error {
 	err := h.svc.ReserveSeats(ctx, req.SessionId, req.SeatAreaId, req.Quantity, req.OrderId)
 	if err != nil {
-		if err == model.ErrInsufficientSeats {
-			rsp.Success = false
-			rsp.Message = "Insufficient seats"
-			return nil
-		}
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Success = true
@@ -393,7 +389,7 @@ func (h *CatalogHandler) ReserveSeats(ctx context.Context, req *catalogv1.Reserv
 func (h *CatalogHandler) ReleaseSeats(ctx context.Context, req *catalogv1.ReleaseSeatsRequest, rsp *catalogv1.ReleaseSeatsResponse) error {
 	err := h.svc.ReleaseSeats(ctx, req.SessionId, req.SeatAreaId, req.Quantity, req.OrderId)
 	if err != nil {
-		return err
+		return errors.ToMicroError(err)
 	}
 
 	rsp.Success = true

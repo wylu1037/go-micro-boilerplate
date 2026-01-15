@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"errors"
+	stderrors "errors"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
+	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 )
 
@@ -65,8 +66,8 @@ func (repo *showRepository) GetByID(ctx context.Context, id string) (*model.Show
 		&show.UpdatedAt,
 	)
 
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrShowNotFound
+	if stderrors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.ErrShowNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -174,8 +175,8 @@ func (repo *showRepository) Update(ctx context.Context, show *model.Show) error 
 		show.ID,
 	).Scan(&show.UpdatedAt)
 
-	if errors.Is(err, pgx.ErrNoRows) {
-		return model.ErrShowNotFound
+	if stderrors.Is(err, pgx.ErrNoRows) {
+		return errors.ErrShowNotFound
 	}
 
 	return err
@@ -190,7 +191,7 @@ func (repo *showRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	if result.RowsAffected() == 0 {
-		return model.ErrShowNotFound
+		return errors.ErrShowNotFound
 	}
 
 	return nil

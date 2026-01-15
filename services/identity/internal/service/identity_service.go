@@ -12,6 +12,7 @@ import (
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/auth"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
+	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/repository"
 )
@@ -57,7 +58,7 @@ func (svc *identityService) Register(ctx context.Context, email, password, name,
 		return nil, err
 	}
 	if exists {
-		return nil, model.ErrUserAlreadyExists
+		return nil, identityerrors.ErrUserAlreadyExists
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -84,14 +85,14 @@ func (svc *identityService) Register(ctx context.Context, email, password, name,
 func (svc *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
 	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, model.ErrUserNotFound) {
-			return nil, model.ErrInvalidCredentials
+		if errors.Is(err, identityerrors.ErrUserNotFound) {
+			return nil, identityerrors.ErrInvalidCredentials
 		}
 		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return nil, model.ErrInvalidCredentials
+		return nil, identityerrors.ErrInvalidCredentials
 	}
 
 	accessToken, err := svc.jwtManager.GenerateAccessToken(user.ID, user.Email)
@@ -205,7 +206,7 @@ func (svc *identityService) UpdateProfile(ctx context.Context, userID, name, pho
 func (svc *identityService) RequestPasswordReset(ctx context.Context, email string) error {
 	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, model.ErrUserNotFound) {
+		if errors.Is(err, identityerrors.ErrUserNotFound) {
 			// Don't reveal if user exists
 			return nil
 		}

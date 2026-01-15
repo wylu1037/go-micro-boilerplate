@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/rs/zerolog"
 	"github.com/shopspring/decimal"
 
+	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/repository"
 )
@@ -155,7 +155,7 @@ func (svc *catalogService) CheckAvailability(ctx context.Context, sessionID, sea
 	}
 
 	if area.SessionID != sessionID {
-		return false, 0, decimal.Zero, errors.New("seat area does not belong to session")
+		return false, 0, decimal.Zero, errors.ErrInvalidSeatArea
 	}
 
 	available := area.AvailableSeats >= quantity
@@ -168,7 +168,7 @@ func (svc *catalogService) ReserveSeats(ctx context.Context, sessionID, seatArea
 		return err
 	}
 	if !success {
-		return model.ErrInsufficientSeats
+		return errors.ErrInsufficientSeats
 	}
 
 	svc.logger.Info().

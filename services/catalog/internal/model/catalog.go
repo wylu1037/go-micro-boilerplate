@@ -1,18 +1,9 @@
 package model
 
 import (
-	"errors"
 	"time"
 
 	"github.com/shopspring/decimal"
-)
-
-var (
-	ErrShowNotFound      = errors.New("show not found")
-	ErrVenueNotFound     = errors.New("venue not found")
-	ErrSessionNotFound   = errors.New("session not found")
-	ErrSeatAreaNotFound  = errors.New("seat area not found")
-	ErrInsufficientSeats = errors.New("insufficient seats available")
 )
 
 type Show struct {

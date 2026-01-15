@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"errors"
+	stderrors "errors"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
+	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 )
 
@@ -60,8 +61,8 @@ func (repo *seatAreaRepository) GetByID(ctx context.Context, id string) (*model.
 		&seatArea.CreatedAt,
 	)
 
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, model.ErrSeatAreaNotFound
+	if stderrors.Is(err, pgx.ErrNoRows) {
+		return nil, errors.ErrSeatAreaNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -117,7 +118,7 @@ func (repo *seatAreaRepository) UpdateAvailableSeats(ctx context.Context, id str
 	}
 
 	if result.RowsAffected() == 0 {
-		return model.ErrInsufficientSeats
+		return errors.ErrInsufficientSeats
 	}
 
 	return nil
@@ -135,7 +136,7 @@ func (repo *seatAreaRepository) CheckAndReserve(ctx context.Context, id string, 
 	var newAvailable int32
 	err := repo.db.QueryRow(ctx, query, quantity, id).Scan(&newAvailable)
 
-	if errors.Is(err, pgx.ErrNoRows) {
+	if stderrors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
 	if err != nil {
@@ -158,7 +159,7 @@ func (repo *seatAreaRepository) ReleaseSeats(ctx context.Context, id string, qua
 	}
 
 	if result.RowsAffected() == 0 {
-		return model.ErrSeatAreaNotFound
+		return errors.ErrSeatAreaNotFound
 	}
 
 	return nil
