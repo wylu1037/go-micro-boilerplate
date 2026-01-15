@@ -23,7 +23,7 @@ import (
 func NewHTTPServer(
 	cfg *config.Config,
 	logger *zerolog.Logger,
-	service micro.Service,
+	microService micro.Service,
 ) *http.Server {
 	r := chi.NewRouter()
 
@@ -43,17 +43,15 @@ func NewHTTPServer(
 	r.Use(chimiddleware.Timeout(60 * time.Second))
 
 	microRouter := registry.NewRouter(
-		router.WithRegistry(service.Options().Registry),
+		router.WithRegistry(microService.Options().Registry),
 	)
-
 	microHandler := rpc.NewHandler(
-		handler.WithClient(service.Client()),
+		handler.WithClient(microService.Client()),
 		handler.WithRouter(microRouter),
 	)
-
-	r.Route("/api", func(r chi.Router) {
-		r.Use(middleware.RateLimiter(100, 200))
-		r.Mount("/", microHandler)
+	r.Route("/api", func(router chi.Router) {
+		router.Use(middleware.RateLimiter(cfg.RateLimit.RPS, cfg.RateLimit.Burst))
+		router.Mount("/", microHandler)
 	})
 
 	server := &http.Server{
@@ -84,18 +82,18 @@ func Start(
 
 				logger.Info().Str("address", cfg.Service.Address).Msg("HTTP server listening")
 				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					logger.Fatal().Err(err).Msg("Failed to start server")
+					logger.Fatal().Err(err).Msg("Failed to start gateway server")
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Info().Msg("Shutting down server...")
+			logger.Info().Msg("Shutting down gateway server...")
 			if err := server.Shutdown(ctx); err != nil {
-				logger.Error().Err(err).Msg("Server forced to shutdown")
+				logger.Error().Err(err).Msg("Gateway server forced to shutdown")
 				return err
 			}
-			logger.Info().Msg("Server exited")
+			logger.Info().Msg("Gateway server exited")
 			return nil
 		},
 	})

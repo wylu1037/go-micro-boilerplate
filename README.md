@@ -152,7 +152,7 @@ The API Gateway is the single entry point for all client requests, built with **
 ┌────────────────────────────────────────────────────────────────────┐
 │                        API Gateway (:8080)                         │
 ├────────────────────────────────────────────────────────────────────┤
-│  HTTP Request → Chi Router → Middleware Stack → go-micro Handler  │
+│  HTTP Request → Chi Router → Middleware Stack → go-micro Handler   │
 │                                    ↓                               │
 │                      Service Discovery (Etcd)                      │
 │                                    ↓                               │

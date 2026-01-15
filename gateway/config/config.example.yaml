@@ -7,3 +7,7 @@ service:
 log:
   level: "debug"
   format: "console"
+
+rate_limit:
+  rps: 100
+  burst: 200

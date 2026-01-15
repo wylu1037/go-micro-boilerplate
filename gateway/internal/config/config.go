@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Service ServiceConfig `mapstructure:"service"`
-	Log     LogConfig     `mapstructure:"log"`
+	Service   ServiceConfig   `mapstructure:"service"`
+	Log       LogConfig       `mapstructure:"log"`
+	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
 }
 
 type ServiceConfig struct {
@@ -22,6 +23,11 @@ type ServiceConfig struct {
 type LogConfig struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
+}
+
+type RateLimitConfig struct {
+	RPS   int `mapstructure:"rps"`
+	Burst int `mapstructure:"burst"`
 }
 
 func Load() (*Config, error) {
