@@ -87,8 +87,6 @@ func (svc *catalogService) DeleteShow(ctx context.Context, id string) error {
 	return svc.showRepo.Delete(ctx, id)
 }
 
-// Venue
-
 func (svc *catalogService) CreateVenue(ctx context.Context, venue *model.Venue) error {
 	if err := svc.venueRepo.Create(ctx, venue); err != nil {
 		return err
@@ -104,8 +102,6 @@ func (svc *catalogService) GetVenue(ctx context.Context, id string) (*model.Venu
 func (svc *catalogService) ListVenues(ctx context.Context, city *string, offset, limit int) ([]*model.Venue, int64, error) {
 	return svc.venueRepo.List(ctx, city, offset, limit)
 }
-
-// Session
 
 func (svc *catalogService) CreateSession(ctx context.Context, session *model.Session) error {
 	// Verify Show and Venue exist

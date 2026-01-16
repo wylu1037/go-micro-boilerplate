@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package notification.v1;
 
-option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/notification/v1;notificationv1";
-
 service NotificationService {
   
 }

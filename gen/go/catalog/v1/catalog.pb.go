@@ -12,6 +12,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -200,8 +201,8 @@ type Show struct {
 	Category      ShowCategory           `protobuf:"varint,5,opt,name=category,proto3,enum=catalog.v1.ShowCategory" json:"category,omitempty"`
 	PosterUrl     string                 `protobuf:"bytes,6,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
 	Status        ShowStatus             `protobuf:"varint,7,opt,name=status,proto3,enum=catalog.v1.ShowStatus" json:"status,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *v1.Timestamp          `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,14 +286,14 @@ func (x *Show) GetStatus() ShowStatus {
 	return ShowStatus_SHOW_STATUS_UNSPECIFIED
 }
 
-func (x *Show) GetCreatedAt() *v1.Timestamp {
+func (x *Show) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Show) GetUpdatedAt() *v1.Timestamp {
+func (x *Show) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -509,10 +510,11 @@ func (x *GetShowResponse) GetShow() *Show {
 
 type ListShowsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagination    *v1.PaginationRequest  `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	Category      *ShowCategory          `protobuf:"varint,2,opt,name=category,proto3,enum=catalog.v1.ShowCategory,oneof" json:"category,omitempty"`
-	Status        *ShowStatus            `protobuf:"varint,3,opt,name=status,proto3,enum=catalog.v1.ShowStatus,oneof" json:"status,omitempty"`
-	City          *string                `protobuf:"bytes,4,opt,name=city,proto3,oneof" json:"city,omitempty"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	Category      *ShowCategory          `protobuf:"varint,3,opt,name=category,proto3,enum=catalog.v1.ShowCategory,oneof" json:"category,omitempty"`
+	Status        *ShowStatus            `protobuf:"varint,4,opt,name=status,proto3,enum=catalog.v1.ShowStatus,oneof" json:"status,omitempty"`
+	City          *string                `protobuf:"bytes,5,opt,name=city,proto3,oneof" json:"city,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -547,11 +549,18 @@ func (*ListShowsRequest) Descriptor() ([]byte, []int) {
 	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListShowsRequest) GetPagination() *v1.PaginationRequest {
+func (x *ListShowsRequest) GetPage() int32 {
 	if x != nil {
-		return x.Pagination
+		return x.Page
 	}
-	return nil
+	return 0
+}
+
+func (x *ListShowsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
 }
 
 func (x *ListShowsRequest) GetCategory() ShowCategory {
@@ -858,7 +867,7 @@ type Venue struct {
 	City          string                 `protobuf:"bytes,3,opt,name=city,proto3" json:"city,omitempty"`
 	Address       string                 `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
 	Capacity      int32                  `protobuf:"varint,5,opt,name=capacity,proto3" json:"capacity,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -928,7 +937,7 @@ func (x *Venue) GetCapacity() int32 {
 	return 0
 }
 
-func (x *Venue) GetCreatedAt() *v1.Timestamp {
+func (x *Venue) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
@@ -1137,8 +1146,9 @@ func (x *GetVenueResponse) GetVenue() *Venue {
 
 type ListVenuesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagination    *v1.PaginationRequest  `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	City          *string                `protobuf:"bytes,2,opt,name=city,proto3,oneof" json:"city,omitempty"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	City          *string                `protobuf:"bytes,3,opt,name=city,proto3,oneof" json:"city,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1173,11 +1183,18 @@ func (*ListVenuesRequest) Descriptor() ([]byte, []int) {
 	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *ListVenuesRequest) GetPagination() *v1.PaginationRequest {
+func (x *ListVenuesRequest) GetPage() int32 {
 	if x != nil {
-		return x.Pagination
+		return x.Page
 	}
-	return nil
+	return 0
+}
+
+func (x *ListVenuesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
 }
 
 func (x *ListVenuesRequest) GetCity() string {
@@ -1245,12 +1262,12 @@ type Session struct {
 	ShowId        string                 `protobuf:"bytes,2,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
 	VenueId       string                 `protobuf:"bytes,3,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
 	Venue         *Venue                 `protobuf:"bytes,4,opt,name=venue,proto3" json:"venue,omitempty"`
-	StartTime     *v1.Timestamp          `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *v1.Timestamp          `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	SaleStartTime *v1.Timestamp          `protobuf:"bytes,7,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
-	SaleEndTime   *v1.Timestamp          `protobuf:"bytes,8,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
+	StartTime     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	SaleStartTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
+	SaleEndTime   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
 	Status        SessionStatus          `protobuf:"varint,9,opt,name=status,proto3,enum=catalog.v1.SessionStatus" json:"status,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1313,28 +1330,28 @@ func (x *Session) GetVenue() *Venue {
 	return nil
 }
 
-func (x *Session) GetStartTime() *v1.Timestamp {
+func (x *Session) GetStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartTime
 	}
 	return nil
 }
 
-func (x *Session) GetEndTime() *v1.Timestamp {
+func (x *Session) GetEndTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.EndTime
 	}
 	return nil
 }
 
-func (x *Session) GetSaleStartTime() *v1.Timestamp {
+func (x *Session) GetSaleStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.SaleStartTime
 	}
 	return nil
 }
 
-func (x *Session) GetSaleEndTime() *v1.Timestamp {
+func (x *Session) GetSaleEndTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.SaleEndTime
 	}
@@ -1348,7 +1365,7 @@ func (x *Session) GetStatus() SessionStatus {
 	return SessionStatus_SESSION_STATUS_UNSPECIFIED
 }
 
-func (x *Session) GetCreatedAt() *v1.Timestamp {
+func (x *Session) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
@@ -1359,10 +1376,10 @@ type CreateSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShowId        string                 `protobuf:"bytes,1,opt,name=show_id,json=showId,proto3" json:"show_id,omitempty"`
 	VenueId       string                 `protobuf:"bytes,2,opt,name=venue_id,json=venueId,proto3" json:"venue_id,omitempty"`
-	StartTime     *v1.Timestamp          `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *v1.Timestamp          `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	SaleStartTime *v1.Timestamp          `protobuf:"bytes,5,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
-	SaleEndTime   *v1.Timestamp          `protobuf:"bytes,6,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
+	StartTime     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	SaleStartTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=sale_start_time,json=saleStartTime,proto3" json:"sale_start_time,omitempty"`
+	SaleEndTime   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=sale_end_time,json=saleEndTime,proto3" json:"sale_end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1411,28 +1428,28 @@ func (x *CreateSessionRequest) GetVenueId() string {
 	return ""
 }
 
-func (x *CreateSessionRequest) GetStartTime() *v1.Timestamp {
+func (x *CreateSessionRequest) GetStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartTime
 	}
 	return nil
 }
 
-func (x *CreateSessionRequest) GetEndTime() *v1.Timestamp {
+func (x *CreateSessionRequest) GetEndTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.EndTime
 	}
 	return nil
 }
 
-func (x *CreateSessionRequest) GetSaleStartTime() *v1.Timestamp {
+func (x *CreateSessionRequest) GetSaleStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.SaleStartTime
 	}
 	return nil
 }
 
-func (x *CreateSessionRequest) GetSaleEndTime() *v1.Timestamp {
+func (x *CreateSessionRequest) GetSaleEndTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.SaleEndTime
 	}
@@ -1675,7 +1692,7 @@ type SeatArea struct {
 	Price          string                 `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"` // Use string for decimal precision
 	TotalSeats     int32                  `protobuf:"varint,5,opt,name=total_seats,json=totalSeats,proto3" json:"total_seats,omitempty"`
 	AvailableSeats int32                  `protobuf:"varint,6,opt,name=available_seats,json=availableSeats,proto3" json:"available_seats,omitempty"`
-	CreatedAt      *v1.Timestamp          `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1752,7 +1769,7 @@ func (x *SeatArea) GetAvailableSeats() int32 {
 	return 0
 }
 
-func (x *SeatArea) GetCreatedAt() *v1.Timestamp {
+func (x *SeatArea) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
@@ -2324,7 +2341,7 @@ var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
 const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x18catalog/v1/catalog.proto\x12\n" +
-	"catalog.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xde\x02\n" +
+	"catalog.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xea\x02\n" +
 	"\x04Show\x12\x17\n" +
 	"\ashow_id\x18\x01 \x01(\tR\x06showId\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -2333,11 +2350,11 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\bcategory\x18\x05 \x01(\x0e2\x18.catalog.v1.ShowCategoryR\bcategory\x12\x1d\n" +
 	"\n" +
 	"poster_url\x18\x06 \x01(\tR\tposterUrl\x12.\n" +
-	"\x06status\x18\a \x01(\x0e2\x16.catalog.v1.ShowStatusR\x06status\x123\n" +
+	"\x06status\x18\a \x01(\x0e2\x16.catalog.v1.ShowStatusR\x06status\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\x123\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x14.common.v1.TimestampR\tupdatedAt\"\xcb\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xcb\x01\n" +
 	"\x11CreateShowRequest\x12\x1d\n" +
 	"\x05title\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x16\n" +
@@ -2350,14 +2367,13 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x0eGetShowRequest\x12!\n" +
 	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\"7\n" +
 	"\x0fGetShowResponse\x12$\n" +
-	"\x04show\x18\x01 \x01(\v2\x10.catalog.v1.ShowR\x04show\"\xfa\x01\n" +
-	"\x10ListShowsRequest\x12<\n" +
-	"\n" +
-	"pagination\x18\x01 \x01(\v2\x1c.common.v1.PaginationRequestR\n" +
-	"pagination\x129\n" +
-	"\bcategory\x18\x02 \x01(\x0e2\x18.catalog.v1.ShowCategoryH\x00R\bcategory\x88\x01\x01\x123\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x16.catalog.v1.ShowStatusH\x01R\x06status\x88\x01\x01\x12\x17\n" +
-	"\x04city\x18\x04 \x01(\tH\x02R\x04city\x88\x01\x01B\v\n" +
+	"\x04show\x18\x01 \x01(\v2\x10.catalog.v1.ShowR\x04show\"\xed\x01\n" +
+	"\x10ListShowsRequest\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x129\n" +
+	"\bcategory\x18\x03 \x01(\x0e2\x18.catalog.v1.ShowCategoryH\x00R\bcategory\x88\x01\x01\x123\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x16.catalog.v1.ShowStatusH\x01R\x06status\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\x05 \x01(\tH\x02R\x04city\x88\x01\x01B\v\n" +
 	"\t_categoryB\t\n" +
 	"\a_statusB\a\n" +
 	"\x05_city\"z\n" +
@@ -2386,15 +2402,15 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x11DeleteShowRequest\x12!\n" +
 	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\".\n" +
 	"\x12DeleteShowResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\xb5\x01\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xbb\x01\n" +
 	"\x05Venue\x12\x19\n" +
 	"\bvenue_id\x18\x01 \x01(\tR\avenueId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04city\x18\x03 \x01(\tR\x04city\x12\x18\n" +
 	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x1a\n" +
-	"\bcapacity\x18\x05 \x01(\x05R\bcapacity\x123\n" +
+	"\bcapacity\x18\x05 \x01(\x05R\bcapacity\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\x84\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x84\x01\n" +
 	"\x12CreateVenueRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12\x1b\n" +
 	"\x04city\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04city\x12\x18\n" +
@@ -2405,41 +2421,40 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x0fGetVenueRequest\x12#\n" +
 	"\bvenue_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\avenueId\";\n" +
 	"\x10GetVenueResponse\x12'\n" +
-	"\x05venue\x18\x01 \x01(\v2\x11.catalog.v1.VenueR\x05venue\"s\n" +
-	"\x11ListVenuesRequest\x12<\n" +
-	"\n" +
-	"pagination\x18\x01 \x01(\v2\x1c.common.v1.PaginationRequestR\n" +
-	"pagination\x12\x17\n" +
-	"\x04city\x18\x02 \x01(\tH\x00R\x04city\x88\x01\x01B\a\n" +
+	"\x05venue\x18\x01 \x01(\v2\x11.catalog.v1.VenueR\x05venue\"f\n" +
+	"\x11ListVenuesRequest\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x17\n" +
+	"\x04city\x18\x03 \x01(\tH\x00R\x04city\x88\x01\x01B\a\n" +
 	"\x05_city\"~\n" +
 	"\x12ListVenuesResponse\x12)\n" +
 	"\x06venues\x18\x01 \x03(\v2\x11.catalog.v1.VenueR\x06venues\x12=\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1d.common.v1.PaginationResponseR\n" +
-	"pagination\"\xcb\x03\n" +
+	"pagination\"\xe9\x03\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x17\n" +
 	"\ashow_id\x18\x02 \x01(\tR\x06showId\x12\x19\n" +
 	"\bvenue_id\x18\x03 \x01(\tR\avenueId\x12'\n" +
-	"\x05venue\x18\x04 \x01(\v2\x11.catalog.v1.VenueR\x05venue\x123\n" +
+	"\x05venue\x18\x04 \x01(\v2\x11.catalog.v1.VenueR\x05venue\x129\n" +
 	"\n" +
-	"start_time\x18\x05 \x01(\v2\x14.common.v1.TimestampR\tstartTime\x12/\n" +
-	"\bend_time\x18\x06 \x01(\v2\x14.common.v1.TimestampR\aendTime\x12<\n" +
-	"\x0fsale_start_time\x18\a \x01(\v2\x14.common.v1.TimestampR\rsaleStartTime\x128\n" +
-	"\rsale_end_time\x18\b \x01(\v2\x14.common.v1.TimestampR\vsaleEndTime\x121\n" +
-	"\x06status\x18\t \x01(\x0e2\x19.catalog.v1.SessionStatusR\x06status\x123\n" +
+	"start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12B\n" +
+	"\x0fsale_start_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\rsaleStartTime\x12>\n" +
+	"\rsale_end_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vsaleEndTime\x121\n" +
+	"\x06status\x18\t \x01(\x0e2\x19.catalog.v1.SessionStatusR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
-	" \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\xc4\x02\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xdc\x02\n" +
 	"\x14CreateSessionRequest\x12!\n" +
 	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\x12#\n" +
-	"\bvenue_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\avenueId\x12;\n" +
+	"\bvenue_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\avenueId\x12A\n" +
 	"\n" +
-	"start_time\x18\x03 \x01(\v2\x14.common.v1.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tstartTime\x12/\n" +
-	"\bend_time\x18\x04 \x01(\v2\x14.common.v1.TimestampR\aendTime\x12<\n" +
-	"\x0fsale_start_time\x18\x05 \x01(\v2\x14.common.v1.TimestampR\rsaleStartTime\x128\n" +
-	"\rsale_end_time\x18\x06 \x01(\v2\x14.common.v1.TimestampR\vsaleEndTime\"F\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tstartTime\x125\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12B\n" +
+	"\x0fsale_start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rsaleStartTime\x12>\n" +
+	"\rsale_end_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vsaleEndTime\"F\n" +
 	"\x15CreateSessionResponse\x12-\n" +
 	"\asession\x18\x01 \x01(\v2\x13.catalog.v1.SessionR\asession\"<\n" +
 	"\x11GetSessionRequest\x12'\n" +
@@ -2452,7 +2467,7 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x13ListSessionsRequest\x12!\n" +
 	"\ashow_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06showId\"G\n" +
 	"\x14ListSessionsResponse\x12/\n" +
-	"\bsessions\x18\x01 \x03(\v2\x13.catalog.v1.SessionR\bsessions\"\xf4\x01\n" +
+	"\bsessions\x18\x01 \x03(\v2\x13.catalog.v1.SessionR\bsessions\"\xfa\x01\n" +
 	"\bSeatArea\x12 \n" +
 	"\fseat_area_id\x18\x01 \x01(\tR\n" +
 	"seatAreaId\x12\x1d\n" +
@@ -2462,9 +2477,9 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x05price\x18\x04 \x01(\tR\x05price\x12\x1f\n" +
 	"\vtotal_seats\x18\x05 \x01(\x05R\n" +
 	"totalSeats\x12'\n" +
-	"\x0favailable_seats\x18\x06 \x01(\x05R\x0eavailableSeats\x123\n" +
+	"\x0favailable_seats\x18\x06 \x01(\x05R\x0eavailableSeats\x129\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\"\xa6\x01\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa6\x01\n" +
 	"\x15CreateSeatAreaRequest\x12'\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tsessionId\x12\x1b\n" +
@@ -2609,87 +2624,84 @@ var file_catalog_v1_catalog_proto_goTypes = []any{
 	(*ReserveSeatsResponse)(nil),      // 36: catalog.v1.ReserveSeatsResponse
 	(*ReleaseSeatsRequest)(nil),       // 37: catalog.v1.ReleaseSeatsRequest
 	(*ReleaseSeatsResponse)(nil),      // 38: catalog.v1.ReleaseSeatsResponse
-	(*v1.Timestamp)(nil),              // 39: common.v1.Timestamp
-	(*v1.PaginationRequest)(nil),      // 40: common.v1.PaginationRequest
-	(*v1.PaginationResponse)(nil),     // 41: common.v1.PaginationResponse
+	(*timestamppb.Timestamp)(nil),     // 39: google.protobuf.Timestamp
+	(*v1.PaginationResponse)(nil),     // 40: common.v1.PaginationResponse
 }
 var file_catalog_v1_catalog_proto_depIdxs = []int32{
 	1,  // 0: catalog.v1.Show.category:type_name -> catalog.v1.ShowCategory
 	0,  // 1: catalog.v1.Show.status:type_name -> catalog.v1.ShowStatus
-	39, // 2: catalog.v1.Show.created_at:type_name -> common.v1.Timestamp
-	39, // 3: catalog.v1.Show.updated_at:type_name -> common.v1.Timestamp
+	39, // 2: catalog.v1.Show.created_at:type_name -> google.protobuf.Timestamp
+	39, // 3: catalog.v1.Show.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: catalog.v1.CreateShowRequest.category:type_name -> catalog.v1.ShowCategory
 	3,  // 5: catalog.v1.CreateShowResponse.show:type_name -> catalog.v1.Show
 	3,  // 6: catalog.v1.GetShowResponse.show:type_name -> catalog.v1.Show
-	40, // 7: catalog.v1.ListShowsRequest.pagination:type_name -> common.v1.PaginationRequest
-	1,  // 8: catalog.v1.ListShowsRequest.category:type_name -> catalog.v1.ShowCategory
-	0,  // 9: catalog.v1.ListShowsRequest.status:type_name -> catalog.v1.ShowStatus
-	3,  // 10: catalog.v1.ListShowsResponse.shows:type_name -> catalog.v1.Show
-	41, // 11: catalog.v1.ListShowsResponse.pagination:type_name -> common.v1.PaginationResponse
-	1,  // 12: catalog.v1.UpdateShowRequest.category:type_name -> catalog.v1.ShowCategory
-	0,  // 13: catalog.v1.UpdateShowRequest.status:type_name -> catalog.v1.ShowStatus
-	3,  // 14: catalog.v1.UpdateShowResponse.show:type_name -> catalog.v1.Show
-	39, // 15: catalog.v1.Venue.created_at:type_name -> common.v1.Timestamp
-	14, // 16: catalog.v1.CreateVenueResponse.venue:type_name -> catalog.v1.Venue
-	14, // 17: catalog.v1.GetVenueResponse.venue:type_name -> catalog.v1.Venue
-	40, // 18: catalog.v1.ListVenuesRequest.pagination:type_name -> common.v1.PaginationRequest
-	14, // 19: catalog.v1.ListVenuesResponse.venues:type_name -> catalog.v1.Venue
-	41, // 20: catalog.v1.ListVenuesResponse.pagination:type_name -> common.v1.PaginationResponse
-	14, // 21: catalog.v1.Session.venue:type_name -> catalog.v1.Venue
-	39, // 22: catalog.v1.Session.start_time:type_name -> common.v1.Timestamp
-	39, // 23: catalog.v1.Session.end_time:type_name -> common.v1.Timestamp
-	39, // 24: catalog.v1.Session.sale_start_time:type_name -> common.v1.Timestamp
-	39, // 25: catalog.v1.Session.sale_end_time:type_name -> common.v1.Timestamp
-	2,  // 26: catalog.v1.Session.status:type_name -> catalog.v1.SessionStatus
-	39, // 27: catalog.v1.Session.created_at:type_name -> common.v1.Timestamp
-	39, // 28: catalog.v1.CreateSessionRequest.start_time:type_name -> common.v1.Timestamp
-	39, // 29: catalog.v1.CreateSessionRequest.end_time:type_name -> common.v1.Timestamp
-	39, // 30: catalog.v1.CreateSessionRequest.sale_start_time:type_name -> common.v1.Timestamp
-	39, // 31: catalog.v1.CreateSessionRequest.sale_end_time:type_name -> common.v1.Timestamp
-	21, // 32: catalog.v1.CreateSessionResponse.session:type_name -> catalog.v1.Session
-	21, // 33: catalog.v1.GetSessionResponse.session:type_name -> catalog.v1.Session
-	28, // 34: catalog.v1.GetSessionResponse.seat_areas:type_name -> catalog.v1.SeatArea
-	21, // 35: catalog.v1.ListSessionsResponse.sessions:type_name -> catalog.v1.Session
-	39, // 36: catalog.v1.SeatArea.created_at:type_name -> common.v1.Timestamp
-	28, // 37: catalog.v1.CreateSeatAreaResponse.seat_area:type_name -> catalog.v1.SeatArea
-	28, // 38: catalog.v1.ListSeatAreasResponse.seat_areas:type_name -> catalog.v1.SeatArea
-	4,  // 39: catalog.v1.CatalogService.CreateShow:input_type -> catalog.v1.CreateShowRequest
-	6,  // 40: catalog.v1.CatalogService.GetShow:input_type -> catalog.v1.GetShowRequest
-	8,  // 41: catalog.v1.CatalogService.ListShows:input_type -> catalog.v1.ListShowsRequest
-	10, // 42: catalog.v1.CatalogService.UpdateShow:input_type -> catalog.v1.UpdateShowRequest
-	12, // 43: catalog.v1.CatalogService.DeleteShow:input_type -> catalog.v1.DeleteShowRequest
-	15, // 44: catalog.v1.CatalogService.CreateVenue:input_type -> catalog.v1.CreateVenueRequest
-	17, // 45: catalog.v1.CatalogService.GetVenue:input_type -> catalog.v1.GetVenueRequest
-	19, // 46: catalog.v1.CatalogService.ListVenues:input_type -> catalog.v1.ListVenuesRequest
-	22, // 47: catalog.v1.CatalogService.CreateSession:input_type -> catalog.v1.CreateSessionRequest
-	24, // 48: catalog.v1.CatalogService.GetSession:input_type -> catalog.v1.GetSessionRequest
-	26, // 49: catalog.v1.CatalogService.ListSessions:input_type -> catalog.v1.ListSessionsRequest
-	29, // 50: catalog.v1.CatalogService.CreateSeatArea:input_type -> catalog.v1.CreateSeatAreaRequest
-	31, // 51: catalog.v1.CatalogService.ListSeatAreas:input_type -> catalog.v1.ListSeatAreasRequest
-	33, // 52: catalog.v1.CatalogService.CheckAvailability:input_type -> catalog.v1.CheckAvailabilityRequest
-	35, // 53: catalog.v1.CatalogService.ReserveSeats:input_type -> catalog.v1.ReserveSeatsRequest
-	37, // 54: catalog.v1.CatalogService.ReleaseSeats:input_type -> catalog.v1.ReleaseSeatsRequest
-	5,  // 55: catalog.v1.CatalogService.CreateShow:output_type -> catalog.v1.CreateShowResponse
-	7,  // 56: catalog.v1.CatalogService.GetShow:output_type -> catalog.v1.GetShowResponse
-	9,  // 57: catalog.v1.CatalogService.ListShows:output_type -> catalog.v1.ListShowsResponse
-	11, // 58: catalog.v1.CatalogService.UpdateShow:output_type -> catalog.v1.UpdateShowResponse
-	13, // 59: catalog.v1.CatalogService.DeleteShow:output_type -> catalog.v1.DeleteShowResponse
-	16, // 60: catalog.v1.CatalogService.CreateVenue:output_type -> catalog.v1.CreateVenueResponse
-	18, // 61: catalog.v1.CatalogService.GetVenue:output_type -> catalog.v1.GetVenueResponse
-	20, // 62: catalog.v1.CatalogService.ListVenues:output_type -> catalog.v1.ListVenuesResponse
-	23, // 63: catalog.v1.CatalogService.CreateSession:output_type -> catalog.v1.CreateSessionResponse
-	25, // 64: catalog.v1.CatalogService.GetSession:output_type -> catalog.v1.GetSessionResponse
-	27, // 65: catalog.v1.CatalogService.ListSessions:output_type -> catalog.v1.ListSessionsResponse
-	30, // 66: catalog.v1.CatalogService.CreateSeatArea:output_type -> catalog.v1.CreateSeatAreaResponse
-	32, // 67: catalog.v1.CatalogService.ListSeatAreas:output_type -> catalog.v1.ListSeatAreasResponse
-	34, // 68: catalog.v1.CatalogService.CheckAvailability:output_type -> catalog.v1.CheckAvailabilityResponse
-	36, // 69: catalog.v1.CatalogService.ReserveSeats:output_type -> catalog.v1.ReserveSeatsResponse
-	38, // 70: catalog.v1.CatalogService.ReleaseSeats:output_type -> catalog.v1.ReleaseSeatsResponse
-	55, // [55:71] is the sub-list for method output_type
-	39, // [39:55] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	1,  // 7: catalog.v1.ListShowsRequest.category:type_name -> catalog.v1.ShowCategory
+	0,  // 8: catalog.v1.ListShowsRequest.status:type_name -> catalog.v1.ShowStatus
+	3,  // 9: catalog.v1.ListShowsResponse.shows:type_name -> catalog.v1.Show
+	40, // 10: catalog.v1.ListShowsResponse.pagination:type_name -> common.v1.PaginationResponse
+	1,  // 11: catalog.v1.UpdateShowRequest.category:type_name -> catalog.v1.ShowCategory
+	0,  // 12: catalog.v1.UpdateShowRequest.status:type_name -> catalog.v1.ShowStatus
+	3,  // 13: catalog.v1.UpdateShowResponse.show:type_name -> catalog.v1.Show
+	39, // 14: catalog.v1.Venue.created_at:type_name -> google.protobuf.Timestamp
+	14, // 15: catalog.v1.CreateVenueResponse.venue:type_name -> catalog.v1.Venue
+	14, // 16: catalog.v1.GetVenueResponse.venue:type_name -> catalog.v1.Venue
+	14, // 17: catalog.v1.ListVenuesResponse.venues:type_name -> catalog.v1.Venue
+	40, // 18: catalog.v1.ListVenuesResponse.pagination:type_name -> common.v1.PaginationResponse
+	14, // 19: catalog.v1.Session.venue:type_name -> catalog.v1.Venue
+	39, // 20: catalog.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	39, // 21: catalog.v1.Session.end_time:type_name -> google.protobuf.Timestamp
+	39, // 22: catalog.v1.Session.sale_start_time:type_name -> google.protobuf.Timestamp
+	39, // 23: catalog.v1.Session.sale_end_time:type_name -> google.protobuf.Timestamp
+	2,  // 24: catalog.v1.Session.status:type_name -> catalog.v1.SessionStatus
+	39, // 25: catalog.v1.Session.created_at:type_name -> google.protobuf.Timestamp
+	39, // 26: catalog.v1.CreateSessionRequest.start_time:type_name -> google.protobuf.Timestamp
+	39, // 27: catalog.v1.CreateSessionRequest.end_time:type_name -> google.protobuf.Timestamp
+	39, // 28: catalog.v1.CreateSessionRequest.sale_start_time:type_name -> google.protobuf.Timestamp
+	39, // 29: catalog.v1.CreateSessionRequest.sale_end_time:type_name -> google.protobuf.Timestamp
+	21, // 30: catalog.v1.CreateSessionResponse.session:type_name -> catalog.v1.Session
+	21, // 31: catalog.v1.GetSessionResponse.session:type_name -> catalog.v1.Session
+	28, // 32: catalog.v1.GetSessionResponse.seat_areas:type_name -> catalog.v1.SeatArea
+	21, // 33: catalog.v1.ListSessionsResponse.sessions:type_name -> catalog.v1.Session
+	39, // 34: catalog.v1.SeatArea.created_at:type_name -> google.protobuf.Timestamp
+	28, // 35: catalog.v1.CreateSeatAreaResponse.seat_area:type_name -> catalog.v1.SeatArea
+	28, // 36: catalog.v1.ListSeatAreasResponse.seat_areas:type_name -> catalog.v1.SeatArea
+	4,  // 37: catalog.v1.CatalogService.CreateShow:input_type -> catalog.v1.CreateShowRequest
+	6,  // 38: catalog.v1.CatalogService.GetShow:input_type -> catalog.v1.GetShowRequest
+	8,  // 39: catalog.v1.CatalogService.ListShows:input_type -> catalog.v1.ListShowsRequest
+	10, // 40: catalog.v1.CatalogService.UpdateShow:input_type -> catalog.v1.UpdateShowRequest
+	12, // 41: catalog.v1.CatalogService.DeleteShow:input_type -> catalog.v1.DeleteShowRequest
+	15, // 42: catalog.v1.CatalogService.CreateVenue:input_type -> catalog.v1.CreateVenueRequest
+	17, // 43: catalog.v1.CatalogService.GetVenue:input_type -> catalog.v1.GetVenueRequest
+	19, // 44: catalog.v1.CatalogService.ListVenues:input_type -> catalog.v1.ListVenuesRequest
+	22, // 45: catalog.v1.CatalogService.CreateSession:input_type -> catalog.v1.CreateSessionRequest
+	24, // 46: catalog.v1.CatalogService.GetSession:input_type -> catalog.v1.GetSessionRequest
+	26, // 47: catalog.v1.CatalogService.ListSessions:input_type -> catalog.v1.ListSessionsRequest
+	29, // 48: catalog.v1.CatalogService.CreateSeatArea:input_type -> catalog.v1.CreateSeatAreaRequest
+	31, // 49: catalog.v1.CatalogService.ListSeatAreas:input_type -> catalog.v1.ListSeatAreasRequest
+	33, // 50: catalog.v1.CatalogService.CheckAvailability:input_type -> catalog.v1.CheckAvailabilityRequest
+	35, // 51: catalog.v1.CatalogService.ReserveSeats:input_type -> catalog.v1.ReserveSeatsRequest
+	37, // 52: catalog.v1.CatalogService.ReleaseSeats:input_type -> catalog.v1.ReleaseSeatsRequest
+	5,  // 53: catalog.v1.CatalogService.CreateShow:output_type -> catalog.v1.CreateShowResponse
+	7,  // 54: catalog.v1.CatalogService.GetShow:output_type -> catalog.v1.GetShowResponse
+	9,  // 55: catalog.v1.CatalogService.ListShows:output_type -> catalog.v1.ListShowsResponse
+	11, // 56: catalog.v1.CatalogService.UpdateShow:output_type -> catalog.v1.UpdateShowResponse
+	13, // 57: catalog.v1.CatalogService.DeleteShow:output_type -> catalog.v1.DeleteShowResponse
+	16, // 58: catalog.v1.CatalogService.CreateVenue:output_type -> catalog.v1.CreateVenueResponse
+	18, // 59: catalog.v1.CatalogService.GetVenue:output_type -> catalog.v1.GetVenueResponse
+	20, // 60: catalog.v1.CatalogService.ListVenues:output_type -> catalog.v1.ListVenuesResponse
+	23, // 61: catalog.v1.CatalogService.CreateSession:output_type -> catalog.v1.CreateSessionResponse
+	25, // 62: catalog.v1.CatalogService.GetSession:output_type -> catalog.v1.GetSessionResponse
+	27, // 63: catalog.v1.CatalogService.ListSessions:output_type -> catalog.v1.ListSessionsResponse
+	30, // 64: catalog.v1.CatalogService.CreateSeatArea:output_type -> catalog.v1.CreateSeatAreaResponse
+	32, // 65: catalog.v1.CatalogService.ListSeatAreas:output_type -> catalog.v1.ListSeatAreasResponse
+	34, // 66: catalog.v1.CatalogService.CheckAvailability:output_type -> catalog.v1.CheckAvailabilityResponse
+	36, // 67: catalog.v1.CatalogService.ReserveSeats:output_type -> catalog.v1.ReserveSeatsResponse
+	38, // 68: catalog.v1.CatalogService.ReleaseSeats:output_type -> catalog.v1.ReleaseSeatsResponse
+	53, // [53:69] is the sub-list for method output_type
+	37, // [37:53] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_catalog_v1_catalog_proto_init() }

@@ -6,6 +6,7 @@ require (
 	github.com/go-micro/plugins/v4/registry/etcd v1.2.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/rs/zerolog v1.34.0
+	github.com/samber/lo v1.52.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/wylu1037/go-micro-boilerplate/gen v0.0.0-00010101000000-000000000000
 	github.com/wylu1037/go-micro-boilerplate/pkg v0.0.0
@@ -65,7 +66,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
-	github.com/samber/lo v1.52.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect

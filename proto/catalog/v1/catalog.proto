@@ -2,11 +2,10 @@ syntax = "proto3";
 
 package catalog.v1;
 
-option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1;catalogv1";
-
 import "common/v1/pagination.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 service CatalogService {
 
@@ -146,8 +145,8 @@ message Show {
   ShowCategory category = 5;
   string poster_url = 6;
   ShowStatus status = 7;
-  common.v1.Timestamp created_at = 8;
-  common.v1.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
 message CreateShowRequest {
@@ -171,10 +170,11 @@ message GetShowResponse {
 }
 
 message ListShowsRequest {
-  common.v1.PaginationRequest pagination = 1;
-  optional ShowCategory category = 2;
-  optional ShowStatus status = 3;
-  optional string city = 4;
+  int32 page = 1;
+  int32 page_size = 2;
+  optional ShowCategory category = 3;
+  optional ShowStatus status = 4;
+  optional string city = 5;
 }
 
 message ListShowsResponse {
@@ -211,7 +211,7 @@ message Venue {
   string city = 3;
   string address = 4;
   int32 capacity = 5;
-  common.v1.Timestamp created_at = 6;
+  google.protobuf.Timestamp created_at = 6;
 }
 
 message CreateVenueRequest {
@@ -234,8 +234,9 @@ message GetVenueResponse {
 }
 
 message ListVenuesRequest {
-  common.v1.PaginationRequest pagination = 1;
-  optional string city = 2;
+  int32 page = 1;
+  int32 page_size = 2;
+  optional string city = 3;
 }
 
 message ListVenuesResponse {
@@ -257,21 +258,21 @@ message Session {
   string show_id = 2;
   string venue_id = 3;
   Venue venue = 4;
-  common.v1.Timestamp start_time = 5;
-  common.v1.Timestamp end_time = 6;
-  common.v1.Timestamp sale_start_time = 7;
-  common.v1.Timestamp sale_end_time = 8;
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp end_time = 6;
+  google.protobuf.Timestamp sale_start_time = 7;
+  google.protobuf.Timestamp sale_end_time = 8;
   SessionStatus status = 9;
-  common.v1.Timestamp created_at = 10;
+  google.protobuf.Timestamp created_at = 10;
 }
 
 message CreateSessionRequest {
   string show_id = 1 [(buf.validate.field).string.uuid = true];
   string venue_id = 2 [(buf.validate.field).string.uuid = true];
-  common.v1.Timestamp start_time = 3 [(buf.validate.field).required = true];
-  common.v1.Timestamp end_time = 4;
-  common.v1.Timestamp sale_start_time = 5;
-  common.v1.Timestamp sale_end_time = 6;
+  google.protobuf.Timestamp start_time = 3 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp end_time = 4;
+  google.protobuf.Timestamp sale_start_time = 5;
+  google.protobuf.Timestamp sale_end_time = 6;
 }
 
 message CreateSessionResponse {
@@ -303,7 +304,7 @@ message SeatArea {
   string price = 4; // Use string for decimal precision
   int32 total_seats = 5;
   int32 available_seats = 6;
-  common.v1.Timestamp created_at = 7;
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message CreateSeatAreaRequest {

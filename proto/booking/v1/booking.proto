@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package booking.v1;
 
-option go_package = "github.com/wylu1037/go-micro-boilerplate/gen/go/booking/v1;bookingv1";
-
 service BookingService {
 
 }

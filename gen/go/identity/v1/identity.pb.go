@@ -8,10 +8,10 @@ package identityv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -579,8 +579,8 @@ type UserProfile struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
 	AvatarUrl     string                 `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
-	CreatedAt     *v1.Timestamp          `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *v1.Timestamp          `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -650,14 +650,14 @@ func (x *UserProfile) GetAvatarUrl() string {
 	return ""
 }
 
-func (x *UserProfile) GetCreatedAt() *v1.Timestamp {
+func (x *UserProfile) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *UserProfile) GetUpdatedAt() *v1.Timestamp {
+func (x *UserProfile) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -958,7 +958,7 @@ var File_identity_v1_identity_proto protoreflect.FileDescriptor
 
 const file_identity_v1_identity_proto_rawDesc = "" +
 	"\n" +
-	"\x1aidentity/v1/identity.proto\x12\videntity.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x88\x01\n" +
+	"\x1aidentity/v1/identity.proto\x12\videntity.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x01\n" +
 	"\x0fRegisterRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12#\n" +
 	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\bpassword\x12\x1b\n" +
@@ -994,18 +994,18 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\x12GetProfileResponse\x12,\n" +
 	"\x04user\x18\x01 \x01(\v2\x18.identity.v1.UserProfileR\x04user\"E\n" +
 	"\x15UpdateProfileResponse\x12,\n" +
-	"\x04user\x18\x01 \x01(\v2\x18.identity.v1.UserProfileR\x04user\"\xf9\x01\n" +
+	"\x04user\x18\x01 \x01(\v2\x18.identity.v1.UserProfileR\x04user\"\x85\x02\n" +
 	"\vUserProfile\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
 	"\x05phone\x18\x04 \x01(\tR\x05phone\x12\x1d\n" +
 	"\n" +
-	"avatar_url\x18\x05 \x01(\tR\tavatarUrl\x123\n" +
+	"avatar_url\x18\x05 \x01(\tR\tavatarUrl\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x14.common.v1.TimestampR\tcreatedAt\x123\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x14.common.v1.TimestampR\tupdatedAt\"<\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"<\n" +
 	"\x1bRequestPasswordResetRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"8\n" +
 	"\x1cRequestPasswordResetResponse\x12\x18\n" +
@@ -1064,14 +1064,14 @@ var file_identity_v1_identity_proto_goTypes = []any{
 	(*ResetPasswordResponse)(nil),        // 14: identity.v1.ResetPasswordResponse
 	(*ValidateTokenRequest)(nil),         // 15: identity.v1.ValidateTokenRequest
 	(*ValidateTokenResponse)(nil),        // 16: identity.v1.ValidateTokenResponse
-	(*v1.Timestamp)(nil),                 // 17: common.v1.Timestamp
+	(*timestamppb.Timestamp)(nil),        // 17: google.protobuf.Timestamp
 }
 var file_identity_v1_identity_proto_depIdxs = []int32{
 	10, // 0: identity.v1.LoginResponse.user:type_name -> identity.v1.UserProfile
 	10, // 1: identity.v1.GetProfileResponse.user:type_name -> identity.v1.UserProfile
 	10, // 2: identity.v1.UpdateProfileResponse.user:type_name -> identity.v1.UserProfile
-	17, // 3: identity.v1.UserProfile.created_at:type_name -> common.v1.Timestamp
-	17, // 4: identity.v1.UserProfile.updated_at:type_name -> common.v1.Timestamp
+	17, // 3: identity.v1.UserProfile.created_at:type_name -> google.protobuf.Timestamp
+	17, // 4: identity.v1.UserProfile.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: identity.v1.IdentityService.Register:input_type -> identity.v1.RegisterRequest
 	2,  // 6: identity.v1.IdentityService.Login:input_type -> identity.v1.LoginRequest
 	4,  // 7: identity.v1.IdentityService.RefreshToken:input_type -> identity.v1.RefreshTokenRequest

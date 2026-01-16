@@ -9,6 +9,7 @@ import (
 	_ "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	proto "google.golang.org/protobuf/proto"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	math "math"
 )
 

@@ -8,7 +8,6 @@ import (
 	"go-micro.dev/v4/auth"
 	"go.uber.org/fx"
 
-	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/logger"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
@@ -16,10 +15,8 @@ import (
 )
 
 func NewMicroService(
-	lc fx.Lifecycle,
 	logger *zerolog.Logger,
 	cfg *config.Config,
-	h catalogv1.CatalogServiceHandler,
 	microAuth auth.Auth,
 ) micro.Service {
 	service := micro.NewService(

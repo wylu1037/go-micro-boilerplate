@@ -2,12 +2,13 @@ package handler
 
 import (
 	"context"
-	"time"
 
+	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
 
 	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
 	commonv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
+	"github.com/wylu1037/go-micro-boilerplate/pkg/tools"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/service"
@@ -21,31 +22,6 @@ func NewCatalogHandler(
 	svc service.CatalogService,
 ) catalogv1.CatalogServiceHandler {
 	return &CatalogHandler{svc: svc}
-}
-
-func toProtoTimestamp(t time.Time) *commonv1.Timestamp {
-	if t.IsZero() {
-		return nil
-	}
-	return &commonv1.Timestamp{
-		Seconds: t.Unix(),
-		Nanos:   int32(t.Nanosecond()),
-	}
-}
-
-func toTime(t *commonv1.Timestamp) time.Time {
-	if t == nil {
-		return time.Time{}
-	}
-	return time.Unix(t.Seconds, int64(t.Nanos))
-}
-
-func toTimePtr(t *commonv1.Timestamp) *time.Time {
-	if t == nil {
-		return nil
-	}
-	res := time.Unix(t.Seconds, int64(t.Nanos))
-	return &res
 }
 
 func (h *CatalogHandler) CreateShow(ctx context.Context, req *catalogv1.CreateShowRequest, rsp *catalogv1.CreateShowResponse) error {
@@ -90,8 +66,10 @@ func (h *CatalogHandler) ListShows(ctx context.Context, req *catalogv1.ListShows
 		city = req.City
 	}
 
-	offset := int((req.Pagination.Page - 1) * req.Pagination.PageSize)
-	limit := int(req.Pagination.PageSize)
+	page := lo.Ternary(req.Page < 1, 1, req.Page)
+	pageSize := lo.Ternary(req.PageSize < 1, 10, req.PageSize)
+	offset := int((page - 1) * pageSize)
+	limit := int(pageSize)
 
 	shows, total, err := h.svc.ListShows(ctx, category, status, city, offset, limit)
 	if err != nil {
@@ -104,8 +82,8 @@ func (h *CatalogHandler) ListShows(ctx context.Context, req *catalogv1.ListShows
 	}
 
 	rsp.Pagination = &commonv1.PaginationResponse{
-		Page:       req.Pagination.Page,
-		PageSize:   req.Pagination.PageSize,
+		Page:       page,
+		PageSize:   pageSize,
 		TotalPages: int32((total + int64(limit) - 1) / int64(limit)),
 		TotalCount: total,
 	}
@@ -162,8 +140,8 @@ func (h *CatalogHandler) convertShow(s *model.Show) *catalogv1.Show {
 		Category:    catalogv1.ShowCategory(catalogv1.ShowCategory_value[s.Category]),
 		PosterUrl:   s.PosterURL,
 		Status:      catalogv1.ShowStatus(catalogv1.ShowStatus_value[s.Status]),
-		CreatedAt:   toProtoTimestamp(s.CreatedAt),
-		UpdatedAt:   toProtoTimestamp(s.UpdatedAt),
+		CreatedAt:   tools.ToProtoTimestamp(s.CreatedAt),
+		UpdatedAt:   tools.ToProtoTimestamp(s.UpdatedAt),
 	}
 }
 
@@ -196,8 +174,10 @@ func (h *CatalogHandler) GetVenue(ctx context.Context, req *catalogv1.GetVenueRe
 }
 
 func (h *CatalogHandler) ListVenues(ctx context.Context, req *catalogv1.ListVenuesRequest, rsp *catalogv1.ListVenuesResponse) error {
-	offset := int((req.Pagination.Page - 1) * req.Pagination.PageSize)
-	limit := int(req.Pagination.PageSize)
+	page := lo.Ternary(req.Page < 1, 1, req.Page)
+	pageSize := lo.Ternary(req.PageSize < 1, 10, req.PageSize)
+	offset := int((page - 1) * pageSize)
+	limit := int(pageSize)
 
 	venues, total, err := h.svc.ListVenues(ctx, req.City, offset, limit)
 	if err != nil {
@@ -210,8 +190,8 @@ func (h *CatalogHandler) ListVenues(ctx context.Context, req *catalogv1.ListVenu
 	}
 
 	rsp.Pagination = &commonv1.PaginationResponse{
-		Page:       req.Pagination.Page,
-		PageSize:   req.Pagination.PageSize,
+		Page:       page,
+		PageSize:   pageSize,
 		TotalPages: int32((total + int64(limit) - 1) / int64(limit)),
 		TotalCount: total,
 	}
@@ -226,7 +206,7 @@ func (h *CatalogHandler) convertVenue(v *model.Venue) *catalogv1.Venue {
 		City:      v.City,
 		Address:   v.Address,
 		Capacity:  v.Capacity,
-		CreatedAt: toProtoTimestamp(v.CreatedAt),
+		CreatedAt: tools.ToProtoTimestamp(v.CreatedAt),
 	}
 }
 
@@ -234,10 +214,10 @@ func (h *CatalogHandler) CreateSession(ctx context.Context, req *catalogv1.Creat
 	session := &model.Session{
 		ShowID:        req.ShowId,
 		VenueID:       req.VenueId,
-		StartTime:     toTime(req.StartTime),
-		EndTime:       toTimePtr(req.EndTime),
-		SaleStartTime: toTimePtr(req.SaleStartTime),
-		SaleEndTime:   toTimePtr(req.SaleEndTime),
+		StartTime:     tools.ToTime(req.StartTime),
+		EndTime:       tools.ToTimePtr(req.EndTime),
+		SaleStartTime: tools.ToTimePtr(req.SaleStartTime),
+		SaleEndTime:   tools.ToTimePtr(req.SaleEndTime),
 		Status:        catalogv1.SessionStatus_SESSION_STATUS_SCHEDULED.String(),
 	}
 
@@ -293,23 +273,14 @@ func (h *CatalogHandler) convertSession(s *model.Session) *catalogv1.Session {
 		ShowId:        s.ShowID,
 		VenueId:       s.VenueID,
 		Venue:         venue,
-		StartTime:     toProtoTimestamp(s.StartTime),
-		EndTime:       toProtoTimestampPtr(s.EndTime),
-		SaleStartTime: toProtoTimestampPtr(s.SaleStartTime),
-		SaleEndTime:   toProtoTimestampPtr(s.SaleEndTime),
+		StartTime:     tools.ToProtoTimestamp(s.StartTime),
+		EndTime:       tools.ToProtoTimestampPtr(s.EndTime),
+		SaleStartTime: tools.ToProtoTimestampPtr(s.SaleStartTime),
+		SaleEndTime:   tools.ToProtoTimestampPtr(s.SaleEndTime),
 		Status:        catalogv1.SessionStatus(catalogv1.SessionStatus_value[s.Status]),
-		CreatedAt:     toProtoTimestamp(s.CreatedAt),
+		CreatedAt:     tools.ToProtoTimestamp(s.CreatedAt),
 	}
 }
-
-func toProtoTimestampPtr(t *time.Time) *commonv1.Timestamp {
-	if t == nil {
-		return nil
-	}
-	return toProtoTimestamp(*t)
-}
-
-// SeatArea
 
 func (h *CatalogHandler) CreateSeatArea(ctx context.Context, req *catalogv1.CreateSeatAreaRequest, rsp *catalogv1.CreateSeatAreaResponse) error {
 	if req.Price == "" {
@@ -357,11 +328,9 @@ func (h *CatalogHandler) convertSeatArea(sa *model.SeatArea) *catalogv1.SeatArea
 		Price:          sa.Price.String(),
 		TotalSeats:     sa.TotalSeats,
 		AvailableSeats: sa.AvailableSeats,
-		CreatedAt:      toProtoTimestamp(sa.CreatedAt),
+		CreatedAt:      tools.ToProtoTimestamp(sa.CreatedAt),
 	}
 }
-
-// Inventory
 
 func (h *CatalogHandler) CheckAvailability(ctx context.Context, req *catalogv1.CheckAvailabilityRequest, rsp *catalogv1.CheckAvailabilityResponse) error {
 	available, count, price, err := h.svc.CheckAvailability(ctx, req.SessionId, req.SeatAreaId, req.Quantity)
