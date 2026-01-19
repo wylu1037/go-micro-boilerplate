@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
 
+	"github.com/redis/go-redis/v9"
 	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
 	commonv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/tools"
@@ -15,13 +17,19 @@ import (
 )
 
 type CatalogHandler struct {
-	svc service.CatalogService
+	logger *zerolog.Logger
+	svc    service.CatalogService
 }
 
 func NewCatalogHandler(
+	logger *zerolog.Logger,
 	svc service.CatalogService,
+	cache *redis.Client,
 ) catalogv1.CatalogServiceHandler {
-	return &CatalogHandler{svc: svc}
+	return &CatalogHandler{
+		logger: logger,
+		svc:    svc,
+	}
 }
 
 func (h *CatalogHandler) CreateShow(ctx context.Context, req *catalogv1.CreateShowRequest, rsp *catalogv1.CreateShowResponse) error {

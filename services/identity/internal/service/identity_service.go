@@ -4,18 +4,39 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/rs/zerolog"
 	"go-micro.dev/v4/auth"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 	identityerrors "github.com/wylu1037/go-micro-boilerplate/services/identity/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/repository"
 )
+
+func NewIdentityService(
+	userRepo repository.UserRepository,
+	tokenRepo repository.TokenRepository,
+	microAuth auth.Auth,
+	cfg *config.Config,
+	logger *zerolog.Logger,
+	cache *redis.Client,
+) IdentityService {
+	return &identityService{
+		userRepo:  userRepo,
+		tokenRepo: tokenRepo,
+		auth:      microAuth,
+		config:    cfg,
+		logger:    logger,
+		cache:     cache,
+	}
+}
 
 type IdentityService interface {
 	Register(ctx context.Context, email, password, name, phone string) (*model.User, error)
@@ -34,22 +55,7 @@ type identityService struct {
 	auth      auth.Auth
 	config    *config.Config
 	logger    *zerolog.Logger
-}
-
-func NewIdentityService(
-	userRepo repository.UserRepository,
-	tokenRepo repository.TokenRepository,
-	microAuth auth.Auth,
-	cfg *config.Config,
-	logger *zerolog.Logger,
-) IdentityService {
-	return &identityService{
-		userRepo:  userRepo,
-		tokenRepo: tokenRepo,
-		auth:      microAuth,
-		config:    cfg,
-		logger:    logger,
-	}
+	cache     *redis.Client
 }
 
 func (svc *identityService) Register(ctx context.Context, email, password, name, phone string) (*model.User, error) {
@@ -83,9 +89,11 @@ func (svc *identityService) Register(ctx context.Context, email, password, name,
 }
 
 func (svc *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
+	log := svc.logger.With().Str("email", email).Logger()
+
 	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		svc.logger.Error().Err(err).Str("email", email).Msg("failed to get user by email")
+		log.Error().Err(err).Msg("failed to get user by email")
 		if errors.Is(err, identityerrors.ErrUserNotFound) {
 			return nil, identityerrors.ErrInvalidCredentials
 		}
@@ -93,8 +101,20 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		svc.logger.Error().Err(err).Str("email", email).Msg("failed to compare password")
+		log.Error().Err(err).Msg("failed to compare password")
 		return nil, identityerrors.ErrInvalidCredentials
+	}
+
+	if svc.cache != nil {
+		cacheKey := fmt.Sprintf("auth:token:%s", user.ID)
+		if val, err := svc.cache.Get(ctx, cacheKey).Result(); err == nil {
+			var cachedRes model.LoginResult
+			if err := json.Unmarshal([]byte(val), &cachedRes); err == nil {
+				return &cachedRes, nil
+			}
+		} else {
+			log.Error().Err(err).Msg("failed to get cached login result")
+		}
 	}
 
 	// 生成 auth.Account
@@ -103,7 +123,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 		"name":  user.Name,
 	}))
 	if err != nil {
-		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth account")
+		log.Error().Err(err).Msg("failed to generate auth account")
 		return nil, err
 	}
 
@@ -113,7 +133,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 		auth.WithExpiry(svc.config.JWT.AccessTokenTTL),
 	)
 	if err != nil {
-		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate token pair")
+		log.Error().Err(err).Msg("failed to generate token pair")
 		return nil, err
 	}
 
@@ -125,18 +145,29 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 	}
 
 	if err := svc.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
-		svc.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to create refresh token")
+		log.Error().Err(err).Msg("failed to create refresh token")
 		return nil, err
 	}
 
-	svc.logger.Info().Str("user_id", user.ID).Msg("User logged in")
+	log.Info().Msg("User logged in")
 
-	return &model.LoginResult{
+	res := &model.LoginResult{
 		User:         user,
 		AccessToken:  tokenPair.AccessToken,
 		RefreshToken: tokenPair.RefreshToken,
 		ExpiresIn:    int64(svc.config.JWT.AccessTokenTTL.Seconds()),
-	}, nil
+	}
+
+	if svc.cache != nil {
+		cacheKey := fmt.Sprintf("auth:token:%s", user.ID)
+		if bytes, err := json.Marshal(res); err == nil {
+			svc.cache.Set(ctx, cacheKey, bytes, svc.config.JWT.AccessTokenTTL)
+		} else {
+			log.Error().Err(err).Msg("failed to marshal login result")
+		}
+	}
+
+	return res, nil
 }
 
 func (svc *identityService) RefreshToken(ctx context.Context, refreshToken string) (*model.TokenResult, error) {

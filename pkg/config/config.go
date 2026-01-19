@@ -11,6 +11,8 @@ import (
 type Config struct {
 	Service  ServiceConfig  `mapstructure:"service"`
 	Database DatabaseConfig `mapstructure:"database"`
+	Redis    RedisConfig    `mapstructure:"redis"`
+	Etcd     EtcdConfig     `mapstructure:"etcd"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
 	Log      LogConfig      `mapstructure:"log"`
 }
@@ -53,6 +55,16 @@ type JWTConfig struct {
 type LogConfig struct {
 	Level  string `mapstructure:"level"`  // debug, info, warn, error
 	Format string `mapstructure:"format"` // json, console
+}
+
+type RedisConfig struct {
+	URL string `mapstructure:"url"`
+}
+
+type EtcdConfig struct {
+	Endpoints []string `mapstructure:"endpoints"`
+	Username  string   `mapstructure:"username"`
+	Password  string   `mapstructure:"password"`
 }
 
 func Load(serviceName string) (*Config, error) {
