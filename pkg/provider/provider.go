@@ -13,6 +13,6 @@ var InfraModule = fx.Options(
 		NewMicroAuth,
 		NewRedis,
 		NewEtcd,
-		NewDistLocker,
+		NewDistributedLocker,
 	),
 )

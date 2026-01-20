@@ -8,8 +8,8 @@ import (
 	"go.etcd.io/etcd/client/v3/concurrency"
 )
 
-// DistLocker defines the interface for distributed locking
-type DistLocker interface {
+// DistributedLocker defines the interface for distributed locking
+type DistributedLocker interface {
 	// Lock acquires a distributed lock. ttl is in seconds.
 	// Returns an UnlockFunc that must be called to release the lock.
 	Lock(ctx context.Context, key string, ttl int) (UnlockFunc, error)
@@ -21,9 +21,9 @@ type etcdLocker struct {
 	client *clientv3.Client
 }
 
-// NewDistLocker creates a new distributed locker.
+// NewDistributedLocker creates a new distributed locker.
 // If valid client is nil, it returns a no-op locker (useful for simple local dev without etcd).
-func NewDistLocker(client *clientv3.Client) DistLocker {
+func NewDistributedLocker(client *clientv3.Client) DistributedLocker {
 	if client == nil {
 		return &noopLocker{}
 	}
@@ -32,6 +32,8 @@ func NewDistLocker(client *clientv3.Client) DistLocker {
 
 func (l *etcdLocker) Lock(ctx context.Context, key string, ttl int) (UnlockFunc, error) {
 	// Create a session for the lock. The lock will be released if the session expires.
+	// concurrency.NewSession starts a background goroutine that keeps the lease alive (Watchdog behavior)
+	// as long as the session is active. 'ttl' is the time-to-live if the client disconnects.
 	sess, err := concurrency.NewSession(l.client, concurrency.WithTTL(ttl))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create etcd session: %w", err)
