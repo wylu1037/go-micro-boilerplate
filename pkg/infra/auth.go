@@ -1,4 +1,4 @@
-package provider
+package infra
 
 import (
 	"github.com/go-micro/plugins/v4/auth/jwt"

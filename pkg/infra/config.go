@@ -1,4 +1,4 @@
-package provider
+package infra
 
 import (
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"

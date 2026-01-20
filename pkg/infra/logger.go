@@ -1,4 +1,4 @@
-package provider
+package infra
 
 import (
 	"github.com/rs/zerolog"
