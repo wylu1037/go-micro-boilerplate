@@ -2,6 +2,7 @@ package infra
 
 import (
 	"github.com/wylu1037/go-micro-boilerplate/pkg/telemetry"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/fx"
 )
@@ -16,8 +17,9 @@ var Module = fx.Options(
 		NewRedis,
 		NewEtcd,
 		NewDistributedLocker,
+		telemetry.NewLoggerProvider,
 		telemetry.NewTracerProvider,
 	),
-	// Force initialization of TracerProvider to ensure global tracer is set
-	fx.Invoke(func(_ *sdktrace.TracerProvider) {}),
+	// Force initialization of providers to ensure global tracer/logger are set
+	fx.Invoke(func(_ *sdktrace.TracerProvider, _ *sdklog.LoggerProvider) {}),
 )

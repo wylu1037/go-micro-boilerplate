@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/go-micro/plugins/v4/wrapper/trace/opentelemetry"
-	"github.com/rs/zerolog"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/auth"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
@@ -16,7 +16,7 @@ import (
 
 func NewMicroService(
 	cfg *config.Config,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 	microAuth auth.Auth,
 ) micro.Service {
 	service := micro.NewService(
@@ -26,14 +26,14 @@ func NewMicroService(
 		micro.Auth(microAuth),
 		micro.WrapHandler(
 			opentelemetry.NewHandlerWrapper(),
-			middleware.NewRecoveryMiddleware(),
+			middleware.NewRecoveryMiddleware(logger),
 			middleware.AuthWrapper(microAuth, []string{
 				"IdentityService.Register",
 				"IdentityService.Login",
 				"IdentityService.RefreshToken",
 			}),
 			middleware.NewLoggingMiddleware(logger),
-			middleware.NewValidatorMiddleware(),
+			middleware.NewValidatorMiddleware(logger),
 		),
 	)
 
@@ -47,7 +47,7 @@ type MicroServiceParams struct {
 
 	Lifecycle    fx.Lifecycle
 	Config       *config.Config
-	Logger       *zerolog.Logger
+	Logger       *zap.Logger
 	MicroService micro.Service
 	Router       router.Router
 }
@@ -56,22 +56,22 @@ func Start(p MicroServiceParams) {
 	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go func() {
-				p.Logger.Info().
-					Str("name", p.Config.Service.Name).
-					Str("version", p.Config.Service.Version).
-					Str("address", p.Config.Service.Address).
-					Msg("Starting Identity Micro service")
+				p.Logger.Info("Starting Identity Micro service",
+					zap.String("name", p.Config.Service.Name),
+					zap.String("version", p.Config.Service.Version),
+					zap.String("address", p.Config.Service.Address),
+				)
 
 				p.Router.Register()
 
 				if err := p.MicroService.Run(); err != nil {
-					p.Logger.Fatal().Err(err).Msg("Identity Micro service failed")
+					p.Logger.Fatal("Identity Micro service failed", zap.Error(err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			p.Logger.Info().Msg("Stopping Identity Micro service")
+			p.Logger.Info("Stopping Identity Micro service")
 			return nil
 		},
 	})

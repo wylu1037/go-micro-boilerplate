@@ -4,49 +4,64 @@ import (
 	"context"
 	"time"
 
-	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"go-micro.dev/v4/server"
+	"go.uber.org/zap"
+
+	"github.com/wylu1037/go-micro-boilerplate/pkg/tools"
 )
 
 // NewLoggingMiddleware returns a go-micro server.HandlerWrapper that logs requests.
-func NewLoggingMiddleware(logger *zerolog.Logger) server.HandlerWrapper {
+// It automatically extracts trace_id and span_id from the context for log correlation.
+func NewLoggingMiddleware(logger *zap.Logger) server.HandlerWrapper {
 	return func(fn server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp any) error {
 			start := time.Now()
 
-			userId := lo.TernaryF(ctx.Value("userId") != nil, func() string {
+			userID := lo.TernaryF(ctx.Value("userId") != nil, func() string {
 				return ctx.Value("userId").(string)
 			}, func() string {
 				return ""
 			})
 
-			// Log request start
-			logger.Info().
-				Str("requestId", req.Header()["X-Request-Id"]).
-				Str("userId", userId).
-				Str("service", req.Service()).
-				Str("endpoint", req.Endpoint()).
-				Str("method", req.Method()).
-				Msg("request started")
+			traceID, spanID := tools.ExtractTraceInfo(ctx)
 
-			// Call the handler
+			logger.Info("request started",
+				zap.String("trace_id", traceID),
+				zap.String("span_id", spanID),
+				zap.String("request_id", req.Header()["X-Request-Id"]),
+				zap.String("user_id", userID),
+				zap.String("service", req.Service()),
+				zap.String("endpoint", req.Endpoint()),
+				zap.String("method", req.Method()),
+			)
+
 			err := fn(ctx, req, rsp)
 
-			// Log request completion
 			duration := time.Since(start)
-			event := logger.Info().
-				Str("requestId", req.Header()["X-Request-Id"]).
-				Str("userId", userId).
-				Str("service", req.Service()).
-				Str("endpoint", req.Endpoint()).
-				Str("method", req.Method()).
-				Dur("duration", duration)
-
 			if err != nil {
-				event.Err(err).Msg("request failed")
+				logger.Info("request failed",
+					zap.String("trace_id", traceID),
+					zap.String("span_id", spanID),
+					zap.String("request_id", req.Header()["X-Request-Id"]),
+					zap.String("user_id", userID),
+					zap.String("service", req.Service()),
+					zap.String("endpoint", req.Endpoint()),
+					zap.String("method", req.Method()),
+					zap.Duration("duration", duration),
+					zap.Error(err),
+				)
 			} else {
-				event.Msg("request completed")
+				logger.Info("request completed",
+					zap.String("trace_id", traceID),
+					zap.String("span_id", spanID),
+					zap.String("request_id", req.Header()["X-Request-Id"]),
+					zap.String("user_id", userID),
+					zap.String("service", req.Service()),
+					zap.String("endpoint", req.Endpoint()),
+					zap.String("method", req.Method()),
+					zap.Duration("duration", duration),
+				)
 			}
 
 			return err

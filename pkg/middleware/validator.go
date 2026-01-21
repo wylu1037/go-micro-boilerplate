@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"buf.build/go/protovalidate"
-	"github.com/rs/zerolog/log"
 	"go-micro.dev/v4/server"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -62,13 +62,13 @@ func WithProtoValidate(v protovalidate.Validator) Option {
 }
 
 // NewValidatorMiddleware returns a go-micro server.HandlerWrapper that validates incoming messages.
-func NewValidatorMiddleware() server.HandlerWrapper {
+func NewValidatorMiddleware(logger *zap.Logger) server.HandlerWrapper {
 	logErr := func(ctx context.Context, err error) {
-		log.Error().Err(err).Msgf("middleware: failed to validate")
+		logger.Error("middleware: failed to validate", zap.Error(err))
 	}
 	goValidator, err := protovalidate.New()
 	if err != nil {
-		log.Error().Err(err).Msgf("middleware: failed to new protovalidate")
+		logger.Error("middleware: failed to new protovalidate", zap.Error(err))
 	}
 
 	opts := []Option{

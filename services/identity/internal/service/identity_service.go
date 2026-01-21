@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rs/zerolog"
 	"go-micro.dev/v4/auth"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/redis/go-redis/v9"
@@ -25,7 +25,7 @@ func NewIdentityService(
 	tokenRepo repository.TokenRepository,
 	microAuth auth.Auth,
 	cfg *config.Config,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 	cache *redis.Client,
 ) IdentityService {
 	return &identityService{
@@ -54,7 +54,7 @@ type identityService struct {
 	tokenRepo repository.TokenRepository
 	auth      auth.Auth
 	config    *config.Config
-	logger    *zerolog.Logger
+	logger    *zap.Logger
 	cache     *redis.Client
 }
 
@@ -83,17 +83,17 @@ func (svc *identityService) Register(ctx context.Context, email, password, name,
 		return nil, err
 	}
 
-	svc.logger.Info().Str("user_id", user.ID).Str("email", email).Msg("User registered")
+	svc.logger.Info("User registered", zap.String("user_id", user.ID), zap.String("email", email))
 
 	return user, nil
 }
 
 func (svc *identityService) Login(ctx context.Context, email, password string) (*model.LoginResult, error) {
-	log := svc.logger.With().Str("email", email).Logger()
+	log := svc.logger.With(zap.String("email", email))
 
 	user, err := svc.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to get user by email")
+		log.Error("failed to get user by email", zap.Error(err))
 		if errors.Is(err, identityerrors.ErrUserNotFound) {
 			return nil, identityerrors.ErrInvalidCredentials
 		}
@@ -101,7 +101,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		log.Error().Err(err).Msg("failed to compare password")
+		log.Error("failed to compare password", zap.Error(err))
 		return nil, identityerrors.ErrInvalidCredentials
 	}
 
@@ -113,7 +113,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 				return &cachedRes, nil
 			}
 		} else {
-			log.Error().Err(err).Msg("failed to get cached login result")
+			log.Error("failed to get cached login result", zap.Error(err))
 		}
 	}
 
@@ -123,7 +123,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 		"name":  user.Name,
 	}))
 	if err != nil {
-		log.Error().Err(err).Msg("failed to generate auth account")
+		log.Error("failed to generate auth account", zap.Error(err))
 		return nil, err
 	}
 
@@ -133,7 +133,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 		auth.WithExpiry(svc.config.JWT.AccessTokenTTL),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to generate token pair")
+		log.Error("failed to generate token pair", zap.Error(err))
 		return nil, err
 	}
 
@@ -145,11 +145,11 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 	}
 
 	if err := svc.tokenRepo.CreateRefreshToken(ctx, refreshTokenEntity); err != nil {
-		log.Error().Err(err).Msg("failed to create refresh token")
+		log.Error("failed to create refresh token", zap.Error(err))
 		return nil, err
 	}
 
-	log.Info().Msg("User logged in")
+	log.Info("User logged in")
 
 	res := &model.LoginResult{
 		User:         user,
@@ -163,7 +163,7 @@ func (svc *identityService) Login(ctx context.Context, email, password string) (
 		if bytes, err := json.Marshal(res); err == nil {
 			svc.cache.Set(ctx, cacheKey, bytes, svc.config.JWT.AccessTokenTTL)
 		} else {
-			log.Error().Err(err).Msg("failed to marshal login result")
+			log.Error("failed to marshal login result", zap.Error(err))
 		}
 	}
 
@@ -218,7 +218,7 @@ func (svc *identityService) RefreshToken(ctx context.Context, refreshToken strin
 func (svc *identityService) GetProfile(ctx context.Context, userID string) (*model.User, error) {
 	user, err := svc.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		svc.logger.Error().Err(err).Str("user_id", userID).Msg("failed to get user profile")
+		svc.logger.Error("failed to get user profile", zap.Error(err), zap.String("user_id", userID))
 		return nil, err
 	}
 	return user, nil
@@ -273,7 +273,7 @@ func (svc *identityService) RequestPasswordReset(ctx context.Context, email stri
 	}
 
 	// TODO: Send email with reset link containing token
-	svc.logger.Info().Str("user_id", user.ID).Msg("Password reset requested")
+	svc.logger.Info("Password reset requested", zap.String("user_id", user.ID))
 
 	return nil
 }
@@ -308,7 +308,7 @@ func (svc *identityService) ResetPassword(ctx context.Context, token, newPasswor
 		return err
 	}
 
-	svc.logger.Info().Str("user_id", user.ID).Msg("Password reset completed")
+	svc.logger.Info("Password reset completed", zap.String("user_id", user.ID))
 
 	return nil
 }

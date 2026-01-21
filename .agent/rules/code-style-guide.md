@@ -47,6 +47,17 @@ You must adhere to the following Go coding standards and best practices in all c
 - **Table-Driven Tests:** strictly use table-driven tests (`tests := []struct{...}`) for unit testing logic.
 - **Subtests:** Use `t.Run` within loops.
 
+### 6. Logging
+- **Field Keys:** Use **snake_case** for all log field keys (compatible with Grafana/Loki/OpenTelemetry conventions).
+  - ❌ Bad: `zap.String("traceId", id)`, `zap.String("userId", uid)`
+  - ✅ Good: `zap.String("trace_id", id)`, `zap.String("user_id", uid)`
+- **Standard Fields:**
+  - `trace_id`, `span_id` — OpenTelemetry trace context
+  - `request_id` — HTTP request identifier (fallback when OTel unavailable)
+  - `user_id`, `service`, `endpoint`, `method`, `duration`
+  - `remote_addr`, `user_agent`, `status`, `latency`
+- **Trace Context:** Always include `trace_id` and `span_id` from context when available using `tools.ExtractTraceInfo(ctx)`.
+
 ## Migration
 
 We use [golang-migrate](https://github.com/golang-migrate/migrate) for database migrations.

@@ -16,7 +16,7 @@ A microservices boilerplate for concert ticketing system built with go-micro v4 
 | Migration | golang-migrate |
 | Cache | Redis |
 | Message Queue | NATS |
-| Logging | [zerolog](https://github.com/rs/zerolog) |
+| Logging | [zap](https://github.com/uber-go/zap) + OpenTelemetry |
 | Service Discovery | Etcd |
 
 ## Project Structure
@@ -50,7 +50,7 @@ A microservices boilerplate for concert ticketing system built with go-micro v4 
 │   ├── auth/                # JWT utilities
 │   ├── middleware/          # gRPC interceptors
 │   ├── errors/              # Error handling
-│   └── logger/              # Structured logging (zerolog)
+│   └── telemetry/           # OpenTelemetry (Traces + Logs)
 │
 ├── services/                # Microservices
 │   ├── identity/            # Identity service
@@ -172,7 +172,7 @@ The API Gateway is the single entry point for all client requests, built with **
 | 1 | Recovery | Panic recovery with JSON error response |
 | 2 | RequestID | Request tracing (chi built-in) |
 | 3 | RealIP | Extract real client IP from proxy headers |
-| 4 | Logging | Structured request logging (zerolog) |
+| 4 | Logging | Structured request logging (zap) |
 | 5 | CORS | Cross-origin resource sharing (go-chi/cors) |
 | 6 | Timeout | Request timeout (60s default) |
 | 7 | RateLimiter | IP-based rate limiting with LRU cache (API routes only) |
@@ -272,7 +272,8 @@ make docker-build   # Build Docker images
 
 ## TODO
 
-- [ ] Integrate OpenTelemetry (OTel) for distributed tracing
+- [x] ~~Integrate OpenTelemetry (OTel) for distributed tracing~~ ✅ Completed
+- [ ] Deploy OTel Collector with Loki exporter
 
 ## License
 

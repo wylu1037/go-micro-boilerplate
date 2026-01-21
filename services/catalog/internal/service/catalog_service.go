@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/rs/zerolog"
 	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/errors"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/model"
@@ -44,7 +44,7 @@ type catalogService struct {
 	venueRepo    repository.VenueRepository
 	sessionRepo  repository.SessionRepository
 	seatAreaRepo repository.SeatAreaRepository
-	logger       *zerolog.Logger
+	logger       *zap.Logger
 }
 
 func NewCatalogService(
@@ -52,7 +52,7 @@ func NewCatalogService(
 	venueRepo repository.VenueRepository,
 	sessionRepo repository.SessionRepository,
 	seatAreaRepo repository.SeatAreaRepository,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 ) CatalogService {
 	return &catalogService{
 		showRepo:     showRepo,
@@ -67,7 +67,7 @@ func (svc *catalogService) CreateShow(ctx context.Context, show *model.Show) err
 	if err := svc.showRepo.Create(ctx, show); err != nil {
 		return err
 	}
-	svc.logger.Info().Str("show_id", show.ID).Msg("Show created")
+	svc.logger.Info("Show created", zap.String("show_id", show.ID))
 	return nil
 }
 
@@ -91,7 +91,7 @@ func (svc *catalogService) CreateVenue(ctx context.Context, venue *model.Venue) 
 	if err := svc.venueRepo.Create(ctx, venue); err != nil {
 		return err
 	}
-	svc.logger.Info().Str("venue_id", venue.ID).Msg("Venue created")
+	svc.logger.Info("Venue created", zap.String("venue_id", venue.ID))
 	return nil
 }
 
@@ -115,7 +115,7 @@ func (svc *catalogService) CreateSession(ctx context.Context, session *model.Ses
 	if err := svc.sessionRepo.Create(ctx, session); err != nil {
 		return err
 	}
-	svc.logger.Info().Str("session_id", session.ID).Msg("Session created")
+	svc.logger.Info("Session created", zap.String("session_id", session.ID))
 	return nil
 }
 
@@ -136,7 +136,7 @@ func (svc *catalogService) CreateSeatArea(ctx context.Context, seatArea *model.S
 	if err := svc.seatAreaRepo.Create(ctx, seatArea); err != nil {
 		return err
 	}
-	svc.logger.Info().Str("seat_area_id", seatArea.ID).Msg("Seat area created")
+	svc.logger.Info("Seat area created", zap.String("seat_area_id", seatArea.ID))
 	return nil
 }
 
@@ -167,12 +167,12 @@ func (svc *catalogService) ReserveSeats(ctx context.Context, sessionID, seatArea
 		return errors.ErrInsufficientSeats
 	}
 
-	svc.logger.Info().
-		Str("session_id", sessionID).
-		Str("seat_area_id", seatAreaID).
-		Int32("quantity", quantity).
-		Str("order_id", orderID).
-		Msg("Seats reserved")
+	svc.logger.Info("Seats reserved",
+		zap.String("session_id", sessionID),
+		zap.String("seat_area_id", seatAreaID),
+		zap.Int32("quantity", quantity),
+		zap.String("order_id", orderID),
+	)
 
 	return nil
 }
@@ -182,12 +182,12 @@ func (svc *catalogService) ReleaseSeats(ctx context.Context, sessionID, seatArea
 		return err
 	}
 
-	svc.logger.Info().
-		Str("session_id", sessionID).
-		Str("seat_area_id", seatAreaID).
-		Int32("quantity", quantity).
-		Str("order_id", orderID).
-		Msg("Seats released")
+	svc.logger.Info("Seats released",
+		zap.String("session_id", sessionID),
+		zap.String("seat_area_id", seatAreaID),
+		zap.Int32("quantity", quantity),
+		zap.String("order_id", orderID),
+	)
 
 	return nil
 }

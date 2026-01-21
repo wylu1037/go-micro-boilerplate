@@ -3,19 +3,18 @@ package bootstrap
 import (
 	"context"
 
-	"github.com/rs/zerolog"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/auth"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
-	"github.com/wylu1037/go-micro-boilerplate/pkg/logger"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
 	"github.com/wylu1037/go-micro-boilerplate/services/catalog/internal/router"
 )
 
 func NewMicroService(
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 	cfg *config.Config,
 	microAuth auth.Auth,
 ) micro.Service {
@@ -25,10 +24,10 @@ func NewMicroService(
 		micro.Address(cfg.Service.Address),
 		micro.Auth(microAuth),
 		micro.WrapHandler(
-			middleware.NewRecoveryMiddleware(),
+			middleware.NewRecoveryMiddleware(logger),
 			middleware.AuthWrapper(microAuth, []string{}),
 			middleware.NewLoggingMiddleware(logger),
-			middleware.NewValidatorMiddleware(),
+			middleware.NewValidatorMiddleware(logger),
 		),
 	)
 
@@ -42,7 +41,7 @@ type MicroServiceParams struct {
 
 	Lifecycle    fx.Lifecycle
 	Config       *config.Config
-	Logger       *zerolog.Logger
+	Logger       *zap.Logger
 	MicroService micro.Service
 	Router       router.Router
 }
@@ -51,22 +50,22 @@ func Start(p MicroServiceParams) {
 	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go func() {
-				p.Logger.Info().
-					Str("name", p.Config.Service.Name).
-					Str("version", p.Config.Service.Version).
-					Str("address", p.Config.Service.Address).
-					Msg("Starting Catalog Micro service")
+				p.Logger.Info("Starting Catalog Micro service",
+					zap.String("name", p.Config.Service.Name),
+					zap.String("version", p.Config.Service.Version),
+					zap.String("address", p.Config.Service.Address),
+				)
 
 				p.Router.Register()
 
 				if err := p.MicroService.Run(); err != nil {
-					p.Logger.Fatal().Err(err).Msg("Catalog Micro service failed")
+					p.Logger.Fatal("Catalog Micro service failed", zap.Error(err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Info().Msg("Stopping Catalog Micro service")
+			p.Logger.Info("Stopping Catalog Micro service")
 			return nil
 		},
 	})

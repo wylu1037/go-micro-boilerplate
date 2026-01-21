@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 
-	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 
 	"github.com/redis/go-redis/v9"
 	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
@@ -17,12 +17,12 @@ import (
 )
 
 type CatalogHandler struct {
-	logger *zerolog.Logger
+	logger *zap.Logger
 	svc    service.CatalogService
 }
 
 func NewCatalogHandler(
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 	svc service.CatalogService,
 	cache *redis.Client,
 ) catalogv1.CatalogServiceHandler {

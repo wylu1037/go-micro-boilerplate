@@ -5,10 +5,12 @@ import (
 	"time"
 
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
+
+	"github.com/wylu1037/go-micro-boilerplate/pkg/tools"
 )
 
-func Logging(logger *zerolog.Logger) func(next http.Handler) http.Handler {
+func Logging(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
@@ -19,17 +21,20 @@ func Logging(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 
 			latency := time.Since(start)
 			requestID := chimiddleware.GetReqID(r.Context())
+			traceID, spanID := tools.ExtractTraceInfo(r.Context())
 
-			logger.Info().
-				Str("method", r.Method).
-				Str("path", r.URL.Path).
-				Str("query", r.URL.RawQuery).
-				Int("status", wrapped.statusCode).
-				Dur("latency", latency).
-				Str("requestId", requestID).
-				Str("remoteAddr", r.RemoteAddr).
-				Str("userAgent", r.UserAgent()).
-				Msg("HTTP request")
+			logger.Info("HTTP request",
+				zap.String("trace_id", traceID),
+				zap.String("span_id", spanID),
+				zap.String("request_id", requestID),
+				zap.String("method", r.Method),
+				zap.String("path", r.URL.Path),
+				zap.String("query", r.URL.RawQuery),
+				zap.Int("status", wrapped.statusCode),
+				zap.Duration("latency", latency),
+				zap.String("remote_addr", r.RemoteAddr),
+				zap.String("user_agent", r.UserAgent()),
+			)
 		})
 	}
 }
