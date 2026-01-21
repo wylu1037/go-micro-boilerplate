@@ -9,12 +9,18 @@ import (
 )
 
 type Config struct {
-	Service  ServiceConfig  `mapstructure:"service"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Redis    RedisConfig    `mapstructure:"redis"`
-	Etcd     EtcdConfig     `mapstructure:"etcd"`
-	JWT      JWTConfig      `mapstructure:"jwt"`
-	Log      LogConfig      `mapstructure:"log"`
+	Service   ServiceConfig   `mapstructure:"service"`
+	Database  DatabaseConfig  `mapstructure:"database"`
+	Redis     RedisConfig     `mapstructure:"redis"`
+	Etcd      EtcdConfig      `mapstructure:"etcd"`
+	JWT       JWTConfig       `mapstructure:"jwt"`
+	Log       LogConfig       `mapstructure:"log"`
+	Telemetry TelemetryConfig `mapstructure:"telemetry"`
+}
+
+type TelemetryConfig struct {
+	Endpoint string  `mapstructure:"endpoint"` // OTLP gRPC endpoint (e.g., localhost:4317)
+	Sampling float64 `mapstructure:"sampling"` // Sampling rate (0.0 - 1.0)
 }
 
 type ServiceConfig struct {

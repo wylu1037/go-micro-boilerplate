@@ -11,6 +11,7 @@ type Config struct {
 	Service   ServiceConfig   `mapstructure:"service"`
 	Log       LogConfig       `mapstructure:"log"`
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
+	Telemetry TelemetryConfig `mapstructure:"telemetry"`
 }
 
 type ServiceConfig struct {
@@ -28,6 +29,11 @@ type LogConfig struct {
 type RateLimitConfig struct {
 	RPS   int `mapstructure:"rps"`
 	Burst int `mapstructure:"burst"`
+}
+
+type TelemetryConfig struct {
+	Endpoint string  `mapstructure:"endpoint"` // OTLP gRPC endpoint (e.g., localhost:4317)
+	Sampling float64 `mapstructure:"sampling"` // Sampling rate (0.0 - 1.0)
 }
 
 func Load() (*Config, error) {

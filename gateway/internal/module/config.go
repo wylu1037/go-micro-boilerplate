@@ -1,4 +1,4 @@
-package provider
+package module
 
 import (
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/config"

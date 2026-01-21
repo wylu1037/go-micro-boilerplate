@@ -1,11 +1,11 @@
 go 1.25.5
 
 use (
+	./gateway
 	./gen
 	./pkg
-	./gateway
-	./services/identity
-	./services/catalog
 	./services/booking
+	./services/catalog
+	./services/identity
 	./services/notification
 )

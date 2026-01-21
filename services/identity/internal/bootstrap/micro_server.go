@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"context"
 
+	"github.com/go-micro/plugins/v4/wrapper/trace/opentelemetry"
 	"github.com/rs/zerolog"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/auth"
@@ -24,6 +25,7 @@ func NewMicroService(
 		micro.Address(cfg.Service.Address),
 		micro.Auth(microAuth),
 		micro.WrapHandler(
+			opentelemetry.NewHandlerWrapper(),
 			middleware.NewRecoveryMiddleware(),
 			middleware.AuthWrapper(microAuth, []string{
 				"IdentityService.Register",

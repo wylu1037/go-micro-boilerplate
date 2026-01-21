@@ -2,18 +2,22 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/riandyrn/otelchi"
 	"github.com/rs/zerolog"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/api/handler"
 	"go-micro.dev/v4/api/handler/rpc"
 	"go-micro.dev/v4/api/router"
 	"go-micro.dev/v4/api/router/registry"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 
 	"github.com/wylu1037/go-micro-boilerplate/gateway/internal/config"
@@ -26,6 +30,7 @@ func NewHTTPServer(
 	microService micro.Service,
 ) *http.Server {
 	r := chi.NewRouter()
+	r.Use(otelchi.Middleware(cfg.Service.Name, otelchi.WithChiRoutes(r)))
 
 	r.Use(middleware.Recovery(logger))
 	r.Use(chimiddleware.RequestID)
@@ -49,7 +54,34 @@ func NewHTTPServer(
 		handler.WithClient(microService.Client()),
 		handler.WithRouter(microRouter),
 	)
+
+	// Custom middleware to improve Span Name
+	// Default otelchi uses route pattern which is often just /api/* for go-micro wrapper
+	// Pre-compile regexes for performance & safety
+	uuidRegex := regexp.MustCompile(`/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(/|$)`)
+	mongoIDRegex := regexp.MustCompile(`/[a-f0-9]{24}(/|$)`)
+	numIDRegex := regexp.MustCompile(`/\d+(/|$)`)
+
+	spanNameFormatter := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			span := trace.SpanFromContext(r.Context())
+			if span.IsRecording() {
+				path := r.URL.Path
+
+				// Normalize variations
+				// Order matters: specific structures first
+				path = uuidRegex.ReplaceAllString(path, "/{uuid}$1")
+				path = mongoIDRegex.ReplaceAllString(path, "/{id}$1")
+				path = numIDRegex.ReplaceAllString(path, "/{id}$1")
+
+				span.SetName(fmt.Sprintf("%s %s", r.Method, path))
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+
 	r.Route("/api", func(router chi.Router) {
+		router.Use(spanNameFormatter) // Add formatter here
 		router.Use(middleware.RateLimiter(cfg.RateLimit.RPS, cfg.RateLimit.Burst))
 		router.Mount("/", microHandler)
 	})

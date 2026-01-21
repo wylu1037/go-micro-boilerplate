@@ -1,4 +1,4 @@
-package provider
+package module
 
 import (
 	"github.com/rs/zerolog"
