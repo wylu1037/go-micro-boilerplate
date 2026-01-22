@@ -16,6 +16,8 @@ import (
 	"go-micro.dev/v4/api/handler/rpc"
 	"go-micro.dev/v4/api/router"
 	"go-micro.dev/v4/api/router/registry"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -30,7 +32,14 @@ func NewHTTPServer(
 	microService micro.Service,
 ) *http.Server {
 	r := chi.NewRouter()
+	// OpenTelemetry Trace Middleware
 	r.Use(otelchi.Middleware(cfg.Service.Name, otelchi.WithChiRoutes(r)))
+
+	// OpenTelemetry Metrics Middleware
+	r.Use(func(next http.Handler) http.Handler {
+		// "http_server" is the scope name for metrics
+		return otelhttp.NewHandler(next, "http_server", otelhttp.WithMeterProvider(otel.GetMeterProvider()))
+	})
 
 	r.Use(middleware.Recovery(logger))
 	r.Use(chimiddleware.RequestID)

@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"context"
 
+	"github.com/go-micro/plugins/v4/wrapper/trace/opentelemetry"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/auth"
 	"go.uber.org/fx"
@@ -24,6 +25,8 @@ func NewMicroService(
 		micro.Address(cfg.Service.Address),
 		micro.Auth(microAuth),
 		micro.WrapHandler(
+			opentelemetry.NewHandlerWrapper(), // Add Tracing
+			middleware.NewMetricsMiddleware(), // Add Metrics
 			middleware.NewRecoveryMiddleware(logger),
 			middleware.AuthWrapper(microAuth, []string{}),
 			middleware.NewLoggingMiddleware(logger),

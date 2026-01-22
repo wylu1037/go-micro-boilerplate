@@ -25,7 +25,8 @@ func NewMicroService(
 		micro.Address(cfg.Service.Address),
 		micro.Auth(microAuth),
 		micro.WrapHandler(
-			opentelemetry.NewHandlerWrapper(),
+			opentelemetry.NewHandlerWrapper(), // Add Tracing
+			middleware.NewMetricsMiddleware(), // Add Metrics
 			middleware.NewRecoveryMiddleware(logger),
 			middleware.AuthWrapper(microAuth, []string{
 				"IdentityService.Register",
