@@ -5,10 +5,10 @@ service:
   env: dev
 
 database:
-  host: 172.22.0.23
-  port: 25432
+  host: 127.0.0.1
+  port: 5432
   user: postgres
-  password: root1234
+  password: your-password
   database: ticketing
   schema: identity
   ssl_mode: disable

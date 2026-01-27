@@ -2,6 +2,34 @@ syntax = "proto3";
 
 package notification.v1;
 
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
 service NotificationService {
-  
+  // Send an email
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+
+  // Send an SMS
+  rpc SendSMS(SendSMSRequest) returns (SendSMSResponse);
+}
+
+message SendEmailRequest {
+  string to = 1 [(buf.validate.field).string.email = true];
+  string subject = 2 [(buf.validate.field).string.min_len = 1];
+  string body = 3 [(buf.validate.field).string.min_len = 1];
+}
+
+message SendEmailResponse {
+  bool success = 1;
+  string message_id = 2;
+}
+
+message SendSMSRequest {
+  string phone = 1 [(buf.validate.field).string.min_len = 1];
+  string message = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message SendSMSResponse {
+  bool success = 1;
+  string message_id = 2;
 }

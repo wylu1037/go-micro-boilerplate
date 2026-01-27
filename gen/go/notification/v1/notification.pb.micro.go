@@ -4,8 +4,10 @@
 package notificationv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	fmt "fmt"
 	proto "google.golang.org/protobuf/proto"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	math "math"
 )
 
@@ -36,6 +38,10 @@ func NewNotificationServiceEndpoints() []*api.Endpoint {
 // Client API for NotificationService service
 
 type NotificationService interface {
+	// Send an email
+	SendEmail(ctx context.Context, in *SendEmailRequest, opts ...client.CallOption) (*SendEmailResponse, error)
+	// Send an SMS
+	SendSMS(ctx context.Context, in *SendSMSRequest, opts ...client.CallOption) (*SendSMSResponse, error)
 }
 
 type notificationService struct {
@@ -50,13 +56,39 @@ func NewNotificationService(name string, c client.Client) NotificationService {
 	}
 }
 
+func (c *notificationService) SendEmail(ctx context.Context, in *SendEmailRequest, opts ...client.CallOption) (*SendEmailResponse, error) {
+	req := c.c.NewRequest(c.name, "NotificationService.SendEmail", in)
+	out := new(SendEmailResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationService) SendSMS(ctx context.Context, in *SendSMSRequest, opts ...client.CallOption) (*SendSMSResponse, error) {
+	req := c.c.NewRequest(c.name, "NotificationService.SendSMS", in)
+	out := new(SendSMSResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for NotificationService service
 
 type NotificationServiceHandler interface {
+	// Send an email
+	SendEmail(context.Context, *SendEmailRequest, *SendEmailResponse) error
+	// Send an SMS
+	SendSMS(context.Context, *SendSMSRequest, *SendSMSResponse) error
 }
 
 func RegisterNotificationServiceHandler(s server.Server, hdlr NotificationServiceHandler, opts ...server.HandlerOption) error {
 	type notificationService interface {
+		SendEmail(ctx context.Context, in *SendEmailRequest, out *SendEmailResponse) error
+		SendSMS(ctx context.Context, in *SendSMSRequest, out *SendSMSResponse) error
 	}
 	type NotificationService struct {
 		notificationService
@@ -67,4 +99,12 @@ func RegisterNotificationServiceHandler(s server.Server, hdlr NotificationServic
 
 type notificationServiceHandler struct {
 	NotificationServiceHandler
+}
+
+func (h *notificationServiceHandler) SendEmail(ctx context.Context, in *SendEmailRequest, out *SendEmailResponse) error {
+	return h.NotificationServiceHandler.SendEmail(ctx, in, out)
+}
+
+func (h *notificationServiceHandler) SendSMS(ctx context.Context, in *SendSMSRequest, out *SendSMSResponse) error {
+	return h.NotificationServiceHandler.SendSMS(ctx, in, out)
 }

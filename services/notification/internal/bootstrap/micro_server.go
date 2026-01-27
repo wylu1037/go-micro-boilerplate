@@ -11,7 +11,7 @@ import (
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/config"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/middleware"
-	"github.com/wylu1037/go-micro-boilerplate/services/identity/internal/router"
+	"github.com/wylu1037/go-micro-boilerplate/services/notification/internal/router"
 )
 
 func NewMicroService(
@@ -28,17 +28,13 @@ func NewMicroService(
 			opentelemetry.NewHandlerWrapper(), // Add Tracing
 			middleware.NewMetricsMiddleware(), // Add Metrics
 			middleware.NewRecoveryMiddleware(logger),
-			middleware.AuthWrapper(microAuth, []string{
-				"IdentityService.Register",
-				"IdentityService.Login",
-				"IdentityService.RefreshToken",
-			}),
+			middleware.AuthWrapper(microAuth, []string{}), // All notification routes potentially internal or as per logic
 			middleware.NewLoggingMiddleware(logger),
 			middleware.NewValidatorMiddleware(logger),
 		),
 	)
 
-	service.Init() // Parse command line flags and environment variables
+	service.Init()
 
 	return service
 }
@@ -57,7 +53,7 @@ func Start(p MicroServiceParams) {
 	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			go func() {
-				p.Logger.Info("Starting Identity Micro service",
+				p.Logger.Info("Starting Notification Micro service",
 					zap.String("name", p.Config.Service.Name),
 					zap.String("version", p.Config.Service.Version),
 					zap.String("address", p.Config.Service.Address),
@@ -66,13 +62,13 @@ func Start(p MicroServiceParams) {
 				p.Router.Register()
 
 				if err := p.MicroService.Run(); err != nil {
-					p.Logger.Fatal("Identity Micro service failed", zap.Error(err))
+					p.Logger.Fatal("Notification Micro service failed", zap.Error(err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(_ context.Context) error {
-			p.Logger.Info("Stopping Identity Micro service")
+			p.Logger.Info("Stopping Notification Micro service")
 			return nil
 		},
 	})

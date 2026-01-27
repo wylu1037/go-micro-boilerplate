@@ -4,8 +4,12 @@
 package bookingv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	fmt "fmt"
+	_ "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	proto "google.golang.org/protobuf/proto"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	math "math"
 )
 
@@ -30,12 +34,45 @@ var _ server.Option
 // Api Endpoints for BookingService service
 
 func NewBookingServiceEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
+	return []*api.Endpoint{
+		{
+			Name:    "BookingService.CreateBooking",
+			Path:    []string{"/api/v1/bookings"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "BookingService.GetBooking",
+			Path:    []string{"/api/v1/bookings/{booking_id}"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "BookingService.ListBookings",
+			Path:    []string{"/api/v1/bookings"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		{
+			Name:    "BookingService.ProcessPayment",
+			Path:    []string{"/api/v1/bookings/{booking_id}/payment"},
+			Method:  []string{"POST"},
+			Handler: "rpc",
+		},
+	}
 }
 
 // Client API for BookingService service
 
 type BookingService interface {
+	// Create a new booking
+	CreateBooking(ctx context.Context, in *CreateBookingRequest, opts ...client.CallOption) (*CreateBookingResponse, error)
+	// Get booking by ID
+	GetBooking(ctx context.Context, in *GetBookingRequest, opts ...client.CallOption) (*GetBookingResponse, error)
+	// List bookings (for current user)
+	ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...client.CallOption) (*ListBookingsResponse, error)
+	// Process payment for a potential booking
+	ProcessPayment(ctx context.Context, in *ProcessPaymentRequest, opts ...client.CallOption) (*ProcessPaymentResponse, error)
 }
 
 type bookingService struct {
@@ -50,21 +87,113 @@ func NewBookingService(name string, c client.Client) BookingService {
 	}
 }
 
+func (c *bookingService) CreateBooking(ctx context.Context, in *CreateBookingRequest, opts ...client.CallOption) (*CreateBookingResponse, error) {
+	req := c.c.NewRequest(c.name, "BookingService.CreateBooking", in)
+	out := new(CreateBookingResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bookingService) GetBooking(ctx context.Context, in *GetBookingRequest, opts ...client.CallOption) (*GetBookingResponse, error) {
+	req := c.c.NewRequest(c.name, "BookingService.GetBooking", in)
+	out := new(GetBookingResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bookingService) ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...client.CallOption) (*ListBookingsResponse, error) {
+	req := c.c.NewRequest(c.name, "BookingService.ListBookings", in)
+	out := new(ListBookingsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bookingService) ProcessPayment(ctx context.Context, in *ProcessPaymentRequest, opts ...client.CallOption) (*ProcessPaymentResponse, error) {
+	req := c.c.NewRequest(c.name, "BookingService.ProcessPayment", in)
+	out := new(ProcessPaymentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for BookingService service
 
 type BookingServiceHandler interface {
+	// Create a new booking
+	CreateBooking(context.Context, *CreateBookingRequest, *CreateBookingResponse) error
+	// Get booking by ID
+	GetBooking(context.Context, *GetBookingRequest, *GetBookingResponse) error
+	// List bookings (for current user)
+	ListBookings(context.Context, *ListBookingsRequest, *ListBookingsResponse) error
+	// Process payment for a potential booking
+	ProcessPayment(context.Context, *ProcessPaymentRequest, *ProcessPaymentResponse) error
 }
 
 func RegisterBookingServiceHandler(s server.Server, hdlr BookingServiceHandler, opts ...server.HandlerOption) error {
 	type bookingService interface {
+		CreateBooking(ctx context.Context, in *CreateBookingRequest, out *CreateBookingResponse) error
+		GetBooking(ctx context.Context, in *GetBookingRequest, out *GetBookingResponse) error
+		ListBookings(ctx context.Context, in *ListBookingsRequest, out *ListBookingsResponse) error
+		ProcessPayment(ctx context.Context, in *ProcessPaymentRequest, out *ProcessPaymentResponse) error
 	}
 	type BookingService struct {
 		bookingService
 	}
 	h := &bookingServiceHandler{hdlr}
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "BookingService.CreateBooking",
+		Path:    []string{"/api/v1/bookings"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "BookingService.GetBooking",
+		Path:    []string{"/api/v1/bookings/{booking_id}"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "BookingService.ListBookings",
+		Path:    []string{"/api/v1/bookings"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "BookingService.ProcessPayment",
+		Path:    []string{"/api/v1/bookings/{booking_id}/payment"},
+		Method:  []string{"POST"},
+		Handler: "rpc",
+	}))
 	return s.Handle(s.NewHandler(&BookingService{h}, opts...))
 }
 
 type bookingServiceHandler struct {
 	BookingServiceHandler
+}
+
+func (h *bookingServiceHandler) CreateBooking(ctx context.Context, in *CreateBookingRequest, out *CreateBookingResponse) error {
+	return h.BookingServiceHandler.CreateBooking(ctx, in, out)
+}
+
+func (h *bookingServiceHandler) GetBooking(ctx context.Context, in *GetBookingRequest, out *GetBookingResponse) error {
+	return h.BookingServiceHandler.GetBooking(ctx, in, out)
+}
+
+func (h *bookingServiceHandler) ListBookings(ctx context.Context, in *ListBookingsRequest, out *ListBookingsResponse) error {
+	return h.BookingServiceHandler.ListBookings(ctx, in, out)
+}
+
+func (h *bookingServiceHandler) ProcessPayment(ctx context.Context, in *ProcessPaymentRequest, out *ProcessPaymentResponse) error {
+	return h.BookingServiceHandler.ProcessPayment(ctx, in, out)
 }

@@ -2,6 +2,102 @@ syntax = "proto3";
 
 package booking.v1;
 
-service BookingService {
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "common/v1/pagination.proto";
 
+service BookingService {
+  // Create a new booking
+  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/bookings"
+      body: "*"
+    };
+  }
+
+  // Get booking by ID
+  rpc GetBooking(GetBookingRequest) returns (GetBookingResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/bookings/{booking_id}"
+    };
+  }
+
+  // List bookings (for current user)
+  rpc ListBookings(ListBookingsRequest) returns (ListBookingsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/bookings"
+    };
+  }
+
+  // Process payment for a potential booking
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/bookings/{booking_id}/payment"
+      body: "*"
+    };
+  }
+}
+
+enum BookingStatus {
+  BOOKING_STATUS_UNSPECIFIED = 0;
+  BOOKING_STATUS_PENDING = 1;
+  BOOKING_STATUS_PAID = 2;
+  BOOKING_STATUS_CANCELLED = 3;
+  BOOKING_STATUS_FAILED = 4;
+}
+
+message Booking {
+  string booking_id = 1;
+  string user_id = 2;
+  string show_id = 3;
+  string session_id = 4;
+  string seat_area_id = 5;
+  int32 quantity = 6;
+  string total_price = 7;
+  BookingStatus status = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message CreateBookingRequest {
+  string show_id = 1 [(buf.validate.field).string.uuid = true];
+  string session_id = 2 [(buf.validate.field).string.uuid = true];
+  string seat_area_id = 3 [(buf.validate.field).string.uuid = true];
+  int32 quantity = 4 [(buf.validate.field).int32.gt = 0];
+}
+
+message CreateBookingResponse {
+  Booking booking = 1;
+}
+
+message GetBookingRequest {
+  string booking_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetBookingResponse {
+  Booking booking = 1;
+}
+
+message ListBookingsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  optional BookingStatus status = 3;
+}
+
+message ListBookingsResponse {
+  repeated Booking bookings = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message ProcessPaymentRequest {
+  string booking_id = 1 [(buf.validate.field).string.uuid = true];
+  // Simple payment simulation, might add payment token later
+  string payment_method = 2; 
+}
+
+message ProcessPaymentResponse {
+  bool success = 1;
+  string message = 2;
+  string transaction_id = 3;
 }

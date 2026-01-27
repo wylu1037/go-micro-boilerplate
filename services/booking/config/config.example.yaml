@@ -1,7 +1,7 @@
 service:
-  name: ticketing.identity
+  name: ticketing.booking
   version: 0.0.1
-  address: ":50051"
+  address: ":50052"
   env: dev
 
 database:
@@ -10,7 +10,7 @@ database:
   user: postgres
   password: your-password
   database: ticketing
-  schema: identity
+  schema: booking
   ssl_mode: disable
   max_open_conns: 25
   max_idle_conns: 5
@@ -26,10 +26,11 @@ etcd:
   password: "password"
 
 jwt:
-  secret: your-super-secret-jwt-key-change-in-production
-  access_token_ttl: 15m
-  refresh_token_ttl: 168h  # 7 days
-  issuer: ticketing
+  privateKey: ""
+  publicKey: "your-public-key"
+  accessTokenTtl: 15m
+  refreshTokenTtl: 168h  # 7 days
+  namespace: ticketing
 
 log:
   level: debug
