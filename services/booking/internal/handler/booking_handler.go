@@ -3,10 +3,12 @@ package handler
 import (
 	"context"
 
+	"github.com/samber/lo"
 	bookingv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/booking/v1"
 	commonv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	"github.com/wylu1037/go-micro-boilerplate/services/booking/internal/model"
 	"github.com/wylu1037/go-micro-boilerplate/services/booking/internal/service"
+	"go-micro.dev/v4/errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -21,10 +23,12 @@ type microBookingGrpcHandler struct {
 }
 
 func (h *microBookingGrpcHandler) CreateBooking(ctx context.Context, req *bookingv1.CreateBookingRequest, resp *bookingv1.CreateBookingResponse) error {
-	// TODO: Get UserID from context (extracted from auth token middleware)
-	userID := "test-user-id" // Placeholder
+	userID, ok := ctx.Value("userId").(string)
+	if !ok || userID == "" {
+		return errors.Unauthorized("ticketing.booking", "user unauthorized")
+	}
 
-	booking, err := h.svc.CreateBooking(ctx, userID, req.ShowId, req.SessionId, req.SeatAreaId, req.Quantity)
+	booking, err := h.svc.CreateBooking(ctx, userID, req.SessionId, req.SeatAreaId, req.Quantity)
 	if err != nil {
 		return err
 	}
@@ -34,7 +38,12 @@ func (h *microBookingGrpcHandler) CreateBooking(ctx context.Context, req *bookin
 }
 
 func (h *microBookingGrpcHandler) GetBooking(ctx context.Context, req *bookingv1.GetBookingRequest, resp *bookingv1.GetBookingResponse) error {
-	booking, err := h.svc.GetBooking(ctx, req.BookingId)
+	userID, ok := ctx.Value("userId").(string)
+	if !ok || userID == "" {
+		return errors.Unauthorized("ticketing.booking", "user unauthorized")
+	}
+
+	booking, err := h.svc.GetBooking(ctx, req.BookingId, userID)
 	if err != nil {
 		return err
 	}
@@ -44,7 +53,10 @@ func (h *microBookingGrpcHandler) GetBooking(ctx context.Context, req *bookingv1
 }
 
 func (h *microBookingGrpcHandler) ListBookings(ctx context.Context, req *bookingv1.ListBookingsRequest, resp *bookingv1.ListBookingsResponse) error {
-	userID := "test-user-id" // Placeholder
+	userID, ok := ctx.Value("userId").(string)
+	if !ok || userID == "" {
+		return errors.Unauthorized("ticketing.booking", "user unauthorized")
+	}
 
 	var status *model.BookingStatus
 	if req.Status != nil && *req.Status != bookingv1.BookingStatus_BOOKING_STATUS_UNSPECIFIED {
@@ -52,14 +64,8 @@ func (h *microBookingGrpcHandler) ListBookings(ctx context.Context, req *booking
 		status = &s
 	}
 
-	page := int(req.Page)
-	if page < 1 {
-		page = 1
-	}
-	pageSize := int(req.PageSize)
-	if pageSize < 1 {
-		pageSize = 10
-	}
+	page := lo.Ternary(req.Page < 1, 1, int(req.Page))
+	pageSize := lo.Ternary(req.PageSize < 1, 10, int(req.PageSize))
 
 	bookings, total, err := h.svc.ListBookings(ctx, userID, page, pageSize, status)
 	if err != nil {
@@ -82,7 +88,12 @@ func (h *microBookingGrpcHandler) ListBookings(ctx context.Context, req *booking
 }
 
 func (h *microBookingGrpcHandler) ProcessPayment(ctx context.Context, req *bookingv1.ProcessPaymentRequest, resp *bookingv1.ProcessPaymentResponse) error {
-	txnID, err := h.svc.ProcessPayment(ctx, req.BookingId, req.PaymentMethod)
+	userID, ok := ctx.Value("userId").(string)
+	if !ok || userID == "" {
+		return errors.Unauthorized("ticketing.booking", "user unauthorized")
+	}
+
+	txnID, err := h.svc.ProcessPayment(ctx, req.BookingId, userID, req.PaymentMethod)
 	if err != nil {
 		resp.Success = false
 		resp.Message = err.Error()
@@ -102,24 +113,28 @@ func toProtoBooking(b *model.Booking) *bookingv1.Booking {
 
 	status := bookingv1.BookingStatus_BOOKING_STATUS_UNSPECIFIED
 	switch b.Status {
-	case model.BookingStatusPending:
+	case model.BookingStatusPendingPayment:
 		status = bookingv1.BookingStatus_BOOKING_STATUS_PENDING
 	case model.BookingStatusPaid:
 		status = bookingv1.BookingStatus_BOOKING_STATUS_PAID
 	case model.BookingStatusCancelled:
 		status = bookingv1.BookingStatus_BOOKING_STATUS_CANCELLED
-	case model.BookingStatusFailed:
-		status = bookingv1.BookingStatus_BOOKING_STATUS_FAILED
+	case model.BookingStatusRefunded:
+		// Map refunded to cancelled for now, or extend proto enum
+		status = bookingv1.BookingStatus_BOOKING_STATUS_CANCELLED
+	case model.BookingStatusCompleted:
+		// Map completed to paid for now, or extend proto enum
+		status = bookingv1.BookingStatus_BOOKING_STATUS_PAID
 	}
 
 	return &bookingv1.Booking{
 		BookingId:  b.ID,
 		UserId:     b.UserID,
-		ShowId:     b.ShowID,
+		ShowId:     "", // ShowID removed from model, set empty for backward compatibility
 		SessionId:  b.SessionID,
 		SeatAreaId: b.SeatAreaID,
 		Quantity:   b.Quantity,
-		TotalPrice: b.TotalPrice.String(),
+		TotalPrice: b.TotalAmount.String(),
 		Status:     status,
 		CreatedAt:  timestamppb.New(b.CreatedAt),
 		UpdatedAt:  timestamppb.New(b.UpdatedAt),

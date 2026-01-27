@@ -7,7 +7,6 @@ import (
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 
-	"github.com/redis/go-redis/v9"
 	catalogv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/catalog/v1"
 	commonv1 "github.com/wylu1037/go-micro-boilerplate/gen/go/common/v1"
 	"github.com/wylu1037/go-micro-boilerplate/pkg/tools"
@@ -24,7 +23,6 @@ type CatalogHandler struct {
 func NewCatalogHandler(
 	logger *zap.Logger,
 	svc service.CatalogService,
-	cache *redis.Client,
 ) catalogv1.CatalogServiceHandler {
 	return &CatalogHandler{
 		logger: logger,
@@ -139,7 +137,7 @@ func (h *CatalogHandler) DeleteShow(ctx context.Context, req *catalogv1.DeleteSh
 	return nil
 }
 
-func (h *CatalogHandler) convertShow(s *model.Show) *catalogv1.Show {
+func (_ *CatalogHandler) convertShow(s *model.Show) *catalogv1.Show {
 	return &catalogv1.Show{
 		ShowId:      s.ID,
 		Title:       s.Title,
@@ -207,7 +205,7 @@ func (h *CatalogHandler) ListVenues(ctx context.Context, req *catalogv1.ListVenu
 	return nil
 }
 
-func (h *CatalogHandler) convertVenue(v *model.Venue) *catalogv1.Venue {
+func (_ *CatalogHandler) convertVenue(v *model.Venue) *catalogv1.Venue {
 	return &catalogv1.Venue{
 		VenueId:   v.ID,
 		Name:      v.Name,
@@ -328,7 +326,7 @@ func (h *CatalogHandler) ListSeatAreas(ctx context.Context, req *catalogv1.ListS
 	return nil
 }
 
-func (h *CatalogHandler) convertSeatArea(sa *model.SeatArea) *catalogv1.SeatArea {
+func (_ *CatalogHandler) convertSeatArea(sa *model.SeatArea) *catalogv1.SeatArea {
 	return &catalogv1.SeatArea{
 		SeatAreaId:     sa.ID,
 		SessionId:      sa.SessionID,

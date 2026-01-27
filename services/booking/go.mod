@@ -11,6 +11,7 @@ require (
 	github.com/go-micro/plugins/v4/registry/etcd v1.2.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentelemetry v1.2.0
 	github.com/jackc/pgx/v5 v5.7.2
+	github.com/samber/lo v1.52.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/wylu1037/go-micro-boilerplate/gen v0.0.0-00010101000000-000000000000
 	github.com/wylu1037/go-micro-boilerplate/pkg v0.0.0-00010101000000-000000000000
@@ -74,7 +75,6 @@ require (
 	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
-	github.com/samber/lo v1.52.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect

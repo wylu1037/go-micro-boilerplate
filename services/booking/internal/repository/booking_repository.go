@@ -26,19 +26,21 @@ func NewBookingRepository(db *db.Pool) BookingRepository {
 
 func (r *bookingRepository) Create(ctx context.Context, booking *model.Booking) error {
 	query := `
-		INSERT INTO booking.bookings (user_id, show_id, session_id, seat_area_id, quantity, total_price, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO booking.orders (order_no, user_id, session_id, seat_area_id, quantity, unit_price, total_amount, status, expires_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, created_at, updated_at
 	`
 
 	err := r.db.QueryRow(ctx, query,
+		booking.OrderNo,
 		booking.UserID,
-		booking.ShowID,
 		booking.SessionID,
 		booking.SeatAreaID,
 		booking.Quantity,
-		booking.TotalPrice,
+		booking.UnitPrice,
+		booking.TotalAmount,
 		booking.Status,
+		booking.ExpiresAt,
 	).Scan(&booking.ID, &booking.CreatedAt, &booking.UpdatedAt)
 
 	return err
@@ -46,21 +48,26 @@ func (r *bookingRepository) Create(ctx context.Context, booking *model.Booking) 
 
 func (r *bookingRepository) GetByID(ctx context.Context, id string) (*model.Booking, error) {
 	query := `
-		SELECT id, user_id, show_id, session_id, seat_area_id, quantity, total_price, status, created_at, updated_at
-		FROM booking.bookings
+		SELECT id, order_no, user_id, session_id, seat_area_id, quantity, unit_price, total_amount, status, 
+		       expires_at, paid_at, cancelled_at, created_at, updated_at
+		FROM booking.orders
 		WHERE id = $1
 	`
 
 	booking := &model.Booking{}
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&booking.ID,
+		&booking.OrderNo,
 		&booking.UserID,
-		&booking.ShowID,
 		&booking.SessionID,
 		&booking.SeatAreaID,
 		&booking.Quantity,
-		&booking.TotalPrice,
+		&booking.UnitPrice,
+		&booking.TotalAmount,
 		&booking.Status,
+		&booking.ExpiresAt,
+		&booking.PaidAt,
+		&booking.CancelledAt,
 		&booking.CreatedAt,
 		&booking.UpdatedAt,
 	)
@@ -77,7 +84,7 @@ func (r *bookingRepository) GetByID(ctx context.Context, id string) (*model.Book
 
 func (r *bookingRepository) UpdateStatus(ctx context.Context, id string, status model.BookingStatus) error {
 	query := `
-		UPDATE booking.bookings
+		UPDATE booking.orders
 		SET status = $1, updated_at = NOW()
 		WHERE id = $2
 	`
@@ -88,7 +95,7 @@ func (r *bookingRepository) UpdateStatus(ctx context.Context, id string, status 
 func (r *bookingRepository) List(ctx context.Context, page, pageSize int, userID string, status *model.BookingStatus) ([]*model.Booking, int64, error) {
 	offset := (page - 1) * pageSize
 
-	baseQuery := `FROM booking.bookings WHERE 1=1`
+	baseQuery := `FROM booking.orders WHERE 1=1`
 	args := []interface{}{}
 	argCount := 0
 
@@ -114,7 +121,8 @@ func (r *bookingRepository) List(ctx context.Context, page, pageSize int, userID
 
 	// List items
 	listQuery := `
-		SELECT id, user_id, show_id, session_id, seat_area_id, quantity, total_price, status, created_at, updated_at
+		SELECT id, order_no, user_id, session_id, seat_area_id, quantity, unit_price, total_amount, status,
+		       expires_at, paid_at, cancelled_at, created_at, updated_at
 		` + baseQuery + `
 		ORDER BY created_at DESC
 		LIMIT $` + string(rune('0'+argCount+1)) + ` OFFSET $` + string(rune('0'+argCount+2))
@@ -132,13 +140,17 @@ func (r *bookingRepository) List(ctx context.Context, page, pageSize int, userID
 		b := &model.Booking{}
 		err := rows.Scan(
 			&b.ID,
+			&b.OrderNo,
 			&b.UserID,
-			&b.ShowID,
 			&b.SessionID,
 			&b.SeatAreaID,
 			&b.Quantity,
-			&b.TotalPrice,
+			&b.UnitPrice,
+			&b.TotalAmount,
 			&b.Status,
+			&b.ExpiresAt,
+			&b.PaidAt,
+			&b.CancelledAt,
 			&b.CreatedAt,
 			&b.UpdatedAt,
 		)

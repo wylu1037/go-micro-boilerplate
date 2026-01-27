@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
@@ -21,10 +23,10 @@ var (
 )
 
 type BookingService interface {
-	CreateBooking(ctx context.Context, userID, showID, sessionID, seatAreaID string, quantity int32) (*model.Booking, error)
-	GetBooking(ctx context.Context, bookingID string) (*model.Booking, error)
+	CreateBooking(ctx context.Context, userID, sessionID, seatAreaID string, quantity int32) (*model.Booking, error)
+	GetBooking(ctx context.Context, bookingID string, userID string) (*model.Booking, error)
 	ListBookings(ctx context.Context, userID string, page, pageSize int, status *model.BookingStatus) ([]*model.Booking, int64, error)
-	ProcessPayment(ctx context.Context, bookingID string, paymentMethod string) (string, error)
+	ProcessPayment(ctx context.Context, bookingID string, userID string, paymentMethod string) (string, error)
 }
 
 type bookingService struct {
@@ -41,7 +43,7 @@ func NewBookingService(repo repository.BookingRepository, catalogClient catalogv
 	}
 }
 
-func (s *bookingService) CreateBooking(ctx context.Context, userID, showID, sessionID, seatAreaID string, quantity int32) (*model.Booking, error) {
+func (s *bookingService) CreateBooking(ctx context.Context, userID, sessionID, seatAreaID string, quantity int32) (*model.Booking, error) {
 	// 1. Check availability via Catalog Service
 	checkResp, err := s.catalogClient.CheckAvailability(ctx, &catalogv1.CheckAvailabilityRequest{
 		SessionId:  sessionID,
@@ -56,29 +58,40 @@ func (s *bookingService) CreateBooking(ctx context.Context, userID, showID, sess
 		return nil, ErrNotEnoughSeats
 	}
 
-	// 2. Calculate Total Price
-	pricePerSeat, err := decimal.NewFromString(checkResp.Price)
+	// 2. Calculate Unit Price and Total Amount
+	unitPrice, err := decimal.NewFromString(checkResp.Price)
 	if err != nil {
 		return nil, fmt.Errorf("invalid price format from catalog: %w", err)
 	}
-	totalPrice := pricePerSeat.Mul(decimal.NewFromInt32(quantity))
+	totalAmount := unitPrice.Mul(decimal.NewFromInt32(quantity))
 
-	// 3. Create Booking Record (Pending)
+	// 3. Generate Order Number
+	orderNo, err := generateOrderNo()
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate order number: %w", err)
+	}
+
+	// 4. Set expiration time (15 minutes from now)
+	expiresAt := time.Now().Add(15 * time.Minute)
+
+	// 5. Create Booking Record (Pending Payment)
 	booking := &model.Booking{
-		UserID:     userID,
-		ShowID:     showID,
-		SessionID:  sessionID,
-		SeatAreaID: seatAreaID,
-		Quantity:   quantity,
-		TotalPrice: totalPrice,
-		Status:     model.BookingStatusPending,
+		OrderNo:     orderNo,
+		UserID:      userID,
+		SessionID:   sessionID,
+		SeatAreaID:  seatAreaID,
+		Quantity:    quantity,
+		UnitPrice:   unitPrice,
+		TotalAmount: totalAmount,
+		Status:      model.BookingStatusPendingPayment,
+		ExpiresAt:   &expiresAt,
 	}
 
 	if err := s.repo.Create(ctx, booking); err != nil {
 		return nil, fmt.Errorf("failed to create booking record: %w", err)
 	}
 
-	// 4. Reserve Seats
+	// 6. Reserve Seats
 	// Note: In a distributed system, we might want to do this before creating the booking record or use a saga.
 	// For simplicity, we do it here. If reservation fails, we should technically fail the booking or mark it as failed.
 	reserveResp, err := s.catalogClient.ReserveSeats(ctx, &catalogv1.ReserveSeatsRequest{
@@ -89,37 +102,44 @@ func (s *bookingService) CreateBooking(ctx context.Context, userID, showID, sess
 	})
 
 	if err != nil {
-		// Attempt to mark booking as failed
-		_ = s.repo.UpdateStatus(ctx, booking.ID, model.BookingStatusFailed)
+		// Attempt to mark booking as cancelled
+		_ = s.repo.UpdateStatus(ctx, booking.ID, model.BookingStatusCancelled)
 		return nil, fmt.Errorf("failed to reserve seats: %w", err)
 	}
 
 	if !reserveResp.Success {
-		_ = s.repo.UpdateStatus(ctx, booking.ID, model.BookingStatusFailed)
+		_ = s.repo.UpdateStatus(ctx, booking.ID, model.BookingStatusCancelled)
 		return nil, errors.New(reserveResp.Message)
 	}
 
 	return booking, nil
 }
 
-func (s *bookingService) GetBooking(ctx context.Context, bookingID string) (*model.Booking, error) {
-	return s.repo.GetByID(ctx, bookingID)
+func (s *bookingService) GetBooking(ctx context.Context, bookingID string, userID string) (*model.Booking, error) {
+	booking, err := s.repo.GetByID(ctx, bookingID)
+	if err != nil {
+		return nil, err
+	}
+	if booking == nil || booking.UserID != userID {
+		return nil, ErrBookingNotFound
+	}
+	return booking, nil
 }
 
 func (s *bookingService) ListBookings(ctx context.Context, userID string, page, pageSize int, status *model.BookingStatus) ([]*model.Booking, int64, error) {
 	return s.repo.List(ctx, page, pageSize, userID, status)
 }
 
-func (s *bookingService) ProcessPayment(ctx context.Context, bookingID string, paymentMethod string) (string, error) {
+func (s *bookingService) ProcessPayment(ctx context.Context, bookingID string, userID string, paymentMethod string) (string, error) {
 	booking, err := s.repo.GetByID(ctx, bookingID)
 	if err != nil {
 		return "", err
 	}
-	if booking == nil {
+	if booking == nil || booking.UserID != userID {
 		return "", ErrBookingNotFound
 	}
 
-	if booking.Status != model.BookingStatusPending {
+	if booking.Status != model.BookingStatusPendingPayment {
 		return "", ErrInvalidBookingState
 	}
 
@@ -128,7 +148,7 @@ func (s *bookingService) ProcessPayment(ctx context.Context, bookingID string, p
 
 	// Simulate success (we could add logic to fail based on paymentMethod == "fail")
 	if paymentMethod == "fail" {
-		_ = s.repo.UpdateStatus(ctx, bookingID, model.BookingStatusFailed)
+		_ = s.repo.UpdateStatus(ctx, bookingID, model.BookingStatusCancelled)
 
 		// Release seats
 		_, _ = s.catalogClient.ReleaseSeats(ctx, &catalogv1.ReleaseSeatsRequest{
@@ -152,8 +172,18 @@ func (s *bookingService) ProcessPayment(ctx context.Context, bookingID string, p
 	_, _ = s.notificationClient.SendEmail(ctx, &notificationv1.SendEmailRequest{
 		To:      "user@example.com", // In real app, fetch user email from Identity Service
 		Subject: "Booking Confirmed",
-		Body:    fmt.Sprintf("Your booking %s has been confirmed. Total paid: %s", booking.ID, booking.TotalPrice.String()),
+		Body:    fmt.Sprintf("Your booking %s has been confirmed. Total paid: %s", booking.ID, booking.TotalAmount.String()),
 	})
 
 	return "txn_" + booking.ID, nil
+}
+
+// generateOrderNo generates a unique order number
+func generateOrderNo() (string, error) {
+	// Generate order number in format: ORD + timestamp + random hex
+	b := make([]byte, 4)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("ORD%d%s", time.Now().Unix(), hex.EncodeToString(b)), nil
 }
