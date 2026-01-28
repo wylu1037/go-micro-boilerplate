@@ -3,7 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/wylu1037/go-micro-boilerplate/pkg/db"
 	"github.com/wylu1037/go-micro-boilerplate/services/notification/internal/model"
@@ -15,16 +16,21 @@ type NotificationService interface {
 }
 
 type notificationService struct {
-	db *db.Pool
+	db     *db.Pool
+	logger *zap.Logger
 }
 
-func NewNotificationService(db *db.Pool) NotificationService {
-	return &notificationService{db: db}
+func NewNotificationService(db *db.Pool, logger *zap.Logger) NotificationService {
+	return &notificationService{db: db, logger: logger}
 }
 
 func (s *notificationService) SendEmail(ctx context.Context, to, subject, body string) (string, error) {
 	// 1. Log to stdout (Mock Sending)
-	log.Printf("📧 [EMAIL] To: %s | Subject: %s | Body: %s", to, subject, body)
+	s.logger.Info("Sending email",
+		zap.String("to", to),
+		zap.String("subject", subject),
+		zap.String("body", body),
+	)
 
 	// 2. Save log to DB
 	query := `
@@ -50,7 +56,10 @@ func (s *notificationService) SendEmail(ctx context.Context, to, subject, body s
 
 func (s *notificationService) SendSMS(ctx context.Context, phone, message string) (string, error) {
 	// 1. Log to stdout (Mock Sending)
-	log.Printf("📱 [SMS] To: %s | Message: %s", phone, message)
+	s.logger.Info("Sending SMS",
+		zap.String("phone", phone),
+		zap.String("message", message),
+	)
 
 	// 2. Save log to DB
 	query := `
