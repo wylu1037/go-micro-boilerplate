@@ -274,6 +274,12 @@ make docker-build   # Build Docker images
 
 - [x] ~~Integrate OpenTelemetry (OTel) for distributed tracing~~ ✅ Completed
 - [ ] Deploy OTel Collector with Loki exporter
+- [ ] Secrets management for sensitive config (DB passwords, JWT keys, Redis credentials)
+  - Option A: **Environment variables** (current) — inject via CI/CD secrets (GitHub Actions Secrets, etc.), avoid hardcoding in scripts
+  - Option B: **HashiCorp Vault** / **AWS Secrets Manager** / **GCP Secret Manager** — centralized secret storage with dynamic credential rotation
+  - Option C: **SOPS + age/GPG** — encrypt secrets in-repo (`config.yaml` → `config.enc.yaml`), decrypt at deploy time
+  - Option D: **Kubernetes Secrets + External Secrets Operator** — sync cloud provider secrets into K8s pods
+  - Option E: **docker-compose `.env` file** (dev only) — use `env_file` directive, keep `.env` in `.gitignore`
 
 ## License
 
